@@ -11,7 +11,7 @@ De la idea al prototipo: Hito 1
 El equipo está compuesto por cuatro alumnos del Bootcamp:
 
 - **Mickael** – desarrollo frontend con React + JavaScript, maquetación y consumo de API REST.
-- **Ignacio** – desarrollo backend con Java + Spring Boot, diseño de API y lógica de negocio.
+- **Ignacio** – desarrollo backend con Java + Spring Boot, diseño de API.
 - **Cynthia** – coordinación, documentación (Notion, Markdown, .docx), apoyo a pruebas y UX.
 - **Pablo E.** – bases de datos (MySQL), modelo de datos y apoyo a backend.
 
