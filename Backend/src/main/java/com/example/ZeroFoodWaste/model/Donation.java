@@ -49,6 +49,6 @@ public class Donation {
 
     @PreUpdate
     public void preUpdate(){
-        updatedAt = LocalDateTime.now()
+        updatedAt = LocalDateTime.now();
     }
 }
