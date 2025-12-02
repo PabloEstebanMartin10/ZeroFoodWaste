@@ -3,7 +3,6 @@ package com.example.ZeroFoodWaste.service;
 import com.example.ZeroFoodWaste.model.User;
 import com.example.ZeroFoodWaste.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 
 import java.util.NoSuchElementException;
@@ -19,7 +18,7 @@ public class UserService {
     }
 
     public User LoginUser(String email, String passwordHash) {
-        return userRepository.findByEmailPasswordHash(email, passwordHash).orElseThrow(
+        return userRepository.findByEmailAndPasswordHash(email, passwordHash).orElseThrow(
                 () -> new NoSuchElementException("Invalid user or password "));
     }
 
