@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "DonationAssignments")
 public class DonationAssignment {
 
     @Id

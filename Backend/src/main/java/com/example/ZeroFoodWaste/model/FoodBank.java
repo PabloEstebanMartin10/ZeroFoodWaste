@@ -11,6 +11,7 @@ import java.util.List;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "FoodBanks")
 public class FoodBank {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
