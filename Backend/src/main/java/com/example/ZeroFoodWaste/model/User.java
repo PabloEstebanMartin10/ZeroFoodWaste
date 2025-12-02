@@ -28,4 +28,7 @@ public class User {
 
     @OneToOne(mappedBy = "user")
     private Establishment establishment;
+
+    @OneToOne(mappedBy = "user")
+    private FoodBank foodBank;
 }
