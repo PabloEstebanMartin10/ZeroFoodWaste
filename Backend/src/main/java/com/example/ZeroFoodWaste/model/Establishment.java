@@ -38,4 +38,6 @@ public class Establishment {
 
     @OneToMany(mappedBy = "establishment")
     private List<Donation> donations;
+
+
 }
