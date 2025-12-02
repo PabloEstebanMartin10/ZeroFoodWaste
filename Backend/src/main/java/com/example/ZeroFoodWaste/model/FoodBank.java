@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @Entity
 @NoArgsConstructor
@@ -30,4 +32,6 @@ public class FoodBank {
     @Column(nullable = false)
     private String coverageArea;
 
+    @OneToMany(mappedBy = "foodBank")
+    private List<DonationAssignment> assignments;
 }
