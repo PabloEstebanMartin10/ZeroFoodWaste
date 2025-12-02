@@ -5,6 +5,9 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.catalina.LifecycleState;
+
+import java.util.List;
 
 @Data
 @Entity
@@ -31,4 +34,7 @@ public class Establishment {
 
     @Column(nullable = false)
     private String openingHours;
+
+    @OneToMany(mappedBy = "establishment")
+    private List<Donation> donations;
 }
