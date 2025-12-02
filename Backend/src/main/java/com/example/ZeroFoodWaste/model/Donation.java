@@ -41,6 +41,9 @@ public class Donation {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
+    @OneToOne(mappedBy = "donation")
+    private DonationAssignment assignment;
+
     @PrePersist
     public void prePersist(){
         createdAt = LocalDateTime.now();
