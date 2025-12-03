@@ -31,6 +31,11 @@ public class DonationAssignment {
 
     private LocalDateTime pickedUpAt;
 
+    public DonationAssignment(Donation donation, FoodBank foodBank) {
+        this.donation = donation;
+        this.foodBank = foodBank;
+    }
+
     @PrePersist
     public void prePersist(){
         acceptedAt = LocalDateTime.now();
