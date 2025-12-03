@@ -6,6 +6,7 @@ import Login from "./pages/login/Login";
 import Register from "./pages/register/Register";
 import DashboardComercio from "./pages/dashboardComercio/DashboardComercio";
 import DashboardBanco from "./pages/dashboardBanco/DashboardBanco";
+import ProfileComercio from "./pages/profileComercio/ProfileComercio";
 
 const router = createBrowserRouter([
   {
@@ -18,6 +19,7 @@ const router = createBrowserRouter([
       { path: "registro", element: <Register /> },
       { path: "comercio", element: <DashboardComercio /> },
       { path: "banco", element: <DashboardBanco /> },
+      { path: "perfil-comercio", element: <ProfileComercio /> },
     ],
   },
 ]);
