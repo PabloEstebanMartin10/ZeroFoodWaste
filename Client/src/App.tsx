@@ -6,6 +6,7 @@ import Login from "./pages/login/Login";
 import Register from "./pages/register/Register";
 import DashboardComercio from "./pages/dashboardComercio/DashboardComercio";
 import DashboardBanco from "./pages/dashboardBanco/DashboardBanco";
+import { AuthProvider } from "./context/AuthProvider";
 
 const router = createBrowserRouter([
   {
@@ -22,5 +23,9 @@ const router = createBrowserRouter([
   },
 ]);
 export default function App() {
-  return <RouterProvider router={router} />;
+  return (
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
+  );
 }
