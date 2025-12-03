@@ -33,12 +33,12 @@ public class DonationService {
     }
 
     //todo pasar a dto y mapper
-    public Donation createDonation(Long establishmentId, String productName, String quantity, LocalDateTime expirationDate, String status) {
+    public Donation createDonation(Long establishmentId, String productName,String description, String quantity, LocalDateTime expirationDate, String status) {
         Establishment establishment = establishmentRepository.findById(establishmentId).orElseThrow(
                 () -> new NoSuchElementException("Couldn't find the Establishment")
         );
         DonationStatus donationStatus = DonationStatus.valueOf(status.trim().toUpperCase());
-        Donation donation = new Donation(establishment, productName, quantity, expirationDate, donationStatus);
+        Donation donation = new Donation(establishment,description, productName, quantity, expirationDate, donationStatus);
         return donationRepository.save(donation);
     }
 
@@ -49,7 +49,7 @@ public class DonationService {
     }
 
     //todo pasar a dto
-    public Donation modifyDonation(Long id, Long establishmentId, String productName, String quantity, LocalDateTime expirationDate, String status) {
+    public Donation modifyDonation(Long id, Long establishmentId, String productName,String description, String quantity, LocalDateTime expirationDate, String status) {
         Donation modifyDonation = donationRepository.findById(id).orElseThrow(
                 () -> new NoSuchElementException("Couldn't find the Donation")
         );
@@ -58,7 +58,7 @@ public class DonationService {
                     () -> new NoSuchElementException("Couldn't find the Establishment")
             );
             DonationStatus donationStatus = DonationStatus.valueOf(status.trim().toUpperCase());
-            Donation modifierDonation = new Donation(est, productName, quantity, expirationDate, donationStatus);
+            Donation modifierDonation = new Donation(est, productName,description, quantity, expirationDate, donationStatus);
             BeanUtils.copyProperties(modifierDonation, modifyDonation, "id", "establishment", "createdAt", "updatedAt", "Assignment");
             return donationRepository.save(modifyDonation);
         } else {
