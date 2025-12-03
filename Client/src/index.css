@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+@theme {
+    --color-home-titleBg: oklch(#EEFDF6);
+}
+
 * {
   box-sizing: border-box;
   margin: 0;

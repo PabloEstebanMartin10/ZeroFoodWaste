@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from "react";
-import "./errorPage.css";
+//import "./errorPage.css";
 
 export const ErrorPage = () : ReactNode => {
   return(
