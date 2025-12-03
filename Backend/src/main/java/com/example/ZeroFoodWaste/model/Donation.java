@@ -45,6 +45,14 @@ public class Donation {
     @OneToOne(mappedBy = "donation")
     private DonationAssignment assignment;
 
+    public Donation(Establishment establishment, String productName, String quantity, LocalDateTime expirationDate, DonationStatus status) {
+        this.establishment = establishment;
+        this.productName = productName;
+        this.quantity = quantity;
+        this.expirationDate = expirationDate;
+        this.status = status;
+    }
+
     @PrePersist
     public void prePersist(){
         createdAt = LocalDateTime.now();
