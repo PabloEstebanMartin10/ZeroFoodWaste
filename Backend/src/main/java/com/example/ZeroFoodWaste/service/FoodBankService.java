@@ -1,3 +1,5 @@
+//region imports
+
 package com.example.ZeroFoodWaste.service;
 
 import com.example.ZeroFoodWaste.model.FoodBank;
@@ -8,15 +10,28 @@ import org.springframework.stereotype.Service;
 
 import java.util.NoSuchElementException;
 
+//endregion
+
 @Service
 @RequiredArgsConstructor
 public class FoodBankService {
     private final FoodBankRepository foodBankRepository;
 
+    //region get
+
+    /**
+     * gets the food bank
+     * @param userId
+     * @return
+     */
     public FoodBank getFoodBank(Long userId){
         return foodBankRepository.findByUserId(userId).orElseThrow(
                 ()->new NoSuchElementException("Couldn't find the food bank"));
     }
+
+    //endregion
+
+    //region put/patch
 
     public FoodBank modifyFoodBank(FoodBank fb){
         FoodBank foodBank = foodBankRepository.findById(fb.getId()).orElseThrow(
@@ -24,5 +39,7 @@ public class FoodBankService {
         BeanUtils.copyProperties(fb,foodBank,"id","user", "assignments");
         return foodBankRepository.save(foodBank);
     }
+
+    //endregion
 
 }
