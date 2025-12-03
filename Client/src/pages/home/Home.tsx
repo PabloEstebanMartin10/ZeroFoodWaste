@@ -1,4 +1,8 @@
 import type { ReactElement, ReactNode } from "react";
+import MickaelImg from "../../assets/homePictures/Mickael.jpg";
+import CynthiaImg from "../../assets/homePictures/Cynthia.jpg";
+import IgnacioImg from "../../assets/homePictures/Ignacio.jpg";
+import PabloImg from "../../assets/homePictures/Pablo.jpg";
 
 export const Home = () : ReactNode => {
   return (
@@ -111,11 +115,74 @@ export const Home = () : ReactNode => {
         </div>
       </section>
 
-      <section className="container mx-auto">
-        <h3 className="text-center text-3xl font-bold mb-4">
+      <section className="container mx-auto bg-gray-100">
+        <h3 className="text-center text-3xl font-bold mb-4 ">
           El Equipo
         </h3>
+        <p className="text-center text-lg px-8">Somos un grupo apasionado dedicado a reducir el desperdicio de alimentos y la inseguridad alimentaria mediante la tecnología y la comunidad.</p>
       </section>
+
+      <div className="container mx-auto flex flex-wrap xl:flex-nowrap bg-gray-100">
+          <div className="w-full sm:w-1/2 md:w-1/4 bg-white rounded-lg shadow-sm border-solid border-gray-400 border-2 py-8 m-6 flex flex-col items-center text-center">
+            <div className="w-28 h-28 rounded-full overflow-hidden mb-4">
+              <img
+                src={CynthiaImg}
+                alt="Ana García"
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <h3 className="text-lg font-medium text-gray-900">Cynthia</h3>
+            <p className="text-sm mt-1">Desarrolladora Front-end</p>
+            <p className="text-sm text-gray-600 mt-3 px-2">
+              desarrollo frontend con React + JavaScript, maquetación y consumo de API REST
+            </p>
+          </div>
+
+          <div className="w-full sm:w-1/2 md:w-1/4 bg-white rounded-lg shadow-sm border-solid border-gray-400 border-2 py-8 m-6 flex flex-col items-center text-center">
+            <div className="w-28 h-28 rounded-full overflow-hidden mb-4">
+              <img
+                src={IgnacioImg}
+                alt="Miguel López"
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <h3 className="text-lg font-medium text-gray-900">Ignacio</h3>
+            <p className="text-sm mt-1">Desarrollador Front-end, Coordinador</p>
+            <p className="text-sm text-gray-600 mt-3 px-2">
+              Coordinación, documentación, React + JavaScript, maquetación y consumo de API REST 
+            </p>
+          </div>
+
+          <div className="w-full sm:w-1/2 md:w-1/4 bg-white rounded-lg shadow-sm border-solid border-gray-400 border-2 py-8 m-6 flex flex-col items-center text-center">
+            <div className="w-28 h-28 rounded-full overflow-hidden mb-4">
+              <img
+                src={PabloImg}
+                alt="Sofía Ruiz"
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <h3 className="text-lg font-medium text-gray-900">Pablo E</h3>
+            <p className="text-sm mt-1">Desarrollador Backend</p>
+            <p className="text-sm text-gray-600 mt-3 px-2">
+              desarrollo backend con Java + Spring Boot, diseño de API.
+            </p>
+          </div>
+
+          <div className="w-full sm:w-1/2 md:w-1/4 bg-white rounded-lg shadow-sm border-solid border-gray-400 border-2 py-8 m-6 flex flex-col items-center text-center">
+            <div className="w-28 h-28 rounded-full overflow-hidden mb-4">
+              <img
+                src={MickaelImg}
+                alt="Mickael Bruzzi"
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <h3 className="text-lg font-medium text-gray-900">Mickael</h3>
+            <p className="ext-sm mt-1">Desarrollador Full-stack</p>
+            <p className="text-sm text-gray-600 mt-3 px-2">
+              Desarrollo frontend con React + JavaScript, bases de datos (MySQL), modelo de datos y apoyo a backend.
+            </p>
+          </div>
+        </div>
     </>
   )
 }
