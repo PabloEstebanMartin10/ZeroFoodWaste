@@ -4,6 +4,7 @@ import { Home } from "./pages/home/Home";
 import { ErrorPage } from "./pages/errorPage/ErrorPage";
 import Login from "./pages/login/Login";
 import Register from "./pages/register/Register";
+import DashboardComercio from "./pages/dashboardComercio/DashboardComercio";
 
 const router = createBrowserRouter([
   {
@@ -14,6 +15,7 @@ const router = createBrowserRouter([
       { index: true, element: <Home /> },
       { path: "login", element: <Login /> },
       { path: "registro", element: <Register /> },
+      { path: "comercio", element: <DashboardComercio /> },
     ],
   },
 ]);
