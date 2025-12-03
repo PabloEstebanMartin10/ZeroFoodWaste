@@ -5,6 +5,7 @@ import { ErrorPage } from "./pages/errorPage/ErrorPage";
 import Login from "./pages/login/Login";
 import Register from "./pages/register/Register";
 import DashboardComercio from "./pages/dashboardComercio/DashboardComercio";
+import DashboardBanco from "./pages/dashboardBanco/DashboardBanco";
 
 const router = createBrowserRouter([
   {
@@ -16,6 +17,7 @@ const router = createBrowserRouter([
       { path: "login", element: <Login /> },
       { path: "registro", element: <Register /> },
       { path: "comercio", element: <DashboardComercio /> },
+      { path: "banco", element: <DashboardBanco /> },
     ],
   },
 ]);
