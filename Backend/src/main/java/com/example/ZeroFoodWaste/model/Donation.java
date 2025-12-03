@@ -25,6 +25,8 @@ public class Donation {
     @Column(nullable = false)
     private String productName;
 
+    private String description;
+
     @Column(nullable = false)
     private String quantity;
 
@@ -45,9 +47,10 @@ public class Donation {
     @OneToOne(mappedBy = "donation")
     private DonationAssignment assignment;
 
-    public Donation(Establishment establishment, String productName, String quantity, LocalDateTime expirationDate, DonationStatus status) {
+    public Donation(Establishment establishment, String productName, String description, String quantity, LocalDateTime expirationDate, DonationStatus status) {
         this.establishment = establishment;
         this.productName = productName;
+        this.description = description;
         this.quantity = quantity;
         this.expirationDate = expirationDate;
         this.status = status;
