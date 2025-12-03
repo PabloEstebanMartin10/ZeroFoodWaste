@@ -1,8 +1,8 @@
 package com.example.ZeroFoodWaste.model.enums;
 
 public enum DonationStatus {
-    Pending,
-    Accepted,
-    PickedUp,
-    Available
+    PENDING,
+    ACCEPTED,
+    PICKED_UP,
+    AVAILABLE
 }
