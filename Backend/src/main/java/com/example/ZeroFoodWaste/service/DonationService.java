@@ -25,12 +25,17 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class DonationService {
     /* todos
-    todo 1 dtos en general y mapeo pero en especial los que tienen su comentario propio
-    todo 2 metodo de busqueda con throw para no tener que repetir y que reciba la excepción que debe lanzar
-    todo 3 hacer las excepciones mas especificas a mano como por ejemplo: DonationNotFoundException
-    todo 4 evitar devolver entidades
-    todo 5 añadir @transactional a los metodos
-     */
+    todo 1 crear DTOs para creación, modificación y respuesta (DonationDTO, CreateDonationDTO, UpdateDonationDTO)
+    todo 2 implementar un mapper (MapStruct) para evitar BeanUtils y construir entidades correctamente
+    todo 3 factorizar un método genérico findOrThrow(id, exception) para Donation, Establishment y FoodBank
+    todo 4 crear excepciones específicas (DonationNotFoundException, EstablishmentNotFoundException,
+            FoodBankNotFoundException, DonationPermissionException, AssignmentNotFoundException)
+    todo 5 evitar devolver entidades JPA directamente → devolver DTOs en todos los métodos públicos
+    todo 6 añadir @Transactional a métodos que modifican BD (create, modify, delete, accept, pickUp)
+    todo 7 refactorizar modifyDonation para no crear una entidad nueva, usar DTO y mapper
+    todo 8 validar parámetros de entrada con javax.validation y @Valid (especialmente fechas, status y quantities)
+    todo 9 revisar integridad referencial en DonationAssignment (evitar duplicados o inconsistencias)
+    */
 
     //region repositories
     private final DonationRepository donationRepository;
