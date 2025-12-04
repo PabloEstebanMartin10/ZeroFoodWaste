@@ -2,12 +2,14 @@
 package com.example.ZeroFoodWaste.service;
 
 import com.example.ZeroFoodWaste.model.dto.D_A_FB_DTO;
+import com.example.ZeroFoodWaste.model.dto.NewDonationDTO;
 import com.example.ZeroFoodWaste.model.entity.Donation;
 import com.example.ZeroFoodWaste.model.entity.DonationAssignment;
 import com.example.ZeroFoodWaste.model.entity.Establishment;
 import com.example.ZeroFoodWaste.model.entity.FoodBank;
 import com.example.ZeroFoodWaste.model.enums.DonationStatus;
 import com.example.ZeroFoodWaste.model.mapper.D_A_FBMapper;
+import com.example.ZeroFoodWaste.model.mapper.NewDonationMapper;
 import com.example.ZeroFoodWaste.repository.DonationAssignmentRepository;
 import com.example.ZeroFoodWaste.repository.DonationRepository;
 import com.example.ZeroFoodWaste.repository.EstablishmentRepository;
@@ -46,7 +48,10 @@ public class DonationService {
     private final DonationAssignmentRepository assignmentRepository;
     //endregion
 
-    private final D_A_FBMapper mapper;
+    //region mappers
+    private final D_A_FBMapper dAFbMapper;
+    private final NewDonationMapper newDonationMapper;
+    //endregion
 
     //region get
 
@@ -70,7 +75,7 @@ public class DonationService {
      */
     public List<D_A_FB_DTO> getDonationsByEstablishment(Long establishmentId){
         List<Donation> donations = donationRepository.findAllByEstablishmentId(establishmentId);
-        return mapper.toDTOList(donations);
+        return dAFbMapper.toDTOList(donations);
     }
 
     /**
@@ -90,23 +95,13 @@ public class DonationService {
     //region post
 
     /**
-     * todo pasar a dto y mapper
-     *  Creates a donation and save in the DB
+     * receives a new donation dto, map it to a donation entity and then retrieves the donation if saved
      *
-     * @param establishmentId transforms into {@link Establishment} establishment that created the donation
-     * @param productName     String with the name of the product
-     * @param description     String with a description of the product(optional)
-     * @param quantity        String that specifies quantity and uds,kg, etc.
-     * @param expirationDate  LocalDateTime that specifies the expiration date
-     * @param status          transforms into {@link DonationStatus} to select the status of the donation
-     * @return Donation that has been created
+     * @param dto dto the DTO containing the donation data to be saved
+     * @return the saved {@link Donation} entity with updated fields (id, createdAt, etc.)
      */
-    public Donation createDonation(Long establishmentId, String productName, String description, String quantity, LocalDateTime expirationDate, String status) {
-        Establishment establishment = establishmentRepository.findById(establishmentId).orElseThrow(
-                () -> new NoSuchElementException("Couldn't find the Establishment")
-        );
-        DonationStatus donationStatus = DonationStatus.valueOf(status.trim().toUpperCase());
-        Donation donation = new Donation(establishment, description, productName, quantity, expirationDate, donationStatus);
+    public Donation createDonation(NewDonationDTO dto) {
+        Donation donation = newDonationMapper.toEntity(dto);
         return donationRepository.save(donation);
     }
     //endregion
