@@ -1,11 +1,13 @@
 //region imports
 package com.example.ZeroFoodWaste.service;
 
+import com.example.ZeroFoodWaste.model.dto.D_A_FB_DTO;
 import com.example.ZeroFoodWaste.model.entity.Donation;
 import com.example.ZeroFoodWaste.model.entity.DonationAssignment;
 import com.example.ZeroFoodWaste.model.entity.Establishment;
 import com.example.ZeroFoodWaste.model.entity.FoodBank;
 import com.example.ZeroFoodWaste.model.enums.DonationStatus;
+import com.example.ZeroFoodWaste.model.mapper.D_A_FBMapper;
 import com.example.ZeroFoodWaste.repository.DonationAssignmentRepository;
 import com.example.ZeroFoodWaste.repository.DonationRepository;
 import com.example.ZeroFoodWaste.repository.EstablishmentRepository;
@@ -44,6 +46,8 @@ public class DonationService {
     private final DonationAssignmentRepository assignmentRepository;
     //endregion
 
+    private final D_A_FBMapper mapper;
+
     //region get
 
     /**
@@ -53,9 +57,20 @@ public class DonationService {
      *                  transforms into {@link DonationStatus}
      * @return List<Donation> returns all donations with the status specified
      */
-    public List<Donation> getDonations(String statusStr) {
+    public List<Donation> getDonationsByStatus(String statusStr) {
         DonationStatus status = DonationStatus.valueOf(statusStr.trim().toUpperCase());
         return donationRepository.findByStatus(status);
+    }
+
+    /**
+     * receives an establishment id and search all the donations from that establishment
+     *
+     * @param establishmentId used to search the donations
+     * @return a list of donations dto
+     */
+    public List<D_A_FB_DTO> getDonationsByEstablishment(Long establishmentId){
+        List<Donation> donations = donationRepository.findAllByEstablishmentId(establishmentId);
+        return mapper.toDTOList(donations);
     }
 
     /**
