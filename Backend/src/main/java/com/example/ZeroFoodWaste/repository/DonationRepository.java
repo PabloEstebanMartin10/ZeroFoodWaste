@@ -8,4 +8,5 @@ import java.util.List;
 
 public interface DonationRepository extends JpaRepository<Donation,Long> {
   List<Donation> findByStatus(DonationStatus status);
+  List<Donation> findAllByEstablishmentId(Long establishmentId);
 }
