@@ -1,4 +1,4 @@
-package com.example.ZeroFoodWaste.model;
+package com.example.ZeroFoodWaste.model.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

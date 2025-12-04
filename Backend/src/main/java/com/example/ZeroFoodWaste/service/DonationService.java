@@ -1,10 +1,10 @@
 //region imports
 package com.example.ZeroFoodWaste.service;
 
-import com.example.ZeroFoodWaste.model.Donation;
-import com.example.ZeroFoodWaste.model.DonationAssignment;
-import com.example.ZeroFoodWaste.model.Establishment;
-import com.example.ZeroFoodWaste.model.FoodBank;
+import com.example.ZeroFoodWaste.model.entity.Donation;
+import com.example.ZeroFoodWaste.model.entity.DonationAssignment;
+import com.example.ZeroFoodWaste.model.entity.Establishment;
+import com.example.ZeroFoodWaste.model.entity.FoodBank;
 import com.example.ZeroFoodWaste.model.enums.DonationStatus;
 import com.example.ZeroFoodWaste.repository.DonationAssignmentRepository;
 import com.example.ZeroFoodWaste.repository.DonationRepository;

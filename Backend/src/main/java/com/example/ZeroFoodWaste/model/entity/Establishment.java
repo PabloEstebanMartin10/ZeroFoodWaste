@@ -1,11 +1,9 @@
-package com.example.ZeroFoodWaste.model;
+package com.example.ZeroFoodWaste.model.entity;
 
-import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.catalina.LifecycleState;
 
 import java.util.List;
 

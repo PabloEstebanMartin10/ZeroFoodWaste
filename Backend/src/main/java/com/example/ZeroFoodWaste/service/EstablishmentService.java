@@ -2,7 +2,7 @@
 
 package com.example.ZeroFoodWaste.service;
 
-import com.example.ZeroFoodWaste.model.Establishment;
+import com.example.ZeroFoodWaste.model.entity.Establishment;
 import com.example.ZeroFoodWaste.repository.EstablishmentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;

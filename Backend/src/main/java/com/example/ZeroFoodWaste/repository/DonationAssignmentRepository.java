@@ -1,6 +1,6 @@
 package com.example.ZeroFoodWaste.repository;
 
-import com.example.ZeroFoodWaste.model.DonationAssignment;
+import com.example.ZeroFoodWaste.model.entity.DonationAssignment;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
