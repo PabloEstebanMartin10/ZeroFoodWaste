@@ -20,9 +20,11 @@ public class FoodBankService {
     //region get
 
     /**
-     * gets the food bank
-     * @param userId
-     * @return
+     * search and retrieves a food bank by its id
+     *
+     * @param userId the id of the food bank
+     * @return retrieves the food bank if found
+     * @throws NoSuchElementException if cant find the food bank
      */
     public FoodBank getFoodBank(Long userId){
         return foodBankRepository.findByUserId(userId).orElseThrow(
@@ -33,6 +35,13 @@ public class FoodBankService {
 
     //region put/patch
 
+    /**
+     * receives a food bank, search it on the database and modify the properties, then save on DB
+     *
+     * @param fb is the object with the  properties modified
+     * @return the food bank after modification
+     * @throws  NoSuchElementException if cant find the food bank
+     */
     public FoodBank modifyFoodBank(FoodBank fb){
         FoodBank foodBank = foodBankRepository.findById(fb.getId()).orElseThrow(
                 ()->new NoSuchElementException("Couldn't find the food bank"));
