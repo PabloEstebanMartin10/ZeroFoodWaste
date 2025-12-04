@@ -15,6 +15,13 @@ import java.util.NoSuchElementException;
 @Service
 @RequiredArgsConstructor
 public class FoodBankService {
+/* todos
+    todo 1 añadir @transactional
+    todo 2 excepciones personalizadas
+    todo 3 dtos para no usar entities
+    todo 4 cambiar el mapper de beanUtils
+     */
+
     private final FoodBankRepository foodBankRepository;
 
     //region get
