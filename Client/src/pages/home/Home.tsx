@@ -4,15 +4,17 @@ import CynthiaImg from "../../assets/homePictures/Cynthia.jpg";
 import IgnacioImg from "../../assets/homePictures/Ignacio.jpg";
 import PabloImg from "../../assets/homePictures/Pablo.jpg";
 
-export const Home = () : ReactNode => {
+export const Home = (): ReactNode => {
   return (
     <>
-      <section className="min-h-80 py-20 px-8 md:px-40 lg:px-80 bg-green-100">
+      <section className="min-h-80 py-20 px-8 md:px-40 lg:px-80 bg-amber-50">
         <h1 className="text-center font-bold text-5xl mb-4">
           Convertir el desperdicio de alimentos en seguridad alimentaria
         </h1>
         <p className="text-center text-xl lg:px-12">
-          Conectamos restaurantes con excedentes de comida con bancos de alimentos que sirven a comunidades necesitadas. Juntos, estamos reduciendo el desperdicio y combatiendo el hambre.
+          Conectamos restaurantes con excedentes de comida con bancos de
+          alimentos que sirven a comunidades necesitadas. Juntos, estamos
+          reduciendo el desperdicio y combatiendo el hambre.
         </p>
       </section>
       <section className="container mx-auto pt-8">
@@ -20,7 +22,8 @@ export const Home = () : ReactNode => {
           Como Funciona ZeroFoodWaste
         </h2>
         <p className="text-center text-lg px-8">
-          Una plataforma sencilla que crea conexiones significativas entre donadores de alimentos y quienes más los necesitan.
+          Una plataforma sencilla que crea conexiones significativas entre
+          donadores de alimentos y quienes más los necesitan.
         </p>
       </section>
 
@@ -47,7 +50,8 @@ export const Home = () : ReactNode => {
             Restaurantes Publican Comida
           </h3>
           <p className="text-gray-600 text-center">
-            Los restaurantes publican excedentes de comida disponibles con horarios y cantidades para recoger.
+            Los restaurantes publican excedentes de comida disponibles con
+            horarios y cantidades para recoger.
           </p>
         </article>
 
@@ -73,7 +77,8 @@ export const Home = () : ReactNode => {
             Bancos de Alimentos Conectan
           </h3>
           <p className="text-gray-600 text-center">
-            Los bancos de alimentos revisan las donaciones disponibles y coordinan la recolección directamente con los restaurantes.
+            Los bancos de alimentos revisan las donaciones disponibles y
+            coordinan la recolección directamente con los restaurantes.
           </p>
         </article>
 
@@ -99,7 +104,8 @@ export const Home = () : ReactNode => {
             Crece el Impacto
           </h3>
           <p className="text-gray-600 text-center">
-            Cada donación reduce el desperdicio, alimenta comunidades y construye un futuro más sostenible.
+            Cada donación reduce el desperdicio, alimenta comunidades y
+            construye un futuro más sostenible.
           </p>
         </article>
       </div>
@@ -108,81 +114,94 @@ export const Home = () : ReactNode => {
         <h3 className="text-2xl text-center font-semibold text-white">
           Únete a nuestra misión
         </h3>
-        <p className="text-lg text-center text-white mt-6">Ya sea que seas un restaurante que busca reducir el desperdicio o un banco de alimentos que necesita donaciones confiables, WeFoodWaste facilita marcar la diferencia.</p>
+        <p className="text-lg text-center text-white mt-6">
+          Ya sea que seas un restaurante que busca reducir el desperdicio o un
+          banco de alimentos que necesita donaciones confiables, WeFoodWaste
+          facilita marcar la diferencia.
+        </p>
         <div className="flex gap-4 mt-6">
-          <button className="text-white bg-orange-500 rounded h-12 w-52 hover:ring-2 ring-orange-700">Para restaurantes</button>
-          <button className="text-green-800 bg-white rounded h-12 w-52 hover:ring-2 ring-white">Para Bancos alimenticios</button>
+          <button className="text-white bg-orange-500 rounded h-12 w-52 hover:ring-2 ring-orange-700">
+            Para restaurantes
+          </button>
+          <button className="text-green-800 bg-white rounded h-12 w-52 hover:ring-2 ring-white">
+            Para Bancos alimenticios
+          </button>
         </div>
       </section>
 
       <section className="container mx-auto bg-gray-100">
-        <h3 className="text-center text-3xl font-bold mb-4 ">
-          El Equipo
-        </h3>
-        <p className="text-center text-lg px-8">Somos un grupo apasionado dedicado a reducir el desperdicio de alimentos y la inseguridad alimentaria mediante la tecnología y la comunidad.</p>
+        <h3 className="text-center text-3xl font-bold mb-4 pt-4 ">El Equipo</h3>
+        <p className="text-center text-lg px-8">
+          Somos un grupo apasionado dedicado a reducir el desperdicio de
+          alimentos y la inseguridad alimentaria mediante la tecnología y la
+          comunidad.
+        </p>
       </section>
 
       <div className="container mx-auto flex flex-wrap xl:flex-nowrap bg-gray-100">
-          <div className="w-full sm:w-1/2 md:w-1/4 bg-white rounded-lg shadow-sm border-solid border-gray-400 border-2 py-8 m-6 flex flex-col items-center text-center">
-            <div className="w-28 h-28 rounded-full overflow-hidden mb-4">
-              <img
-                src={CynthiaImg}
-                alt="Ana García"
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <h3 className="text-lg font-medium text-gray-900">Cynthia</h3>
-            <p className="text-sm mt-1">Desarrolladora Front-end</p>
-            <p className="text-sm text-gray-600 mt-3 px-2">
-              desarrollo frontend con React + JavaScript, maquetación y consumo de API REST
-            </p>
+        <div className="w-full sm:w-1/2 md:w-1/4 bg-white rounded-lg shadow-sm border-solid border-gray-400 border-2 py-8 m-6 flex flex-col items-center text-center">
+          <div className="w-28 h-28 rounded-full overflow-hidden mb-4">
+            <img
+              src={CynthiaImg}
+              alt="Cynthia"
+              className="w-full h-full object-cover"
+            />
           </div>
-
-          <div className="w-full sm:w-1/2 md:w-1/4 bg-white rounded-lg shadow-sm border-solid border-gray-400 border-2 py-8 m-6 flex flex-col items-center text-center">
-            <div className="w-28 h-28 rounded-full overflow-hidden mb-4">
-              <img
-                src={IgnacioImg}
-                alt="Miguel López"
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <h3 className="text-lg font-medium text-gray-900">Ignacio</h3>
-            <p className="text-sm mt-1">Desarrollador Front-end, Coordinador</p>
-            <p className="text-sm text-gray-600 mt-3 px-2">
-              Coordinación, documentación, React + JavaScript, maquetación y consumo de API REST 
-            </p>
-          </div>
-
-          <div className="w-full sm:w-1/2 md:w-1/4 bg-white rounded-lg shadow-sm border-solid border-gray-400 border-2 py-8 m-6 flex flex-col items-center text-center">
-            <div className="w-28 h-28 rounded-full overflow-hidden mb-4">
-              <img
-                src={PabloImg}
-                alt="Sofía Ruiz"
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <h3 className="text-lg font-medium text-gray-900">Pablo E</h3>
-            <p className="text-sm mt-1">Desarrollador Backend</p>
-            <p className="text-sm text-gray-600 mt-3 px-2">
-              desarrollo backend con Java + Spring Boot, diseño de API.
-            </p>
-          </div>
-
-          <div className="w-full sm:w-1/2 md:w-1/4 bg-white rounded-lg shadow-sm border-solid border-gray-400 border-2 py-8 m-6 flex flex-col items-center text-center">
-            <div className="w-28 h-28 rounded-full overflow-hidden mb-4">
-              <img
-                src={MickaelImg}
-                alt="Mickael Bruzzi"
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <h3 className="text-lg font-medium text-gray-900">Mickael</h3>
-            <p className="ext-sm mt-1">Desarrollador Full-stack</p>
-            <p className="text-sm text-gray-600 mt-3 px-2">
-              Desarrollo frontend con React + JavaScript, bases de datos (MySQL), modelo de datos y apoyo a backend.
-            </p>
-          </div>
+          <h3 className="text-lg font-medium text-gray-900">Cynthia</h3>
+          <p className="text-sm mt-1">Desarrolladora Front-end</p>
+          <p className="text-sm text-gray-600 mt-3 px-2">
+            desarrollo frontend con React + JavaScript, maquetación y consumo de
+            API REST
+          </p>
         </div>
+
+        <div className="w-full sm:w-1/2 md:w-1/4 bg-white rounded-lg shadow-sm border-solid border-gray-400 border-2 py-8 m-6 flex flex-col items-center text-center">
+          <div className="w-28 h-28 rounded-full overflow-hidden mb-4">
+            <img
+              src={IgnacioImg}
+              alt="Ignacio"
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <h3 className="text-lg font-medium text-gray-900">Ignacio</h3>
+          <p className="text-sm mt-1">Desarrollador Front-end, Coordinador</p>
+          <p className="text-sm text-gray-600 mt-3 px-2">
+            Coordinación, documentación, React + JavaScript, maquetación y
+            consumo de API REST
+          </p>
+        </div>
+
+        <div className="w-full sm:w-1/2 md:w-1/4 bg-white rounded-lg shadow-sm border-solid border-gray-400 border-2 py-8 m-6 flex flex-col items-center text-center">
+          <div className="w-28 h-28 rounded-full overflow-hidden mb-4">
+            <img
+              src={PabloImg}
+              alt="Pablo"
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <h3 className="text-lg font-medium text-gray-900">Pablo E</h3>
+          <p className="text-sm mt-1">Desarrollador Backend</p>
+          <p className="text-sm text-gray-600 mt-3 px-2">
+            desarrollo backend con Java + Spring Boot, diseño de API.
+          </p>
+        </div>
+
+        <div className="w-full sm:w-1/2 md:w-1/4 bg-white rounded-lg shadow-sm border-solid border-gray-400 border-2 py-8 m-6 flex flex-col items-center text-center">
+          <div className="w-28 h-28 rounded-full overflow-hidden mb-4">
+            <img
+              src={MickaelImg}
+              alt="Mickael Bruzzi"
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <h3 className="text-lg font-medium text-gray-900">Mickael</h3>
+          <p className="ext-sm mt-1">Desarrollador Full-stack</p>
+          <p className="text-sm text-gray-600 mt-3 px-2">
+            Desarrollo frontend con React + JavaScript, bases de datos (MySQL),
+            modelo de datos y apoyo a backend.
+          </p>
+        </div>
+      </div>
     </>
-  )
-}
+  );
+};

@@ -1,37 +1,36 @@
 import { createContext, useEffect, useState, type ReactNode } from "react";
+import { useFetchUser } from "../hooks/useFetchUser/useFetchUser";
+import type { userInfo } from "../types/user/userInfo";
 
-export interface AuthContextType {
-  user: any;
-  login: (data: any) => void;
-  logout: () => void;
-}
 
-export const AuthContext = createContext<AuthContextType | null>(null);
+export const AuthContext = createContext<unknown | null>(null);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<userInfo | null>(null);
   const [token, setToken] = useState<string>();
-
+  const {fetchUserFunction, error} = useFetchUser()
 
   useEffect(() => {
-    const stored = localStorage.getItem("user");
-    if (stored){
-      setUser(JSON.parse(stored));
+    const fetchUser = async (token: string)  =>{
+      const userResult = await fetchUserFunction(token);
+      if (!error){
+        setUser(userResult);
+      } else {
+        console.log(error);
+        setUser(null);
+      } 
+    }
+    const tokenLocal = localStorage.getItem("token");
+    if(tokenLocal){
+      fetchUser(tokenLocal)
+      setToken(tokenLocal)
+    }else {
+      setUser(null); 
     } 
   }, []);
 
-  const login = (data: any) => {
-    setUser(data);
-    localStorage.setItem("user", JSON.stringify(data));
-  };
-
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem("user");
-  };
-
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user }}>
       {children}
     </AuthContext.Provider>
   );
