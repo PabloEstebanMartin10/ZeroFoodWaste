@@ -161,7 +161,7 @@ public class DonationService {
         );
         DonationAssignment assignment = new DonationAssignment(donation, foodBank);
         assignmentRepository.save(assignment);
-        donation.setStatus(DonationStatus.ACCEPTED);
+        donation.setStatus(DonationStatus.RESERVED);
         return donationRepository.save(donation);
     }
 
@@ -178,7 +178,7 @@ public class DonationService {
         DonationAssignment assignment = assignmentRepository.findByDonationId(id).orElseThrow(
                 () -> new NoSuchElementException("Couldn't find the Assignment")
         );
-        donation.setStatus(DonationStatus.PICKED_UP);
+        donation.setStatus(DonationStatus.COMPLETED);
         assignment.setPickedUpAt(LocalDateTime.now());
         assignmentRepository.save(assignment);
         return donationRepository.save(donation);
