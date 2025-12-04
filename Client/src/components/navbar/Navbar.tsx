@@ -39,7 +39,7 @@ export default function Navbar() {
             className="h-full px-6 flex items-center justify-center border-r border-white border-opacity-40 hover:bg-green-500 text-white font-semibold shadow-none transition"
             onClick={() => navigate("/login")}
           >
-            Conéctate
+            Iniciar Sesión
           </button>
           <button
             className="h-full px-6 flex items-center justify-center text-white border-r border-white border-opacity-40 hover:bg-green-500 font-semibold shadow-none transition"
@@ -86,7 +86,7 @@ export default function Navbar() {
               </Link>
 
               <Link
-                to="/profile"
+                to="/perfil-comercio"
                 className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
                 onClick={() => setMenuOpen(false)}
               >
