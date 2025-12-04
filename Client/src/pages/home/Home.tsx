@@ -81,7 +81,7 @@ export const Home = () => {
   return (
     <div className="overflow-x-hidden">
       <AnimatedSection>
-        <section className="relative flex items-center justify-center min-h-[500px] py-20 px-6 md:px-20 lg:px-40 bg-amber-50 overflow-hidden">
+        <section className="relative flex items-center justify-center min-h-screen py-20 px-6 md:px-20 lg:px-40 bg-amber-50 overflow-hidden">
           {/* Logo de fondo centrado */}
           <img
             src={LogoFull}
