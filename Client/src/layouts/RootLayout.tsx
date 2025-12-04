@@ -7,7 +7,7 @@ export default function RootLayout() {
       <header>
         <Navbar />
       </header>
-      <main>
+      <main className="pt-14">
         <Outlet />
       </main>
     </div>
