@@ -7,6 +7,7 @@ import Register from "./pages/register/Register";
 import DashboardComercio from "./pages/dashboardComercio/DashboardComercio";
 import DashboardBanco from "./pages/dashboardBanco/DashboardBanco";
 import ProfileComercio from "./pages/profileComercio/ProfileComercio";
+import ProfileBanco from "./pages/profileBanco/ProfileBanco";
 
 const router = createBrowserRouter([
   {
@@ -20,6 +21,7 @@ const router = createBrowserRouter([
       { path: "comercio", element: <DashboardComercio /> },
       { path: "banco", element: <DashboardBanco /> },
       { path: "perfil-comercio", element: <ProfileComercio /> },
+      { path: "perfil-banco", element: <ProfileBanco /> },
     ],
   },
 ]);
