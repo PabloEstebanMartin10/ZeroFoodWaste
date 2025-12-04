@@ -2,17 +2,18 @@
 
 package com.example.ZeroFoodWaste.model.mapper;
 
-import com.example.ZeroFoodWaste.model.dto.D_A_FB_DTO;
-import com.example.ZeroFoodWaste.model.entity.Donation;
-import com.example.ZeroFoodWaste.model.entity.FoodBank;
-import com.example.ZeroFoodWaste.model.enums.DonationStatus;
-import com.example.ZeroFoodWaste.repository.DonationAssignmentRepository;
-import com.example.ZeroFoodWaste.repository.FoodBankRepository;
-import org.mapstruct.AfterMapping;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
-import org.springframework.beans.factory.annotation.Autowired;
+    import com.example.ZeroFoodWaste.model.dto.D_A_FB_DTO;
+    import com.example.ZeroFoodWaste.model.entity.Donation;
+    import com.example.ZeroFoodWaste.model.entity.FoodBank;
+    import com.example.ZeroFoodWaste.model.enums.DonationStatus;
+    import com.example.ZeroFoodWaste.repository.DonationAssignmentRepository;
+    import org.mapstruct.AfterMapping;
+    import org.mapstruct.Mapper;
+    import org.mapstruct.Mapping;
+    import org.mapstruct.MappingTarget;
+    import org.springframework.beans.factory.annotation.Autowired;
+
+    import java.util.List;
 
     //endregion
 
@@ -40,8 +41,11 @@ public abstract class D_A_FBMapper {
     //@AfterMapping
     @Mapping(target = "assignmentId", ignore = true)
     @Mapping(target = "foodBankId", ignore = true)
-    @Mapping(target = "foodBankId", ignore = true)
+    @Mapping(target = "foodBankName", ignore = true)
     public abstract D_A_FB_DTO toDTO(Donation donation);
+
+    public abstract List<D_A_FB_DTO> toDTOList(List<Donation> donations);
+
     //endregion
 
     //region afterMapping
@@ -58,8 +62,8 @@ public abstract class D_A_FBMapper {
             @MappingTarget D_A_FB_DTO dto
     ) {
         //checks the status
-        if (donation.getStatus().name().equals(DonationStatus.RESERVED.name())
-                || donation.getStatus().name().equals(DonationStatus.COMPLETED.name())) {
+        if (!(donation.getStatus().name().equals(DonationStatus.RESERVED.name())
+                || donation.getStatus().name().equals(DonationStatus.COMPLETED.name()))) {
             return;
         }
         //find the assignment
