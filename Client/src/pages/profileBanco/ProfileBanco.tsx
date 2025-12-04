@@ -1,345 +1,608 @@
 import React, { useState } from "react";
 
-const FoodBankProfile: React.FC = () => {
-  const [isEditing, setIsEditing] = useState(false);
-  const [showDonations, setShowDonations] = useState(false);
+interface Horario {
+  inicio: string;
+  cierre: string;
+}
 
-  // Pagination
+interface Horarios {
+  lunes: Horario;
+  martes: Horario;
+  miercoles: Horario;
+  jueves: Horario;
+  viernes: Horario;
+  sabado: Horario;
+  domingo: Horario;
+}
+
+const RestaurantProfile: React.FC = () => {
+  const [activeTab, setActiveTab] = useState<"general" | "config" | "historial">("general");
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
-
+  const itemsPerPage = 10;
   const [profileData, setProfileData] = useState({
-    nombre: "Community Food Bank",
-    tipo: "Banco de Alimentos",
-    areaOperacion: "Avenida Miraflores, 19, Málaga",
-    telefono: "+34 600 123 456",
-    email: "info@communityfoodbank.org",
-    capacidadDiaria: "500 meals per day",
-    poblacionServida: "Approximately 2,000 families monthly",
-    horarios: [
-      { dia: "Lunes", inicio: "09:00", cierre: "17:00" },
-      { dia: "Martes", inicio: "09:00", cierre: "17:00" },
-      { dia: "Miércoles", inicio: "09:00", cierre: "17:00" },
-      { dia: "Jueves", inicio: "09:00", cierre: "17:00" },
-      { dia: "Viernes", inicio: "09:00", cierre: "17:00" },
-      { dia: "Sábado", inicio: "10:00", cierre: "14:00" },
-      { dia: "Domingo", inicio: "", cierre: "" }
-    ]
+    nombre: "Restaurante El Buen Sabor",
+    email: "contacto@elbuensabor.com",
+    telefono: "+34 912 345 678",
+    direccion: "Calle Mayor 123, Madrid",
+    descripcion: "Restaurante familiar comprometido con la sostenibilidad y la reducción del desperdicio alimentario. Desde 2020 colaboramos activamente con bancos de alimentos para asegurar que nuestros excedentes lleguen a quienes más lo necesitan.",
+    horarios: {
+      lunes: { inicio: "09:00", cierre: "17:00" },
+      martes: { inicio: "09:00", cierre: "17:00" },
+      miercoles: { inicio: "09:00", cierre: "17:00" },
+      jueves: { inicio: "09:00", cierre: "17:00" },
+      viernes: { inicio: "09:00", cierre: "17:00" },
+      sabado: { inicio: "10:00", cierre: "14:00" },
+      domingo: { inicio: "--:--", cierre: "--:--" }
+    }
   });
 
-  const donacionesCompletadas = [
-    { producto: "Mix de verduras", establecimiento: "Frutería Del Sol", distancia: "4.7 Km", fechaCaducidad: "Dec 25, 2024", estado: "Recogida" },
-    { producto: "Fresh Bread Loaves", establecimiento: "Green Valley Restaurant", distancia: "2.3 Km", fechaCaducidad: "Dec 26, 2024", estado: "Recogida" },
-    { producto: "Fresh Fruit Selection", establecimiento: "Garden Grill", distancia: "3.1 Km", fechaCaducidad: "Dec 27, 2024", estado: "Recogida" },
-    { producto: "Bakery Items", establecimiento: "Sunrise Bakery", distancia: "—", fechaCaducidad: "Dec 28, 2024", estado: "Recogida" },
-    { producto: "Pasta & Grains", establecimiento: "City Supermarket", distancia: "1.5 Km", fechaCaducidad: "Jan 10, 2025", estado: "Recogida" },
-    { producto: "Dairy Products", establecimiento: "Healthy Foods Market", distancia: "2.8 Km", fechaCaducidad: "Jan 12, 2025", estado: "Recogida" },
-    { producto: "Canned Goods", establecimiento: "Neighborhood Grocery", distancia: "3.5 Km", fechaCaducidad: "Jan 15, 2025", estado: "Recogida" },
-    { producto: "Assorted Beverages", establecimiento: "Downtown Deli", distancia: "2.0 Km", fechaCaducidad: "Jan 18, 2025", estado: "Recogida" },
-    
+  const donationsHistory = [
+    {
+      id: 1,
+      nombre: "Pan del día anterior",
+      cantidad: "15 kg",
+      destino: "Banco de Alimentos Regional",
+      fecha: "2 Dic 2025",
+      estado: "Completado"
+    },
+    {
+      id: 2,
+      nombre: "Verduras frescas",
+      cantidad: "8 kg",
+      destino: "Fundación Alimentos Para Todos",
+      fecha: "1 Dic 2025",
+      estado: "Completado"
+    },
+    {
+      id: 3,
+      nombre: "Comidas preparadas",
+      cantidad: "12 raciones",
+      destino: "Comedor Social San José",
+      fecha: "4 Dic 2025",
+      estado: "Completado"
+    },
+    {
+      id: 4,
+      nombre: "Frutas variadas",
+      cantidad: "10 kg",
+      destino: "Banco de Alimentos Regional",
+      fecha: "3 Dic 2025",
+      estado: "Completado"
+    },
+    {
+      id: 5,
+      nombre: "Lácteos",
+      cantidad: "20 kg",
+      destino: "Fundación Alimentos Para Todos",
+      fecha: "30 Nov 2025",
+      estado: "Completado"
+    },
+    {
+      id: 6,
+      nombre: "Carnes preparadas",
+      cantidad: "18 kg",
+      destino: "Comedor Social San José",
+      fecha: "29 Nov 2025",
+      estado: "Completado"
+    },
+    {
+      id: 7,
+      nombre: "Pasta",
+      cantidad: "25 kg",
+      destino: "Banco de Alimentos Regional",
+      fecha: "28 Nov 2025",
+      estado: "Completado"
+    },
+    {
+      id: 8,
+      nombre: "Conservas variadas",
+      cantidad: "30 unidades",
+      destino: "Fundación Alimentos Para Todos",
+      fecha: "27 Nov 2025",
+      estado: "Completado"
+    },
+    {
+      id: 9,
+      nombre: "Arroz",
+      cantidad: "40 kg",
+      destino: "Comedor Social San José",
+      fecha: "26 Nov 2025",
+      estado: "Completado"
+    },
+    {
+      id: 10,
+      nombre: "Legumbres",
+      cantidad: "15 kg",
+      destino: "Banco de Alimentos Regional",
+      fecha: "25 Nov 2025",
+      estado: "Completado"
+    },
+    {
+      id: 11,
+      nombre: "Aceite de oliva",
+      cantidad: "12 litros",
+      destino: "Fundación Alimentos Para Todos",
+      fecha: "24 Nov 2025",
+      estado: "Completado"
+    },
+    {
+      id: 12,
+      nombre: "Postres variados",
+      cantidad: "20 unidades",
+      destino: "Comedor Social San José",
+      fecha: "23 Nov 2025",
+      estado: "Completado"
+    }
   ];
 
-  // Calcula la paginación
-  const totalPages = Math.ceil(donacionesCompletadas.length / itemsPerPage);
+  const stats = {
+    totalDonado: { value: "20", change: "+15%", period: "Este mes" },
+    personasAyudadas: { value: "1,240", change: "+8%", period: "Aproximadamente" },
+    donacionesActivas: { value: "12", period: "En este momento" }
+  };
 
-  const currentItems = donacionesCompletadas.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
+  const updateHorario = (dia: keyof Horarios, campo: 'inicio' | 'cierre', valor: string) => {
+    setProfileData({
+      ...profileData,
+      horarios: {
+        ...profileData.horarios,
+        [dia]: {
+          ...profileData.horarios[dia],
+          [campo]: valor
+        }
+      }
+    });
+  };
+
+  const handleSaveChanges = () => {
+    // Aquí para el backend
+    setActiveTab("general");
+  };
+
+  // Calcular donaciones para la página actual
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentDonations = donationsHistory.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(donationsHistory.length / itemsPerPage);
+
+  const handlePageChange = (pageNumber: number) => {
+    setCurrentPage(pageNumber);
+  };
 
   return (
     <div className="min-h-screen bg-amber-50">
-
       {/* Header */}
       <div className="bg-amber-50 border-b border-gray-200">
-        <div className="max-w-5xl mx-auto px-6 py-6">
-          <h1 className="text-3xl font-bold text-gray-800">Perfil</h1>
-          <p className="text-gray-600 mt-1">Administra la información de tu cuenta</p>
+        <div className="max-w-6xl mx-auto px-6 py-6">
+          <h1 className="text-3xl font-bold text-gray-800">Mi Cuenta</h1>
+          <p className="text-gray-600 mt-1">Gestiona tu perfil y revisa el impacto de tus donaciones</p>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="max-w-5xl mx-auto px-6 py-8">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
-          
-          {/* Green Header */}
-          <div className="bg-green-700 px-6 py-6 flex items-center justify-between">
+      <div className="max-w-6xl mx-auto px-6 py-8">
+        {/* Profile Header Card */}
+        <div className="bg-green-200 rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+          <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className="bg-white rounded-full p-4 w-16 h-16 flex items-center justify-center">
-                <span className="text-3xl">👥</span>
+              <div className="bg-gray-100 rounded-full w-16 h-16 flex items-center justify-center">
+                <span className="text-gray-700 font-bold text-xl">RE</span>
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-white">{profileData.nombre}</h2>
-                <p className="text-green-100">{profileData.tipo}</p>
+                <h2 className="text-xl font-bold text-gray-800">{profileData.nombre}</h2>
+                <p className="text-gray-600 text-sm">{profileData.email}</p>
               </div>
             </div>
-
-            {/* Botón de cerrar */}
-            <div className="flex items-center gap-2">
-              <button 
-                onClick={() => setIsEditing(!isEditing)}
-                className="px-6 py-2 bg-white text-green-700 rounded-lg font-medium hover:bg-green-50 transition-colors"
-              >
-                {isEditing ? "Guardar Cambios" : "Editar Perfil"}
-              </button>
-              <button 
-                onClick={() => {
-                  setShowDonations(true);
-                  setCurrentPage(1); //Resetea a la primera página al abrir
-                }}
-                className="px-6 py-2 bg-white text-green-700 rounded-lg font-medium hover:bg-green-50 transition-colors"
-              >
-                Registro
+            <div className="flex gap-2">
+              <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
               </button>
             </div>
           </div>
+        </div>
 
-          {/* Basic Information */}
-          <div className="p-6">
-            <h3 className="text-lg font-semibold text-green-700 mb-4">Información Básica</h3>
-            
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-600 mb-2">Nombre de la Organización</label>
-                {isEditing ? (
-                  <input
-                    type="text"
-                    value={profileData.nombre}
-                    onChange={(e) => setProfileData({...profileData, nombre: e.target.value})}
-                    className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-300 focus:ring-2 focus:ring-green-500 focus:outline-none"
-                  />
-                ) : (
-                  <p className="text-gray-800 text-lg">{profileData.nombre}</p>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-600 mb-2">
-                  📍 Área de Operación
-                </label>
-                {isEditing ? (
-                  <input
-                    type="text"
-                    value={profileData.areaOperacion}
-                    onChange={(e) => setProfileData({...profileData, areaOperacion: e.target.value})}
-                    className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-300 focus:ring-2 focus:ring-green-500 focus:outline-none"
-                  />
-                ) : (
-                  <p className="text-gray-800 text-lg">{profileData.areaOperacion}</p>
-                )}
-              </div>
-            </div>
+        {/* Tabs */}
+        <div className="bg-white rounded-t-xl shadow-sm border border-gray-200 border-b-0">
+          <div className="flex">
+            <button
+              onClick={() => setActiveTab("general")}
+              className={`px-6 py-3 font-medium transition-colors ${
+                activeTab === "general"
+                  ? "text-green-700 border-b-2 border-green-700"
+                  : "text-gray-600 hover:text-gray-800"
+              }`}
+            >
+              Vista General
+            </button>
+            <button
+              onClick={() => setActiveTab("historial")}
+              className={`px-6 py-3 font-medium transition-colors ${
+                activeTab === "historial"
+                  ? "text-green-700 border-b-2 border-green-700"
+                  : "text-gray-600 hover:text-gray-800"
+              }`}
+            >
+              Historial
+            </button>
+            <button
+              onClick={() => setActiveTab("config")}
+              className={`px-6 py-3 font-medium transition-colors ${
+                activeTab === "config"
+                  ? "text-green-700 border-b-2 border-green-700"
+                  : "text-gray-600 hover:text-gray-800"
+              }`}
+            >
+              Configuración
+            </button>
           </div>
+        </div>
 
-          {/* Contact Information */}
-          <div className="px-6 pb-6">
-            <h3 className="text-lg font-semibold text-green-700 mb-4">Información de Contacto</h3>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-600 mb-2">
-                  📞 Teléfono
-                </label>
-                {isEditing ? (
-                  <input
-                    type="text"
-                    value={profileData.telefono}
-                    onChange={(e) => setProfileData({...profileData, telefono: e.target.value})}
-                    className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-300 focus:ring-2 focus:ring-green-500 focus:outline-none"
-                  />
-                ) : (
-                  <p className="text-gray-800 text-lg">{profileData.telefono}</p>
-                )}
-              </div>
+        {/* Content Area */}
+        <div className="bg-white rounded-b-xl shadow-sm border border-gray-200 p-6">
+          {activeTab === "general" ? (
+            <>
+              {/* Profile Information - Read Only */}
+              <div className="max-w-6xl mb-8">
+                <h3 className="text-lg font-semibold text-gray-800 mb-6">Información del Perfil</h3>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-600 mb-2">
-                  ✉️ Email
-                </label>
-                {isEditing ? (
-                  <input
-                    type="email"
-                    value={profileData.email}
-                    onChange={(e) => setProfileData({...profileData, email: e.target.value})}
-                    className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-300 focus:ring-2 focus:ring-green-500 focus:outline-none"
-                  />
-                ) : (
-                  <p className="text-gray-800 text-lg">{profileData.email}</p>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Capacity Information */}
-          <div className="px-6 pb-6">
-            <h3 className="text-lg font-semibold text-green-700 mb-4">Información Adicional </h3>
-            
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-600 mb-2">Capacidad Diaria</label>
-                {isEditing ? (
-                  <input
-                    type="text"
-                    value={profileData.capacidadDiaria}
-                    onChange={(e) => setProfileData({...profileData, capacidadDiaria: e.target.value})}
-                    className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-300 focus:ring-2 focus:ring-green-500 focus:outline-none"
-                  />
-                ) : (
-                  <p className="text-gray-800 text-lg">{profileData.capacidadDiaria}</p>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-600 mb-2">Población Servida</label>
-                {isEditing ? (
-                  <input
-                    type="text"
-                    value={profileData.poblacionServida}
-                    onChange={(e) => setProfileData({...profileData, poblacionServida: e.target.value})}
-                    className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-300 focus:ring-2 focus:ring-green-500 focus:outline-none"
-                  />
-                ) : (
-                  <p className="text-gray-800 text-lg">{profileData.poblacionServida}</p>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Schedule */}
-          <div className="px-6 pb-6">
-            <h3 className="text-lg font-semibold text-green-700 mb-4">
-              📅 Horario de Atención
-            </h3>
-            
-            <div className="space-y-2">
-              {profileData.horarios.map((horario, index) => (
-                <div key={index} className="flex justify-between items-center py-2 border-b border-gray-100 last:border-0">
-                  <span className="text-gray-700 font-medium w-32">{horario.dia}</span>
-                  {isEditing ? (
-                    <div className="flex-1 flex items-center gap-3">
-                      <div className="flex items-center gap-2">
-                        <label className="text-sm text-gray-600">Hora de Inicio:</label>
-                        <input
-                          type="time"
-                          value={horario.inicio}
-                          onChange={(e) => {
-                            const newHorarios = [...profileData.horarios];
-                            newHorarios[index].inicio = e.target.value;
-                            setProfileData({...profileData, horarios: newHorarios});
-                          }}
-                          className="px-3 py-2 rounded-lg bg-gray-50 border border-gray-300 focus:ring-2 focus:ring-green-500 focus:outline-none"
-                        />
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <label className="text-sm text-gray-600">Hora de Cierre:</label>
-                        <input
-                          type="time"
-                          value={horario.cierre}
-                          onChange={(e) => {
-                            const newHorarios = [...profileData.horarios];
-                            newHorarios[index].cierre = e.target.value;
-                            setProfileData({...profileData, horarios: newHorarios});
-                          }}
-                          className="px-3 py-2 rounded-lg bg-gray-50 border border-gray-300 focus:ring-2 focus:ring-green-500 focus:outline-none"
-                        />
-                      </div>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-6">
+                    <div>
+                      <span className="text-sm font-medium text-gray-600">Nombre del Restaurante:</span>
+                      <p className="text-gray-800 mt-1">{profileData.nombre}</p>
                     </div>
-                  ) : (
-                    <span className="text-gray-600">
-                      {horario.inicio && horario.cierre ? `${horario.inicio} - ${horario.cierre}` : "Cerrado"}
-                    </span>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
+                    <div>
+                      <span className="text-sm font-medium text-gray-600">Email:</span>
+                      <p className="text-gray-800 mt-1">{profileData.email}</p>
+                    </div>
+                  </div>
 
+                  <div className="grid grid-cols-2 gap-6">
+                    <div>
+                      <span className="text-sm font-medium text-gray-600">Teléfono:</span>
+                      <p className="text-gray-800 mt-1">{profileData.telefono}</p>
+                    </div>
+                    <div>
+                      <span className="text-sm font-medium text-gray-600">Dirección:</span>
+                      <p className="text-gray-800 mt-1">{profileData.direccion}</p>
+                    </div>
+                  </div>
+
+                  <div>
+                    <span className="text-sm font-medium text-gray-600">Descripción:</span>
+                    <p className="text-gray-800 mt-1">{profileData.descripcion}</p>
+                  </div>
+
+                  <div className="border-t border-gray-200 pt-4 mt-2">
+                    <div className="flex items-center gap-2 mb-4">
+                      <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      <span className="text-lg font-semibold text-gray-800">Horario de Atención</span>
+                    </div>
+                    
+                    <div className="space-y-3">
+                      {Object.entries(profileData.horarios).map(([dia, horario]) => {
+                        const dias: Record<string, string> = {
+                          lunes: "Lunes",
+                          martes: "Martes",
+                          miercoles: "Miércoles",
+                          jueves: "Jueves",
+                          viernes: "Viernes",
+                          sabado: "Sábado",
+                          domingo: "Domingo"
+                        };
+                        
+                        const esCerrado = horario.inicio === "--:--" || horario.cierre === "--:--";
+                        
+                        return (
+                          <div key={dia} className="flex justify-between items-center py-2 border-b border-gray-100 pr-12">
+                            <span className="text-gray-700 font-medium">{dias[dia]}</span>
+                            <span className={`${esCerrado ? 'text-red-600' : 'text-gray-800'}`}>
+                              {esCerrado ? 'Cerrado' : `${horario.inicio} - ${horario.cierre}`}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Stats Grid */}
+              <div className="border-t border-gray-200 pt-8 mb-8">
+                <h3 className="text-lg font-semibold text-gray-800 mb-6">Estadísticas</h3>
+              </div>
+              <div className="grid grid-cols-3 gap-4 mb-8">
+                <div className="bg-white border border-gray-200 rounded-lg p-4">
+                  <div className="flex items-start justify-between mb-2">
+                    <span className="text-sm text-gray-600">Donaciones Totales</span>
+                    <div className="bg-green-50 p-2 rounded-lg">
+                      <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                      </svg>
+                    </div>
+                  </div>
+                  <p className="text-2xl font-bold text-gray-800">{stats.totalDonado.value}</p>
+                  <p className="text-xs text-gray-500 mt-1">{stats.totalDonado.period}</p>
+                </div>
+
+                <div className="bg-white border border-gray-200 rounded-lg p-4">
+                  <div className="flex items-start justify-between mb-2">
+                    <span className="text-sm text-gray-600">Donaciones Activas</span>
+                    <div className="bg-green-50 p-2 rounded-lg">
+                      <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                      </svg>
+                    </div>
+                  </div>
+                  <p className="text-2xl font-bold text-gray-800">{stats.donacionesActivas.value}</p>
+                  <p className="text-xs text-gray-500 mt-1">{stats.donacionesActivas.period}</p>
+                </div>
+              </div>
+            </>
+          ) : activeTab === "historial" ? (
+            <>
+              {/* Donations History */}
+              <div>
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">Historial de Donaciones</h3>
+                <div className="space-y-3">
+                  {currentDonations.map((donation) => (
+                    <div key={donation.id} className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                      <div className="bg-white p-3 rounded-lg">
+                        <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                        </svg>
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-gray-800">{donation.nombre}</h4>
+                        <p className="text-sm text-gray-600">{donation.cantidad}</p>
+                        <div className="flex items-center gap-4 mt-1 text-xs text-gray-500">
+                          <span>📍 {donation.destino}</span>
+                          <span>📅 {donation.fecha}</span>
+                        </div>
+                      </div>
+                      <span
+                        className={`px-3 py-1 rounded-lg text-sm font-medium ${
+                          donation.estado === "Completado"
+                            ? "bg-green-100 text-green-700"
+                            : donation.estado === "Programado"
+                            ? "bg-blue-100 text-blue-700"
+                            : "bg-yellow-100 text-yellow-700"
+                        }`}
+                      >
+                        {donation.estado}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Paginación */}
+                {totalPages > 1 && (
+                  <div className="flex items-center justify-center gap-2 mt-6">
+                    <button
+                      onClick={() => handlePageChange(currentPage - 1)}
+                      disabled={currentPage === 1}
+                      className={`px-3 py-2 rounded-lg font-medium transition-colors ${
+                        currentPage === 1
+                          ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                          : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
+                      }`}
+                    >
+                      Anterior
+                    </button>
+                    
+                    <div className="flex gap-1">
+                      {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+                        <button
+                          key={pageNum}
+                          onClick={() => handlePageChange(pageNum)}
+                          className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                            currentPage === pageNum
+                              ? "bg-green-700 text-white"
+                              : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
+                          }`}
+                        >
+                          {pageNum}
+                        </button>
+                      ))}
+                    </div>
+
+                    <button
+                      onClick={() => handlePageChange(currentPage + 1)}
+                      disabled={currentPage === totalPages}
+                      className={`px-3 py-2 rounded-lg font-medium transition-colors ${
+                        currentPage === totalPages
+                          ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                          : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
+                      }`}
+                    >
+                      Siguiente
+                    </button>
+                  </div>
+                )}
+              </div>
+            </>
+          ) : (
+            <>
+              {/* Configuration Form */}
+              <div className="max-w-6xl">
+                <h3 className="text-lg font-semibold text-gray-800 mb-6">Configuración del Perfil</h3>
+
+                <div className="space-y-6">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Nombre del Restaurante</label>
+                      <input
+                        type="text"
+                        value={profileData.nombre}
+                        onChange={(e) => setProfileData({ ...profileData, nombre: e.target.value })}
+                        className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-300 focus:ring-2 focus:ring-green-500 focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                      <input
+                        type="email"
+                        value={profileData.email}
+                        onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
+                        className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-300 focus:ring-2 focus:ring-green-500 focus:outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Teléfono</label>
+                      <input
+                        type="text"
+                        value={profileData.telefono}
+                        onChange={(e) => setProfileData({ ...profileData, telefono: e.target.value })}
+                        className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-300 focus:ring-2 focus:ring-green-500 focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Dirección</label>
+                      <input
+                        type="text"
+                        value={profileData.direccion}
+                        onChange={(e) => setProfileData({ ...profileData, direccion: e.target.value })}
+                        className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-300 focus:ring-2 focus:ring-green-500 focus:outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Descripción</label>
+                    <textarea
+                      value={profileData.descripcion}
+                      onChange={(e) => setProfileData({ ...profileData, descripcion: e.target.value })}
+                      rows={4}
+                      className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-300 focus:ring-2 focus:ring-green-500 focus:outline-none resize-none"
+                    />
+                  </div>
+
+                  <div className="border-t border-gray-200 pt-4 mt-4">
+                    <div className="flex items-center gap-2 mb-4">
+                      <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      <span className="text-lg font-semibold text-gray-800">Horario de Atención</span>
+                    </div>
+                    
+                    <div className="space-y-4">
+                      {Object.entries(profileData.horarios).map(([dia, horario]) => {
+                        const dias: Record<string, string> = {
+                          lunes: "Lunes",
+                          martes: "Martes",
+                          miercoles: "Miércoles",
+                          jueves: "Jueves",
+                          viernes: "Viernes",
+                          sabado: "Sábado",
+                          domingo: "Domingo"
+                        };
+                        
+                        return (
+                          <div key={dia} className="flex items-center gap-4">
+                            <span className="text-gray-700 font-medium w-24">{dias[dia]}</span>
+                            <div className="flex items-center gap-3 flex-1">
+                              <div className="flex items-center gap-2">
+                                <label className="text-sm text-gray-600">Hora de Inicio:</label>
+                                <input
+                                  type="time"
+                                  value={horario.inicio}
+                                  onChange={(e) => updateHorario(dia as keyof Horarios, 'inicio', e.target.value)}
+                                  className="px-3 py-2 rounded-lg bg-gray-50 border border-gray-300 focus:ring-2 focus:ring-green-500 focus:outline-none"
+                                />
+                                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <label className="text-sm text-gray-600">Hora de Cierre:</label>
+                                <input
+                                  type="time"
+                                  value={horario.cierre}
+                                  onChange={(e) => updateHorario(dia as keyof Horarios, 'cierre', e.target.value)}
+                                  className="px-3 py-2 rounded-lg bg-gray-50 border border-gray-300 focus:ring-2 focus:ring-green-500 focus:outline-none"
+                                />
+                                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <div className="border-t border-gray-200 pt-6 mt-6">
+                    <div className="flex items-center gap-2 mb-4">
+                      <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                      </svg>
+                      <span className="text-lg font-semibold text-gray-800">Seguridad</span>
+                    </div>
+                    
+                    <div className="space-y-4 max-w-xl">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Contraseña Actual</label>
+                        <input
+                          type="password"
+                          placeholder="Ingresa tu contraseña actual"
+                          className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-300 focus:ring-2 focus:ring-green-500 focus:outline-none"
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Nueva Contraseña</label>
+                        <input
+                          type="password"
+                          placeholder="Ingresa tu nueva contraseña"
+                          className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-300 focus:ring-2 focus:ring-green-500 focus:outline-none"
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Confirmar Nueva Contraseña</label>
+                        <input
+                          type="password"
+                          placeholder="Confirma tu nueva contraseña"
+                          className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-300 focus:ring-2 focus:ring-green-500 focus:outline-none"
+                        />
+                      </div>
+                      
+                      <button className="px-6 py-2 bg-green-700 text-white rounded-lg font-medium hover:bg-green-800 transition-colors">
+                        Actualizar Contraseña
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end gap-3 pt-4">
+                    <button 
+                      onClick={() => setActiveTab("general")}
+                      className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+                    >
+                      Cancelar
+                    </button>
+                    <button 
+                      onClick={handleSaveChanges}
+                      className="px-6 py-2 bg-green-700 text-white rounded-lg font-medium hover:bg-green-800 transition-colors"
+                    >
+                      Guardar Cambios
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </div>
-
-      {/* MODAL DONACIONES */}
-      {showDonations && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl shadow-lg border w-full max-w-3xl p-6 relative">
-            
-            {/* Cerrar */}
-            <button
-              onClick={() => setShowDonations(false)}
-              className="absolute top-4 right-4 text-gray-600 text-lg hover:text-gray-900"
-            >
-              ✖
-            </button>
-
-            <h3 className="text-xl font-semibold text-gray-800 mb-4">
-              Donaciones Completadas
-            </h3>
-
-            <div className="overflow-x-auto max-h-[60vh] overflow-y-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="bg-green-50 border-b border-gray-200">
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">PRODUCTO</th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">ESTABLECIMIENTO</th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">DISTANCIA</th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">CADUCIDAD</th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">ESTADO</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {currentItems.map((donacion, index) => (
-                    <tr key={index} className="border-b border-gray-100 hover:bg-gray-50">
-                      <td className="px-4 py-4 text-sm text-gray-800">{donacion.producto}</td>
-                      <td className="px-4 py-4 text-sm text-gray-600">{donacion.establecimiento}</td>
-                      <td className="px-4 py-4 text-sm text-gray-600">{donacion.distancia}</td>
-                      <td className="px-4 py-4 text-sm text-gray-600">{donacion.fechaCaducidad}</td>
-                      <td className="px-4 py-4">
-                        <span className="inline-block px-3 py-1 text-sm font-medium text-green-800 bg-green-100 rounded-full">
-                          {donacion.estado}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            {/* PAGINATION CONTROLS */}
-            <div className="flex justify-between items-center mt-4">
-              <button
-                disabled={currentPage === 1}
-                onClick={() => setCurrentPage(prev => prev - 1)}
-                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                  currentPage === 1
-                    ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                    : "bg-green-700 text-white hover:bg-green-800"
-                }`}
-              >
-                Anterior
-              </button>
-
-              <p className="text-gray-700">
-                Página {currentPage} de {totalPages}
-              </p>
-
-              <button
-                disabled={currentPage === totalPages}
-                onClick={() => setCurrentPage(prev => prev + 1)}
-                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                  currentPage === totalPages
-                    ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                    : "bg-green-700 text-white hover:bg-green-800"
-                }`}
-              >
-                Siguiente
-              </button>
-            </div>
-
-          </div>
-        </div>
-      )}
-
     </div>
   );
 };
 
-export default FoodBankProfile;
+export default RestaurantProfile;
