@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import LogoFull from "../../assets/logos/Logo_ZeroFoodWasteTransparent.png";
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -11,15 +12,14 @@ const Login: React.FC = () => {
 
   return (
     <div className="flex justify-center items-center h-screen bg-amber-50 p-6">
-      <div className="flex gap-20 items-center max-w-4xl mx-auto">
+      <div className="flex gap-20 items-center max-w-4xl mx-auto h-full">
         {/* Columna izquierda */}
-        <div className="w-1/2 text-left">
-          <h2 className="text-4xl font-bold text-green-800 leading-tight">
-            Dona. Conecta. Impacta.
-          </h2>
-          <p className="text-green-800 mt-3 text-lg opacity-80">
-            Juntos evitamos el desperdicio alimentario y ayudamos a quienes más lo necesitan.
-          </p>
+        <div className="w-1/2 h-full flex items-center justify-center">
+          <img
+            src={LogoFull}
+            alt="Logo"
+            className="w-[90%] h-auto object-contain"
+          />
         </div>
 
         {/* Columna derecha - Login */}
@@ -30,7 +30,9 @@ const Login: React.FC = () => {
 
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="text-left">
-              <label className="block text-green-800 font-medium mb-1">Correo Electrónico</label>
+              <label className="block text-green-800 font-medium mb-1">
+                Correo Electrónico
+              </label>
               <input
                 type="email"
                 placeholder="Ingresa tu correo electrónico"
@@ -41,7 +43,9 @@ const Login: React.FC = () => {
             </div>
 
             <div className="text-left">
-              <label className="block text-green-800 font-medium mb-1">Contraseña</label>
+              <label className="block text-green-800 font-medium mb-1">
+                Contraseña
+              </label>
               <input
                 type="password"
                 placeholder="Ingresa tu contraseña"
@@ -60,9 +64,17 @@ const Login: React.FC = () => {
           </form>
 
           <div className="mt-4 text-sm text-center">
-            <a href="#" className="text-green-800 hover:underline">¿Olvidaste tu contraseña?</a>
+            <a href="#" className="text-green-800 hover:underline">
+              ¿Olvidaste tu contraseña?
+            </a>
             <p className="mt-2">
-              ¿No tienes cuenta? <a href="#" className="text-green-800 hover:underline font-medium">Regístrate aquí</a>
+              ¿No tienes cuenta?{" "}
+              <a
+                href="#"
+                className="text-green-800 hover:underline font-medium"
+              >
+                Regístrate aquí
+              </a>
             </p>
           </div>
         </div>
