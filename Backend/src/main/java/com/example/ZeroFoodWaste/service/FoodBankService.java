@@ -15,11 +15,13 @@ import java.util.NoSuchElementException;
 @Service
 @RequiredArgsConstructor
 public class FoodBankService {
-/* todos
-    todo 1 añadir @transactional
-    todo 2 excepciones personalizadas
-    todo 3 dtos para no usar entities
-    todo 4 cambiar el mapper de beanUtils
+    /* todos
+    todo 1 añadir @Transactional en métodos que modifican la BD (modifyFoodBank)
+    todo 2 crear excepciones personalizadas (FoodBankNotFoundException, UpdateNotAllowedException)
+    todo 3 usar DTOs en las operaciones (FoodBankDTO, UpdateFoodBankDTO)
+    todo 4 reemplazar BeanUtils por MapStruct u otro mapper más seguro y tipado
+    todo 5 validar campos de entrada con javax.validation (@NotBlank, @Valid en controller)
+    todo 6 controlar propiedades que no deben ser actualizadas (user, assignments)
      */
 
     private final FoodBankRepository foodBankRepository;
