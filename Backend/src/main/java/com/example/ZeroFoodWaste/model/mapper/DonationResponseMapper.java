@@ -4,6 +4,7 @@ import com.example.ZeroFoodWaste.model.dto.DonationResponseDTO;
 import com.example.ZeroFoodWaste.model.entity.Donation;
 import com.example.ZeroFoodWaste.model.entity.DonationAssignment;
 import com.example.ZeroFoodWaste.model.entity.Establishment;
+import com.example.ZeroFoodWaste.model.enums.DonationStatus;
 import com.example.ZeroFoodWaste.repository.DonationAssignmentRepository;
 import com.example.ZeroFoodWaste.repository.EstablishmentRepository;
 import org.mapstruct.AfterMapping;
@@ -17,6 +18,7 @@ import java.util.NoSuchElementException;
 
 @Mapper(componentModel = "spring")
 public abstract class DonationResponseMapper {
+
     @Autowired
     protected EstablishmentRepository establishmentRepository;
 
@@ -38,12 +40,12 @@ public abstract class DonationResponseMapper {
     @Mapping(target = "assignment", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
-    @Mapping(target = "status", expression = "java(DonationStatus.valueOf(dto.getStatus()))")
+    @Mapping(target = "status", expression = "java(mapStatus(dto.getStatus()))")
     public abstract void updateEntityFromDTO(DonationResponseDTO dto, @MappingTarget Donation donation);
 
     @Mapping(target = "establishment", ignore = true)
     @Mapping(target = "assignment", ignore = true)
-    @Mapping(target = "status", expression = "java(DonationStatus.valueOf(dto.getStatus()))")
+    @Mapping(target = "status", expression = "java(mapStatus(dto.getStatus()))")
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     public abstract Donation toEntity(DonationResponseDTO dto);
@@ -51,19 +53,25 @@ public abstract class DonationResponseMapper {
     @AfterMapping
     protected void linkRelations(DonationResponseDTO dto, @MappingTarget Donation donation) {
         if (dto.getEstablishmentId() != null) {
-            Establishment est = establishmentRepository.findById(dto.getEstablishmentId()).orElseThrow(
-                    () -> new NoSuchElementException("Couldn't find the establishment")
-            );
+            Establishment est = establishmentRepository.findById(dto.getEstablishmentId())
+                    .orElseThrow(() -> new NoSuchElementException("Couldn't find the establishment"));
             donation.setEstablishment(est);
         }
 
         if (dto.getAssignmentId() != null) {
-            DonationAssignment assig = assignmentRepository.findById(dto.getAssignmentId()).orElseThrow(
-                    () -> new NoSuchElementException("Couldn't find the Assignment")
-            );
+            DonationAssignment assig = assignmentRepository.findById(dto.getAssignmentId())
+                    .orElseThrow(() -> new NoSuchElementException("Couldn't find the Assignment"));
             donation.setAssignment(assig);
         }
     }
-
     //endregion
+
+    protected DonationStatus mapStatus(String status) {
+        if (status == null) return null;
+        try {
+            return DonationStatus.valueOf(status.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid DonationStatus: " + status);
+        }
+    }
 }
