@@ -13,6 +13,7 @@ import com.example.ZeroFoodWaste.repository.DonationAssignmentRepository;
 import com.example.ZeroFoodWaste.repository.DonationRepository;
 import com.example.ZeroFoodWaste.repository.EstablishmentRepository;
 import com.example.ZeroFoodWaste.repository.FoodBankRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -28,9 +29,6 @@ public class DonationService {
     todo 3 factorizar un método genérico findOrThrow(id, exception) para Donation, Establishment y FoodBank
     todo 4 crear excepciones específicas (DonationNotFoundException, EstablishmentNotFoundException,
             FoodBankNotFoundException, DonationPermissionException, AssignmentNotFoundException)
-    todo 5 evitar devolver entidades JPA directamente → devolver DTOs en todos los métodos públicos
-    todo 6 añadir @Transactional a métodos que modifican BD (create, modify, delete, accept, pickUp)
-    todo 7 refactorizar modifyDonation para no crear una entidad nueva, usar DTO y mapper
     todo 8 validar parámetros de entrada con javax.validation y @Valid (especialmente fechas, status y quantities)
     todo 9 revisar integridad referencial en DonationAssignment (evitar duplicados o inconsistencias)
     */
@@ -94,6 +92,7 @@ public class DonationService {
      * @param dto dto the DTO containing the donation data to be saved
      * @return the saved {@link DonationResponseDTO} entity with updated fields (id, createdAt, etc.)
      */
+    @Transactional
     public DonationResponseDTO createDonation(NewDonationDTO dto) {
         Donation donation = newDonationMapper.toEntity(dto);
         return donationResponseMapper.toDTO(donationRepository.save(donation));
@@ -108,6 +107,7 @@ public class DonationService {
      * @param id id of the donation to delete
      * @return DonationResponseDTO
      */
+    @Transactional
     public DonationResponseDTO deleteDonation(Long id) throws NoSuchElementException {
         Donation donation = donationRepository.findById(id).orElseThrow(
                 () -> new NoSuchElementException("Couldn't find the Donation")
@@ -126,6 +126,7 @@ public class DonationService {
      * @return the updated donation mapped to a response DTO
      * @throws NoSuchElementException if no donation exists with the given ID
      */
+    @Transactional
     public DonationResponseDTO modifyDonation(DonationResponseDTO dto) {
         Donation donation = donationRepository.findById(dto.getId())
                 .orElseThrow(() -> new NoSuchElementException("Donation not found"));
@@ -140,6 +141,7 @@ public class DonationService {
      * @param foodBankId transform into {@link FoodBank} the food bank that accepted the donation
      * @return the updated donation mapped to a response DTO
      */
+    @Transactional
     public DonationResponseDTO acceptDonation(Long id, Long foodBankId) {
         Donation donation = donationRepository.findById(id).orElseThrow(
                 () -> new NoSuchElementException("Couldn't find the Donation")
@@ -159,6 +161,7 @@ public class DonationService {
      * @param id id of the donation to be picked up
      * @return the updated donation mapped to a response DTO
      */
+    @Transactional
     public DonationResponseDTO pickUpDonation(Long id) {
         Donation donation = donationRepository.findById(id).orElseThrow(
                 () -> new NoSuchElementException("Couldn't find the Donation")
