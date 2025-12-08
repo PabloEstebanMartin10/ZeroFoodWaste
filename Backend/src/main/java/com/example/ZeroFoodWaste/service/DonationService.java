@@ -97,43 +97,6 @@ public class DonationService {
         Donation donation = newDonationMapper.toEntity(dto);
         return donationResponseMapper.toDTO(donationRepository.save(donation));
     }
-    //endregion
-
-    //region delete
-
-    /**
-     * Search a donation and delete it
-     *
-     * @param id id of the donation to delete
-     * @return DonationResponseDTO
-     */
-    @Transactional
-    public DonationResponseDTO deleteDonation(Long id) throws NoSuchElementException {
-        Donation donation = donationRepository.findById(id).orElseThrow(
-                () -> new NoSuchElementException("Couldn't find the Donation")
-        );
-        donationRepository.delete(donation);
-        return donationResponseMapper.toDTO(donation);
-    }
-    //endregion
-
-    //region put/patch
-
-    /**
-     * modifies a donation from the database with the data from th dto
-     *
-     * @param dto the DTO containing the updated donation data; must include the donation ID
-     * @return the updated donation mapped to a response DTO
-     * @throws NoSuchElementException if no donation exists with the given ID
-     */
-    @Transactional
-    public DonationResponseDTO modifyDonation(DonationResponseDTO dto) {
-        Donation donation = donationRepository.findById(dto.getId())
-                .orElseThrow(() -> new NoSuchElementException("Donation not found"));
-        donationResponseMapper.updateEntityFromDTO(dto, donation);
-        Donation saved = donationRepository.save(donation);
-        return donationResponseMapper.toDTO(saved);
-    }
 
     /**
      *
@@ -173,6 +136,43 @@ public class DonationService {
         assignment.setPickedUpAt(LocalDateTime.now());
         assignmentRepository.save(assignment);
         return donationResponseMapper.toDTO(donationRepository.save(donation));
+    }
+    //endregion
+
+    //region delete
+
+    /**
+     * Search a donation and delete it
+     *
+     * @param id id of the donation to delete
+     * @return DonationResponseDTO
+     */
+    @Transactional
+    public DonationResponseDTO deleteDonation(Long id) throws NoSuchElementException {
+        Donation donation = donationRepository.findById(id).orElseThrow(
+                () -> new NoSuchElementException("Couldn't find the Donation")
+        );
+        donationRepository.delete(donation);
+        return donationResponseMapper.toDTO(donation);
+    }
+    //endregion
+
+    //region put/patch
+
+    /**
+     * modifies a donation from the database with the data from th dto
+     *
+     * @param dto the DTO containing the updated donation data; must include the donation ID
+     * @return the updated donation mapped to a response DTO
+     * @throws NoSuchElementException if no donation exists with the given ID
+     */
+    @Transactional
+    public DonationResponseDTO modifyDonation(DonationResponseDTO dto) {
+        Donation donation = donationRepository.findById(dto.getId())
+                .orElseThrow(() -> new NoSuchElementException("Donation not found"));
+        donationResponseMapper.updateEntityFromDTO(dto, donation);
+        Donation saved = donationRepository.save(donation);
+        return donationResponseMapper.toDTO(saved);
     }
 
     //endregion
