@@ -11,7 +11,7 @@ public class DonationResponseDTO {
     private Long assignmentId;
     private String productName;
     private String description;
-    private String quantity;
+    private Number quantity;
     private LocalDateTime expirationDate;
     private String status;
 }

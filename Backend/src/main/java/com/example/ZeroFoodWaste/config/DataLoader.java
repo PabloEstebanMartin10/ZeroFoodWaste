@@ -57,7 +57,7 @@ public class DataLoader implements CommandLineRunner {
                 e1,
                 "Pan fresco",
                 "Pan recién horneado del día",
-                "50 unidades",
+                50,
                 LocalDateTime.now().plusDays(2),
                 DonationStatus.AVAILABLE
         );
@@ -66,7 +66,7 @@ public class DataLoader implements CommandLineRunner {
                 e2,
                 "Leche",
                 "Leche entera fresca",
-                "30 litros",
+                30,
                 LocalDateTime.now().plusDays(4),
                 DonationStatus.AVAILABLE
         );
@@ -75,7 +75,7 @@ public class DataLoader implements CommandLineRunner {
                 e1,
                 "Bollería",
                 "Croissants y napolitanas",
-                "20 unidades",
+                20,
                 LocalDateTime.now().plusDays(1),
                 DonationStatus.AVAILABLE
         );
@@ -84,7 +84,7 @@ public class DataLoader implements CommandLineRunner {
                 e2,
                 "Yogur",
                 "Yogures naturales",
-                "25 unidades",
+                25,
                 LocalDateTime.now().plusDays(3),
                 DonationStatus.AVAILABLE
         );
