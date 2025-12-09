@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import LogoFull from "../../assets/logos/Logo_ZeroFoodWasteTransparent.png";
+import { Link } from "react-router-dom";
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -66,12 +67,11 @@ const Login: React.FC = () => {
           <div className="mt-4 text-sm text-center">
             <p className="mt-2">
               ¿No tienes cuenta?{" "}
-              <a
-                href="#"
+              <Link to="/registro"
                 className="text-green-800 hover:underline font-medium"
               >
                 Regístrate aquí
-              </a>
+              </Link>
             </p>
           </div>
         </div>
