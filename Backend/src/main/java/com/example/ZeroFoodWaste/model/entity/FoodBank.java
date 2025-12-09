@@ -17,8 +17,7 @@ public class FoodBank {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne
-    @JoinColumn(name = "userId", nullable = false, unique = true)
+    @OneToOne(mappedBy = "foodBank")
     private User user;
 
     @Column(nullable = false)
