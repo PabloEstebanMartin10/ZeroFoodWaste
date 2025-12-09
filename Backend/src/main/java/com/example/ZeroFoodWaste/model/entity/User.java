@@ -12,6 +12,14 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Table(name = "Users")
 public class User {
+
+    public User(Long id, String email, String passwordHash, Role role) {
+        this.id = id;
+        this.email = email;
+        this.passwordHash = passwordHash;
+        this.role = role;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

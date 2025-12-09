@@ -15,23 +15,23 @@ interface Horarios {
   domingo: Horario;
 }
 
-const RestaurantProfile: React.FC = () => {
+const FoodBankProfile: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"general" | "config" | "historial">("general");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   const [profileData, setProfileData] = useState({
-    nombre: "Restaurante El Buen Sabor",
-    email: "contacto@elbuensabor.com",
-    telefono: "+34 912 345 678",
-    direccion: "Calle Mayor 123, Madrid",
-    descripcion: "Restaurante familiar comprometido con la sostenibilidad y la reducción del desperdicio alimentario. Desde 2020 colaboramos activamente con bancos de alimentos para asegurar que nuestros excedentes lleguen a quienes más lo necesitan.",
+    nombre: "Banco de Alimentos Regional",
+    email: "contacto@bancoalimentos.org",
+    telefono: "+34 913 456 789",
+    direccion: "Avenida de la Solidaridad 45, Málaga",
+    descripcion: "Organización sin ánimo de lucro dedicada a la lucha contra el hambre y el desperdicio alimentario. Colaboramos con restaurantes, comercios y donantes para redistribuir alimentos a familias necesitadas desde 2015.",
     horarios: {
-      lunes: { inicio: "09:00", cierre: "17:00" },
-      martes: { inicio: "09:00", cierre: "17:00" },
-      miercoles: { inicio: "09:00", cierre: "17:00" },
-      jueves: { inicio: "09:00", cierre: "17:00" },
-      viernes: { inicio: "09:00", cierre: "17:00" },
-      sabado: { inicio: "10:00", cierre: "14:00" },
+      lunes: { inicio: "08:00", cierre: "18:00" },
+      martes: { inicio: "08:00", cierre: "18:00" },
+      miercoles: { inicio: "08:00", cierre: "18:00" },
+      jueves: { inicio: "08:00", cierre: "18:00" },
+      viernes: { inicio: "08:00", cierre: "18:00" },
+      sabado: { inicio: "09:00", cierre: "14:00" },
       domingo: { inicio: "--:--", cierre: "--:--" }
     }
   });
@@ -41,104 +41,102 @@ const RestaurantProfile: React.FC = () => {
       id: 1,
       nombre: "Pan del día anterior",
       cantidad: "15 kg",
-      destino: "Banco de Alimentos Regional",
+      origen: "Restaurante El Buen Sabor",
       fecha: "2 Dic 2025",
-      estado: "Completado"
+      estado: "Recogido"
     },
     {
       id: 2,
       nombre: "Verduras frescas",
       cantidad: "8 kg",
-      destino: "Fundación Alimentos Para Todos",
+      origen: "Supermercado La Esquina",
       fecha: "1 Dic 2025",
-      estado: "Completado"
+      estado: "Recogido"
     },
     {
       id: 3,
       nombre: "Comidas preparadas",
       cantidad: "12 raciones",
-      destino: "Comedor Social San José",
+      origen: "Restaurante El Buen Sabor",
       fecha: "4 Dic 2025",
-      estado: "Completado"
+      estado: "Recogido"
     },
     {
       id: 4,
       nombre: "Frutas variadas",
       cantidad: "10 kg",
-      destino: "Banco de Alimentos Regional",
+      origen: "Frutería Martínez",
       fecha: "3 Dic 2025",
-      estado: "Completado"
+      estado: "Recogido"
     },
     {
       id: 5,
       nombre: "Lácteos",
       cantidad: "20 kg",
-      destino: "Fundación Alimentos Para Todos",
+      origen: "Supermercado La Esquina",
       fecha: "30 Nov 2025",
-      estado: "Completado"
+      estado: "Recogido"
     },
     {
       id: 6,
       nombre: "Carnes preparadas",
       cantidad: "18 kg",
-      destino: "Comedor Social San José",
+      origen: "Carnicería García",
       fecha: "29 Nov 2025",
-      estado: "Completado"
+      estado: "Recogido"
     },
     {
       id: 7,
       nombre: "Pasta",
       cantidad: "25 kg",
-      destino: "Banco de Alimentos Regional",
+      origen: "Restaurante La Italiana",
       fecha: "28 Nov 2025",
-      estado: "Completado"
+      estado: "Recogido"
     },
     {
       id: 8,
       nombre: "Conservas variadas",
       cantidad: "30 unidades",
-      destino: "Fundación Alimentos Para Todos",
+      origen: "Supermercado La Esquina",
       fecha: "27 Nov 2025",
-      estado: "Completado"
+      estado: "Recogido"
     },
     {
       id: 9,
       nombre: "Arroz",
       cantidad: "40 kg",
-      destino: "Comedor Social San José",
+      origen: "Restaurante Oriente",
       fecha: "26 Nov 2025",
-      estado: "Completado"
+      estado: "Recogido"
     },
     {
       id: 10,
       nombre: "Legumbres",
       cantidad: "15 kg",
-      destino: "Banco de Alimentos Regional",
+      origen: "Tienda Bio Natural",
       fecha: "25 Nov 2025",
-      estado: "Completado"
+      estado: "Recogido"
     },
     {
       id: 11,
       nombre: "Aceite de oliva",
       cantidad: "12 litros",
-      destino: "Fundación Alimentos Para Todos",
+      origen: "Restaurante Mediterráneo",
       fecha: "24 Nov 2025",
-      estado: "Completado"
+      estado: "Recogido"
     },
     {
       id: 12,
       nombre: "Postres variados",
       cantidad: "20 unidades",
-      destino: "Comedor Social San José",
+      origen: "Pastelería Dulce Hogar",
       fecha: "23 Nov 2025",
-      estado: "Completado"
+      estado: "Recogido"
     }
   ];
 
   const stats = {
-    totalDonado: { value: "20", change: "+15%", period: "Este mes" },
-    personasAyudadas: { value: "1,240", change: "+8%", period: "Aproximadamente" },
-    donacionesActivas: { value: "12", period: "En este momento" }
+    donacionesRecogidas: { value: "20", change: "+15%", period: "Este mes" }
   };
 
   const updateHorario = (dia: keyof Horarios, campo: 'inicio' | 'cierre', valor: string) => {
@@ -175,7 +173,7 @@ const RestaurantProfile: React.FC = () => {
       <div className="bg-amber-50 border-b border-gray-200">
         <div className="max-w-6xl mx-auto px-6 py-6">
           <h1 className="text-3xl font-bold text-gray-800">Mi Cuenta</h1>
-          <p className="text-gray-600 mt-1">Gestiona tu perfil y revisa el impacto de tus donaciones</p>
+          <p className="text-gray-600 mt-1">Gestiona tu perfil y revisa el impacto de las donaciones recogidas</p>
         </div>
       </div>
 
@@ -186,7 +184,7 @@ const RestaurantProfile: React.FC = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="bg-gray-100 rounded-full w-16 h-16 flex items-center justify-center">
-                <span className="text-gray-700 font-bold text-xl">RE</span>
+                <span className="text-gray-700 font-bold text-xl">BA</span>
               </div>
               <div>
                 <h2 className="text-xl font-bold text-gray-800">{profileData.nombre}</h2>
@@ -250,7 +248,7 @@ const RestaurantProfile: React.FC = () => {
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-6">
                     <div>
-                      <span className="text-sm font-medium text-gray-600">Nombre del Restaurante:</span>
+                      <span className="text-sm font-medium text-gray-600">Nombre del Banco de Alimentos:</span>
                       <p className="text-gray-800 mt-1">{profileData.nombre}</p>
                     </div>
                     <div>
@@ -315,39 +313,26 @@ const RestaurantProfile: React.FC = () => {
               <div className="border-t border-gray-200 pt-8 mb-8">
                 <h3 className="text-lg font-semibold text-gray-800 mb-6">Estadísticas</h3>
               </div>
-              <div className="grid grid-cols-3 gap-4 mb-8">
+              <div className="grid grid-cols-1 gap-4 mb-8 max-w-md">
                 <div className="bg-white border border-gray-200 rounded-lg p-4">
                   <div className="flex items-start justify-between mb-2">
-                    <span className="text-sm text-gray-600">Donaciones Totales</span>
+                    <span className="text-sm text-gray-600">Donaciones Recogidas</span>
                     <div className="bg-green-50 p-2 rounded-lg">
                       <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                       </svg>
                     </div>
                   </div>
-                  <p className="text-2xl font-bold text-gray-800">{stats.totalDonado.value}</p>
-                  <p className="text-xs text-gray-500 mt-1">{stats.totalDonado.period}</p>
-                </div>
-
-                <div className="bg-white border border-gray-200 rounded-lg p-4">
-                  <div className="flex items-start justify-between mb-2">
-                    <span className="text-sm text-gray-600">Donaciones Activas</span>
-                    <div className="bg-green-50 p-2 rounded-lg">
-                      <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                      </svg>
-                    </div>
-                  </div>
-                  <p className="text-2xl font-bold text-gray-800">{stats.donacionesActivas.value}</p>
-                  <p className="text-xs text-gray-500 mt-1">{stats.donacionesActivas.period}</p>
+                  <p className="text-2xl font-bold text-gray-800">{stats.donacionesRecogidas.value}</p>
+                  <p className="text-xs text-gray-500 mt-1">{stats.donacionesRecogidas.period}</p>
                 </div>
               </div>
             </>
           ) : activeTab === "historial" ? (
             <>
-              {/* Donations History */}
+              {/* Historial donaciones */}
               <div>
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">Historial de Donaciones</h3>
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">Historial de Donaciones Recogidas</h3>
                 <div className="space-y-3">
                   {currentDonations.map((donation) => (
                     <div key={donation.id} className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
@@ -360,19 +345,11 @@ const RestaurantProfile: React.FC = () => {
                         <h4 className="font-semibold text-gray-800">{donation.nombre}</h4>
                         <p className="text-sm text-gray-600">{donation.cantidad}</p>
                         <div className="flex items-center gap-4 mt-1 text-xs text-gray-500">
-                          <span>📍 {donation.destino}</span>
+                          <span>📍 {donation.origen}</span>
                           <span>📅 {donation.fecha}</span>
                         </div>
                       </div>
-                      <span
-                        className={`px-3 py-1 rounded-lg text-sm font-medium ${
-                          donation.estado === "Completado"
-                            ? "bg-green-100 text-green-700"
-                            : donation.estado === "Programado"
-                            ? "bg-blue-100 text-blue-700"
-                            : "bg-yellow-100 text-yellow-700"
-                        }`}
-                      >
+                      <span className="px-3 py-1 rounded-lg text-sm font-medium bg-green-100 text-green-700">
                         {donation.estado}
                       </span>
                     </div>
@@ -427,14 +404,14 @@ const RestaurantProfile: React.FC = () => {
             </>
           ) : (
             <>
-              {/* Configuration Form */}
+              {/* Configuración */}
               <div className="max-w-6xl">
                 <h3 className="text-lg font-semibold text-gray-800 mb-6">Configuración del Perfil</h3>
 
                 <div className="space-y-6">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Nombre del Restaurante</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Nombre del Banco de Alimentos</label>
                       <input
                         type="text"
                         value={profileData.nombre}
@@ -605,4 +582,4 @@ const RestaurantProfile: React.FC = () => {
   );
 };
 
-export default RestaurantProfile;
+export default FoodBankProfile;

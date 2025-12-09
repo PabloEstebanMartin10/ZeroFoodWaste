@@ -2,11 +2,12 @@
 
 package com.example.ZeroFoodWaste.service;
 
+import com.example.ZeroFoodWaste.model.dto.EstablishmentResponseDTO;
 import com.example.ZeroFoodWaste.model.entity.Establishment;
+import com.example.ZeroFoodWaste.model.mapper.EstablishmentResponseMapper;
 import com.example.ZeroFoodWaste.repository.EstablishmentRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.NoSuchElementException;
@@ -25,6 +26,7 @@ public class EstablishmentService {
     todo 7 evaluar si se requiere control de permisos antes de modificar establecimientos
      */
     private final EstablishmentRepository establishmentRepository;
+    private final EstablishmentResponseMapper establishmentResponseMapper;
 
     //region get
 
@@ -32,12 +34,12 @@ public class EstablishmentService {
      * Retrieves an establishment associated with a specific user ID.
      *
      * @param userId the ID of the user whose establishment is to be retrieved
-     * @return the {@link Establishment} linked to the user
+     * @return the {@link EstablishmentResponseDTO} linked to the user
      * @throws NoSuchElementException if no establishment is found for the given user ID
      */
-    public Establishment getEstablishment(Long userId) {
-        return establishmentRepository.findByUserId(userId).orElseThrow(
-                () -> new NoSuchElementException("Couldn't find the establishment"));
+    public EstablishmentResponseDTO getEstablishment(Long userId) {
+        return establishmentResponseMapper.toDTO(establishmentRepository.findByUserId(userId).orElseThrow(
+                () -> new NoSuchElementException("Couldn't find the establishment")));
     }
 
     //endregion
@@ -48,17 +50,18 @@ public class EstablishmentService {
      * Updates an existing establishment with new values.
      * Only the fields allowed for modification will be updated; ID and user association are not changed.
      *
-     * @param est an {@link Establishment} object containing the new values
-     * @return the updated {@link Establishment} after saving the changes
+     * @param id
+     * @param dto an {@link EstablishmentResponseDTO} object containing the new values
+     * @return the updated {@link EstablishmentResponseDTO} after saving the changes
      * @throws NoSuchElementException if the establishment with the given ID does not exist
      */
     @Transactional
-    public Establishment modifyEstablishment(Establishment est) {
-        Establishment establishment = establishmentRepository.findById(est.getId()).orElseThrow(
+    public EstablishmentResponseDTO modifyEstablishment(Long id, EstablishmentResponseDTO dto) {
+        Establishment establishment = establishmentRepository.findById(id).orElseThrow(
                 () -> new NoSuchElementException("Couldn't find the establishment")
         );
-        BeanUtils.copyProperties(est, establishment, "id", "user", "donations");
-        return establishmentRepository.save(establishment);
+        establishmentResponseMapper.updateEntityFromDTO(dto, establishment);
+        return establishmentResponseMapper.toDTO(establishmentRepository.save(establishment));
     }
 
     //endregion
