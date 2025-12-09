@@ -14,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 
@@ -31,8 +30,8 @@ public class DataLoader implements CommandLineRunner {
         // ---------- USERS ----------
         User estabUser1 = new User(null, "estab1@example.com", "pass123", Role.Establishment);
         User estabUser2 = new User(null, "estab2@example.com", "pass123", Role.Establishment);
-        User fbUser1 = new User(null, "foodbank1@example.com", "pass123", Role.foodBank);
-        User fbUser2 = new User(null, "foodbank2@example.com", "pass123", Role.foodBank);
+        User fbUser1 = new User(null, "foodbank1@example.com", "pass123", Role.FoodBank);
+        User fbUser2 = new User(null, "foodbank2@example.com", "pass123", Role.FoodBank);
 
         userRepository.save(estabUser1);
         userRepository.save(estabUser2);
