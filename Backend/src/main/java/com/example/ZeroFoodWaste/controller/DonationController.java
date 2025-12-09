@@ -3,7 +3,7 @@ package com.example.ZeroFoodWaste.controller;
 import com.example.ZeroFoodWaste.model.dto.DonationResponseDTO;
 import com.example.ZeroFoodWaste.model.dto.NewDonationDTO;
 import com.example.ZeroFoodWaste.service.DonationService;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 import java.util.List;
 
+@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/")
@@ -38,7 +39,7 @@ public class DonationController {
     @PostMapping("/donations")
     public ResponseEntity<DonationResponseDTO> createDonation(@RequestBody NewDonationDTO donation) {
         DonationResponseDTO dto = donationService.createDonation(donation);
-        URI location = URI.create("donations/" + dto);
+        URI location = URI.create("donations/" + dto.getId());
         return ResponseEntity.created(location).build();
     }
 
