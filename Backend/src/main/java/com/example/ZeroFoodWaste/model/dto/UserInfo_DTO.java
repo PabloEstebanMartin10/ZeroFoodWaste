@@ -11,6 +11,4 @@ public class UserInfo_DTO {
     private String userName;
     private String email;
     private Role role;
-    private Establishment establishment;
-    private FoodBank foodBank;
 }

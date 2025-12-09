@@ -41,18 +41,16 @@ public class UserService implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username)
+    public UserDetails loadUserByUsername(String email)
             throws UsernameNotFoundException {
 
-        // 1️⃣ Load your own user entity
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + username));
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
 
-        // 2️⃣ Build a Spring Security UserDetails object
         return org.springframework.security.core.userdetails.User
-                .withUsername(user.getUserName())
-                .password(user.getPasswordHash())  // Use your hash field
-                .roles("USER")                     // Later replace with real roles
+                .withUsername(user.getEmail())
+                .password(user.getPasswordHash())
+                .roles(user.getRole().name()) // USER, ADMIN, etc
                 .disabled(!user.isEnabled())
                 .build();
     }
