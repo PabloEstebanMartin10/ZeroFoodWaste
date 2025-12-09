@@ -163,6 +163,13 @@ export default function DashboardComercio() {
     });
   };
 
+  const handleDeleteDonation = (index: number) => {
+    if (window.confirm('¿Estás seguro de que quieres eliminar esta donación?')) {
+      const realIndex = donations.findIndex((d) => d === donationsList[index]);
+      setDonations(donations.filter((_, i) => i !== realIndex));
+    }
+  };
+
   return (
     <div className="min-h-screen bg-amber-50 p-10">
       {/* ENCABEZADO */}
@@ -228,6 +235,7 @@ export default function DashboardComercio() {
                   <th className="py-3 px-4">Fecha Caducidad</th>
                   <th className="py-3 px-4">Estado</th>
                   <th className="py-3 px-4">Detalles</th>
+                  <th className="py-3 px-4">Acciones</th>
                 </tr>
               </thead>
 
@@ -256,6 +264,14 @@ export default function DashboardComercio() {
                         className="text-green-700 font-semibold hover:underline"
                       >
                         Ver Detalles
+                      </button>
+                    </td>
+                    <td className="py-4 px-4">
+                      <button
+                        onClick={() => handleDeleteDonation(i)}
+                        className="text-red-600 font-semibold hover:text-red-800 hover:underline"
+                      >
+                        Eliminar
                       </button>
                     </td>
                   </tr>
@@ -325,14 +341,14 @@ export default function DashboardComercio() {
                 ✕
               </button>
 
-              {/* Imagen */}
+              {/* Imagen
               {formData.imageUrl && (
                 <img
                   src={formData.imageUrl}
                   alt={formData.product}
                   className="w-full h-48 object-cover rounded-t-lg"
                 />
-              )}
+              )} */}
 
               <div className="p-6 space-y-6">
                 <div className="flex items-center justify-between">
@@ -360,7 +376,7 @@ export default function DashboardComercio() {
                   <div>
                     <label className="font-semibold">Cantidad</label>
                     <input
-                      type="text"
+                      type="number"
                       name="quantity"
                       value={formData.quantity}
                       onChange={handleChange}
