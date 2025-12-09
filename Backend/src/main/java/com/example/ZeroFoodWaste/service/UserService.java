@@ -2,7 +2,13 @@
 
 package com.example.ZeroFoodWaste.service;
 
+import com.example.ZeroFoodWaste.model.dto.NewUserDTO;
+import com.example.ZeroFoodWaste.model.dto.UserResponseDTO;
+import com.example.ZeroFoodWaste.model.entity.Establishment;
+import com.example.ZeroFoodWaste.model.entity.FoodBank;
 import com.example.ZeroFoodWaste.model.entity.User;
+import com.example.ZeroFoodWaste.model.mapper.NewUserMapper;
+import com.example.ZeroFoodWaste.model.mapper.UserResponseMapper;
 import com.example.ZeroFoodWaste.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,17 +30,34 @@ public class UserService {
      todo 7 manejar duplicados al registrar (email ya registrado)
       */
      private final UserRepository userRepository;
+     private final NewUserMapper newUserMapper;
+     private final UserResponseMapper userResponseMapper;
+     private final EstablishmentService establishmentService;
+     private final FoodBankService foodBankService;
 
      //region post
 
      /**
       * saves a new user to the DB
       *
-      * @param user the user to be saved
+      * @param dto the user to be saved
       * @return the user if is saved
       */
-    public User createUser(User user) {
-        return  userRepository.save(user);
+    public UserResponseDTO createUser(NewUserDTO dto) {
+        User user = newUserMapper.toEntity(dto);
+        user.setPasswordHash("jklsad");
+        userRepository.save(user);
+
+        if (user.getEstablishment() != null) {
+            Establishment est = user.getEstablishment();
+            est.setUser(user);
+            establishmentService.createEstablishment(est);
+        }else if (user.getFoodBank() != null) {
+            FoodBank foodBank = user.getFoodBank();
+            foodBank.setUser(user);
+            foodBankService.createFoodBank(foodBank);
+        }
+        return userResponseMapper.toDTO(user) ;
     }
 
     /**
