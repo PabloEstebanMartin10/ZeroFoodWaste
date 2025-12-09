@@ -64,9 +64,6 @@ const Login: React.FC = () => {
           </form>
 
           <div className="mt-4 text-sm text-center">
-            <a href="#" className="text-green-800 hover:underline">
-              ¿Olvidaste tu contraseña?
-            </a>
             <p className="mt-2">
               ¿No tienes cuenta?{" "}
               <a
