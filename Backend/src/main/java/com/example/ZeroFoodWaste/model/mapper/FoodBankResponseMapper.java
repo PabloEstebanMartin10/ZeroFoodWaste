@@ -3,7 +3,6 @@ package com.example.ZeroFoodWaste.model.mapper;
 import com.example.ZeroFoodWaste.model.dto.FoodBankResponseDTO;
 import com.example.ZeroFoodWaste.model.entity.FoodBank;
 import com.example.ZeroFoodWaste.model.entity.User;
-import com.example.ZeroFoodWaste.repository.FoodBankRepository;
 import com.example.ZeroFoodWaste.repository.UserRepository;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
