@@ -8,7 +8,6 @@ import com.example.ZeroFoodWaste.model.mapper.EstablishmentResponseMapper;
 import com.example.ZeroFoodWaste.repository.EstablishmentRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.NoSuchElementException;
@@ -51,13 +50,14 @@ public class EstablishmentService {
      * Updates an existing establishment with new values.
      * Only the fields allowed for modification will be updated; ID and user association are not changed.
      *
+     * @param id
      * @param dto an {@link EstablishmentResponseDTO} object containing the new values
      * @return the updated {@link EstablishmentResponseDTO} after saving the changes
      * @throws NoSuchElementException if the establishment with the given ID does not exist
      */
     @Transactional
-    public EstablishmentResponseDTO modifyEstablishment(EstablishmentResponseDTO dto) {
-        Establishment establishment = establishmentRepository.findById(dto.getEstablishmentId()).orElseThrow(
+    public EstablishmentResponseDTO modifyEstablishment(Long id, EstablishmentResponseDTO dto) {
+        Establishment establishment = establishmentRepository.findById(id).orElseThrow(
                 () -> new NoSuchElementException("Couldn't find the establishment")
         );
         establishmentResponseMapper.updateEntityFromDTO(dto, establishment);
