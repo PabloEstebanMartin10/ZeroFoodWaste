@@ -4,6 +4,7 @@ package com.example.ZeroFoodWaste.service;
 
 import com.example.ZeroFoodWaste.model.entity.Establishment;
 import com.example.ZeroFoodWaste.repository.EstablishmentRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -16,7 +17,6 @@ import java.util.NoSuchElementException;
 @RequiredArgsConstructor
 public class EstablishmentService {
     /* todos
-    todo 1 añadir @Transactional en métodos que escriben en la BD (modifyEstablishment)
     todo 2 crear excepciones personalizadas (EstablishmentNotFoundException, InvalidUpdateException)
     todo 3 introducir DTOs para evitar exponer entidades (EstablishmentDTO, UpdateEstablishmentDTO)
     todo 4 reemplazar BeanUtils por MapStruct u otro mapper tipado
@@ -52,6 +52,7 @@ public class EstablishmentService {
      * @return the updated {@link Establishment} after saving the changes
      * @throws NoSuchElementException if the establishment with the given ID does not exist
      */
+    @Transactional
     public Establishment modifyEstablishment(Establishment est) {
         Establishment establishment = establishmentRepository.findById(est.getId()).orElseThrow(
                 () -> new NoSuchElementException("Couldn't find the establishment")

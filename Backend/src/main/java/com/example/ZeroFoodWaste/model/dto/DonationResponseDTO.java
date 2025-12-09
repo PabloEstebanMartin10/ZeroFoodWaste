@@ -5,14 +5,13 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-public class D_A_FB_DTO {
-    private Long donationId;
+public class DonationResponseDTO {
+    private Long id;
+    private Long establishmentId;
     private Long assignmentId;
-    private Long foodBankId;
     private String productName;
     private String description;
     private String quantity;
+    private LocalDateTime expirationDate;
     private String status;
-    private LocalDateTime createdAt;
-    private String foodBankName;
 }
