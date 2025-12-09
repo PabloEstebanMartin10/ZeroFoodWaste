@@ -1,0 +1,42 @@
+[
+  {
+    "establishmentId": 101,
+    "productName": "Arroz integral",
+    "description": "Paquete de 1 kg de arroz integral orgánico",
+    "quantity": 50,
+    "expirationDate": "2026-03-15T00:00:00",
+    "status": "Disponible"
+  },
+  {
+    "establishmentId": 102,
+    "productName": "Leche deslactosada",
+    "description": "Caja de 12 unidades de 1 litro",
+    "quantity": 30,
+    "expirationDate": "2025-12-20T00:00:00",
+    "status": "Reservado"
+  },
+  {
+    "establishmentId": 103,
+    "productName": "Pan integral",
+    "description": "Paquete de 6 panes integrales",
+    "quantity": 20,
+    "expirationDate": "2025-12-12T00:00:00",
+    "status": "Disponible"
+  },
+  {
+    "establishmentId": 104,
+    "productName": "Tomate enlatado",
+    "description": "Lata de 400g de tomate triturado",
+    "quantity": 100,
+    "expirationDate": "2027-01-05T00:00:00",
+    "status": "Disponible"
+  },
+  {
+    "establishmentId": 105,
+    "productName": "Galletas integrales",
+    "description": "Paquete de 300g",
+    "quantity": 60,
+    "expirationDate": "2026-05-10T00:00:00",
+    "status": "Completado"
+  }
+]

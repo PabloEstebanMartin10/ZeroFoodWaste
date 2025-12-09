@@ -1,91 +1,82 @@
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface Donation {
-  product: string;
+  id?: number;
+  productName: string;
   quantity: number;
   unit?: string;
-  expiration: string;
+  expirationDate: string;
   status: "Disponible" | "Reservado" | "Completado";
   description?: string;
-  establishment?: string;
-  location?: string;
-  listedDate?: string;
-  imageUrl?: string;
+  establishment?: { id: number; name?: string };
+  createdAt?: string;
+  updatedAt?: string;
+  photoUrl?: string;
 }
 
-const donationsData: Donation[] = [
-  {
-    product: "Pan",
-    quantity: 24,
-    unit: "unidades",
-    expiration: "Dec 28, 2024",
-    status: "Disponible",
-    description:
-      "Pan artesanal horneado diariamente. Perfecta condición, acercándose a la fecha de caducidad.",
-    establishment: "Burger King",
-    location: "123 Main St, San Francisco, CA",
-    listedDate: "Dec 20, 2024",
-    imageUrl:
-      "https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=800&q=80",
-  },
-  {
-    product: "Verduras",
-    quantity: 15,
-    unit: "Kg",
-    expiration: "Dec 26, 2024",
-    status: "Reservado",
-  },
-  {
-    product: "Leche",
-    quantity: 30,
-    unit: "Litros",
-    expiration: "Dec 25, 2024",
-    status: "Completado",
-  },
-  {
-    product: "Queso",
-    quantity: 50,
-    expiration: "Mar 15, 2025",
-    status: "Disponible",
-  },
-  {
-    product: "Fruta",
-    quantity: 20,
-    expiration: "2024-12-24",
-    status: "Disponible",
-  },
-];
+const BASE_URL = "http://localhost:8080";
+//const MOCK_URL = "http://localhost:5173";
 
 export default function DashboardComercio() {
-  const [donations, setDonations] = useState<Donation[]>(donationsData);
+  const [donations, setDonations] = useState<Donation[]>([]);
   const [selectedDonationIndex, setSelectedDonationIndex] = useState<
     number | null
   >(null);
   const [formData, setFormData] = useState<Donation | null>(null);
 
-  // Estado para controlar la pestaña activa
   const [activeTab, setActiveTab] = useState<"donaciones" | "registro">(
     "donaciones"
   );
-
-  // Modal de nueva donación
   const [showCreateModal, setShowCreateModal] = useState(false);
 
-  // Datos del formulario de nueva donación
   const [newDonation, setNewDonation] = useState<Donation>({
-    product: "",
+    productName: "",
     quantity: 0,
     unit: "",
-    expiration: "",
-    status: "Disponible", // por defecto
+    expirationDate: "",
+    status: "Disponible",
     description: "",
-    establishment: "", // NO se usa aquí, lo rellena el banco al reservar
-    location: "",
-    listedDate: new Date().toISOString().split("T")[0], // fecha de hoy
-    imageUrl: "",
+    establishment: { id: 1 },
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    photoUrl: "",
   });
 
-  // Filtrados
+  // Fetch inicial
+  useEffect(() => {
+    const establishmentId = 1;
+    const url = `${BASE_URL}/donations/establishment/${establishmentId}`;
+    // const url = `${MOCK_URL}/data/donaciones_comercio.json`;
+    fetch(url)
+      .then((res) => res.json())
+      .then((data) => setDonations(data))
+      .catch((err) => console.error("Error cargando donaciones:", err));
+  }, []);
+
+  //Fetch prueba usuarios
+  /*useEffect(() => {
+    // 1️⃣ Obtener usuario logueado
+    fetch(`${BASE_URL}/users/me`)
+      .then((res) => res.json())
+      .then((user) => {
+        console.log("Usuario recibido:", user); // 👈 Aquí
+        // Guardamos el establecimiento del usuario
+        setUserEstablishment(user.establishment);
+
+        if (!user.establishment?.id) return [];
+
+        // 2️⃣ Obtener donaciones de ese establecimiento
+        return fetch(
+          `${BASE_URL}/donations/establishment/${user.establishment.id}`
+        ).then((res) => res.json());
+      })
+      .then((donations) => {
+        if (donations) setDonations(donations);
+      })
+      .catch((err) => console.error("Error cargando donaciones:", err));
+  }, []);*/
+
+  // Filtrado
   const donationsList = donations.filter((d) => d.status !== "Completado");
   const donationsCompletadas = donations.filter(
     (d) => d.status === "Completado"
@@ -112,21 +103,33 @@ export default function DashboardComercio() {
     >
   ) => {
     if (!formData) return;
-
     const { name, value } = e.target;
-
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
+    setFormData({ ...formData, [name]: value });
   };
 
   const handleSave = () => {
-    if (selectedDonationIndex === null || !formData) return;
-    const updatedDonations = [...donations];
-    updatedDonations[selectedDonationIndex] = formData;
-    setDonations(updatedDonations);
-    closeModal();
+    if (!formData || !formData.id) return;
+
+    const payload = {
+      ...formData,
+      quantity: formData.quantity.toString(),
+      expirationDate: new Date(formData.expirationDate).toISOString(),
+      establishment: { id: 1 },
+    };
+
+    fetch(`${BASE_URL}/donations/${formData.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    })
+      .then((res) => res.json())
+      .then((updated) => {
+        setDonations((prev) =>
+          prev.map((d) => (d.id === updated.id ? updated : d))
+        );
+        closeModal();
+      })
+      .catch((err) => console.error("Error modificando donación:", err));
   };
 
   const handleNewDonationChange = (
@@ -135,41 +138,59 @@ export default function DashboardComercio() {
     >
   ) => {
     const { name, value } = e.target;
-
-    if (name === "quantity") {
-    const numValue = Number(value);
-    if (numValue < 0) return; // No permitir valores negativos
-  }
-
-    setNewDonation((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setNewDonation((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleCreateDonation = () => {
-    setDonations((prev) => [...prev, newDonation]);
-
-    // Cerrar modal
-    setShowCreateModal(false);
-
-    // Reset form
+  const resetNewDonation = () => {
     setNewDonation({
-      product: "",
+      productName: "",
       quantity: 0,
       unit: "",
-      expiration: "",
+      expirationDate: "",
       status: "Disponible",
       description: "",
-      establishment: "",
-      location: "",
-      listedDate: new Date().toISOString().split("T")[0],
-      imageUrl: "",
+      establishment: { id: 1 },
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      photoUrl: "",
     });
   };
 
+  const handleCreateDonation = () => {
+    const donationToSend = {
+      productName: newDonation.productName,
+      description: newDonation.description,
+      quantity: newDonation.quantity,
+      expirationDate: newDonation.expirationDate
+        ? new Date(newDonation.expirationDate).toISOString()
+        : null,
+      status: "AVAILABLE",
+      establishmentId: 1,
+    };
+
+    console.log("Enviando donación:", donationToSend);
+
+    fetch(`${BASE_URL}/donations`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(donationToSend),
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error(`Error en backend: ${res.status}`);
+        return res.json();
+      })
+      .then((savedDonation) => {
+        setDonations((prev) => [...prev, savedDonation]); // agrega la donación
+        setShowCreateModal(false); // cierra modal
+        resetNewDonation(); // limpia formulario
+      })
+      .catch((err) => console.error("Error creando donación:", err));
+  };
+
   const handleDeleteDonation = (index: number) => {
-    if (window.confirm('¿Estás seguro de que quieres eliminar esta donación?')) {
+    if (
+      window.confirm("¿Estás seguro de que quieres eliminar esta donación?")
+    ) {
       const realIndex = donations.findIndex((d) => d === donationsList[index]);
       setDonations(donations.filter((_, i) => i !== realIndex));
     }
@@ -177,7 +198,6 @@ export default function DashboardComercio() {
 
   return (
     <div className="min-h-screen bg-amber-50 p-10">
-      {/* ENCABEZADO */}
       <header className="mb-10 flex items-center justify-between">
         <div>
           <h1 className="text-4xl font-bold text-gray-800">Burger King</h1>
@@ -185,9 +205,7 @@ export default function DashboardComercio() {
         </div>
       </header>
 
-      {/* BOTONES DE TABS + CREAR DONACIÓN */}
       <div className="mb-6 flex items-center justify-between">
-        {/* Botones de pestañas */}
         <div className="flex gap-4">
           <button
             className={`px-6 py-2 rounded-lg font-semibold transition ${
@@ -212,7 +230,6 @@ export default function DashboardComercio() {
           </button>
         </div>
 
-        {/* Botón crear donación */}
         <button
           onClick={() => setShowCreateModal(true)}
           className="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-20 rounded-lg shadow-md transition whitespace-nowrap"
@@ -221,7 +238,6 @@ export default function DashboardComercio() {
         </button>
       </div>
 
-      {/* CONTENEDOR PRINCIPAL */}
       <div className="bg-white rounded-lg shadow-md p-6">
         <h2 className="text-xl font-semibold text-green-800 mb-1">
           {activeTab === "donaciones"
@@ -230,7 +246,6 @@ export default function DashboardComercio() {
         </h2>
 
         <div className="overflow-x-auto">
-          {/* TABLA 1 - Tus donaciones */}
           {activeTab === "donaciones" && (
             <table className="w-full border-collapse">
               <thead>
@@ -243,15 +258,18 @@ export default function DashboardComercio() {
                   <th className="py-3 px-4">Acciones</th>
                 </tr>
               </thead>
-
               <tbody>
                 {donationsList.map((item, i) => (
                   <tr key={i} className="border-b hover:bg-gray-50">
-                    <td className="py-4 px-4 font-medium">{item.product}</td>
+                    <td className="py-4 px-4 font-medium">
+                      {item.productName}
+                    </td>
                     <td className="py-4 px-4">
                       {item.quantity} {item.unit}
                     </td>
-                    <td className="py-4 px-4">{item.expiration}</td>
+                    <td className="py-4 px-4">
+                      {new Date(item.expirationDate).toLocaleDateString()}
+                    </td>
                     <td className="py-4 px-4">
                       <span
                         className={`px-3 py-1 rounded-full text-sm font-medium ${
@@ -285,7 +303,6 @@ export default function DashboardComercio() {
             </table>
           )}
 
-          {/* TABLA 2 - Registro de completadas */}
           {activeTab === "registro" && (
             <table className="w-full border-collapse">
               <thead>
@@ -297,13 +314,16 @@ export default function DashboardComercio() {
                   <th className="py-3 px-4">Detalles</th>
                 </tr>
               </thead>
-
               <tbody>
                 {donationsCompletadas.map((item, i) => (
                   <tr key={i} className="border-b hover:bg-gray-50">
-                    <td className="py-4 px-4 font-medium">{item.product}</td>
+                    <td className="py-4 px-4 font-medium">
+                      {item.productName}
+                    </td>
                     <td className="py-4 px-4">{item.quantity}</td>
-                    <td className="py-4 px-4">{item.establishment || "—"}</td>
+                    <td className="py-4 px-4">
+                      {item.establishment?.name || "—"}
+                    </td>
                     <td className="py-4 px-4">
                       <span className="px-3 py-1 rounded-full text-sm font-medium bg-gray-200 text-gray-700">
                         Completado
@@ -325,7 +345,7 @@ export default function DashboardComercio() {
         </div>
       </div>
 
-      {/* MODAL */}
+      {/* MODAL EDICIÓN */}
       {selectedDonationIndex !== null && formData && (
         <>
           <div
@@ -338,7 +358,6 @@ export default function DashboardComercio() {
               className="bg-white rounded-lg max-w-xl w-full shadow-lg overflow-auto max-h-[90vh] relative"
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Cerrar */}
               <button
                 onClick={closeModal}
                 className="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
@@ -346,18 +365,9 @@ export default function DashboardComercio() {
                 ✕
               </button>
 
-              {/* Imagen
-              {formData.imageUrl && (
-                <img
-                  src={formData.imageUrl}
-                  alt={formData.product}
-                  className="w-full h-48 object-cover rounded-t-lg"
-                />
-              )} */}
-
               <div className="p-6 space-y-6">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-2xl font-bold">{formData.product}</h2>
+                  <h2 className="text-2xl font-bold">{formData.productName}</h2>
 
                   <span
                     className={`px-3 py-1 rounded-full text-sm font-medium ${
@@ -376,7 +386,6 @@ export default function DashboardComercio() {
 
                 <hr />
 
-                {/* FORMULARIO */}
                 <div className="grid grid-cols-2 gap-6">
                   <div>
                     <label className="font-semibold">Cantidad</label>
@@ -408,9 +417,9 @@ export default function DashboardComercio() {
                   <div>
                     <label className="font-semibold">Fecha Caducidad</label>
                     <input
-                      type="text"
-                      name="expiration"
-                      value={formData.expiration}
+                      type="date"
+                      name="expirationDate"
+                      value={formData.expirationDate.split("T")[0]}
                       onChange={handleChange}
                       className="w-full border rounded-md px-3 py-2"
                     />
@@ -421,21 +430,10 @@ export default function DashboardComercio() {
                     <div>
                       <label className="font-semibold">Banco que reservó</label>
                       <p className="px-3 py-2 border rounded-md bg-gray-100 text-gray-700">
-                        {formData.establishment || "—"}
+                        {formData.establishment?.name || "—"}
                       </p>
                     </div>
                   )}
-
-                  <div>
-                    <label className="font-semibold">Fecha publicación</label>
-                    <input
-                      type="text"
-                      name="listedDate"
-                      value={formData.listedDate || ""}
-                      onChange={handleChange}
-                      className="w-full border rounded-md px-3 py-2"
-                    />
-                  </div>
 
                   <div>
                     <label className="font-semibold">Estado</label>
@@ -452,7 +450,7 @@ export default function DashboardComercio() {
                   </div>
                 </div>
 
-                <div className="flex justify-end gap-4">
+                <div className="flex justify-end gap-4 mt-4">
                   <button
                     onClick={closeModal}
                     className="px-6 py-2 border rounded-md"
@@ -473,7 +471,7 @@ export default function DashboardComercio() {
         </>
       )}
 
-      {/* MODAL DE NUEVA DONACIÓN */}
+      {/* MODAL NUEVA DONACIÓN */}
       {showCreateModal && (
         <>
           <div
@@ -503,9 +501,14 @@ export default function DashboardComercio() {
                     <label className="font-semibold">Producto</label>
                     <input
                       type="text"
-                      name="product"
-                      value={newDonation.product}
-                      onChange={handleNewDonationChange}
+                      name="productName"
+                      value={newDonation.productName}
+                      onChange={(e) =>
+                        setNewDonation((prev) => ({
+                          ...prev,
+                          productName: e.target.value,
+                        }))
+                      }
                       className="w-full border rounded-md px-3 py-2"
                     />
                   </div>
@@ -516,8 +519,12 @@ export default function DashboardComercio() {
                       type="number"
                       name="quantity"
                       value={newDonation.quantity}
-                      onChange={handleNewDonationChange}
-                      min="0"
+                      onChange={(e) =>
+                        setNewDonation((prev) => ({
+                          ...prev,
+                          quantity: Number(e.target.value),
+                        }))
+                      }
                       className="w-full border rounded-md px-3 py-2"
                     />
                   </div>
@@ -527,7 +534,12 @@ export default function DashboardComercio() {
                     <select
                       name="unit"
                       value={newDonation.unit}
-                      onChange={handleNewDonationChange}
+                      onChange={(e) =>
+                        setNewDonation((prev) => ({
+                          ...prev,
+                          unit: e.target.value,
+                        }))
+                      }
                       className="w-full border rounded-md px-3 py-2"
                     >
                       <option value="">—</option>
@@ -541,9 +553,14 @@ export default function DashboardComercio() {
                     <label className="font-semibold">Fecha Caducidad</label>
                     <input
                       type="date"
-                      name="expiration"
-                      value={newDonation.expiration}
-                      onChange={handleNewDonationChange}
+                      name="expirationDate"
+                      value={newDonation.expirationDate}
+                      onChange={(e) =>
+                        setNewDonation((prev) => ({
+                          ...prev,
+                          expirationDate: e.target.value,
+                        }))
+                      }
                       className="w-full border rounded-md px-3 py-2"
                     />
                   </div>
@@ -553,7 +570,12 @@ export default function DashboardComercio() {
                     <textarea
                       name="description"
                       value={newDonation.description}
-                      onChange={handleNewDonationChange}
+                      onChange={(e) =>
+                        setNewDonation((prev) => ({
+                          ...prev,
+                          description: e.target.value,
+                        }))
+                      }
                       className="w-full border rounded-md px-3 py-2"
                     />
                   </div>
