@@ -6,9 +6,7 @@ import com.example.ZeroFoodWaste.model.dto.FoodBankResponseDTO;
 import com.example.ZeroFoodWaste.model.entity.FoodBank;
 import com.example.ZeroFoodWaste.model.mapper.FoodBankResponseMapper;
 import com.example.ZeroFoodWaste.repository.FoodBankRepository;
-import com.example.ZeroFoodWaste.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.NoSuchElementException;
