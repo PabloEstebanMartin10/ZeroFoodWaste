@@ -5,6 +5,9 @@ package com.example.ZeroFoodWaste.service;
 import com.example.ZeroFoodWaste.model.entity.User;
 import com.example.ZeroFoodWaste.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.NoSuchElementException;
@@ -13,7 +16,7 @@ import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
-public class UserService {
+public class UserService implements UserDetailsService {
     /* todos
      todo 1 añadir @Transactional en métodos que escriben en la BD
      todo 2 crear excepciones personalizadas (UserNotFoundException, InvalidCredentialsException)
@@ -37,6 +40,22 @@ public class UserService {
         return  userRepository.save(user);
     }
 
+    @Override
+    public UserDetails loadUserByUsername(String username)
+            throws UsernameNotFoundException {
+
+        // 1️⃣ Load your own user entity
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + username));
+
+        // 2️⃣ Build a Spring Security UserDetails object
+        return org.springframework.security.core.userdetails.User
+                .withUsername(user.getUserName())
+                .password(user.getPasswordHash())  // Use your hash field
+                .roles("USER")                     // Later replace with real roles
+                .disabled(!user.isEnabled())
+                .build();
+    }
     /**
      *  receives a user and a hash of the password if is all correct returns the user
      *
