@@ -5,12 +5,14 @@ import com.example.ZeroFoodWaste.model.entity.Establishment;
 import com.example.ZeroFoodWaste.model.entity.User;
 import com.example.ZeroFoodWaste.repository.UserRepository;
 import org.mapstruct.AfterMapping;
+import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.NoSuchElementException;
 
+@Mapper(componentModel = "spring")
 public abstract class EstablishmentResponseMapper {
 
     @Autowired
@@ -18,7 +20,7 @@ public abstract class EstablishmentResponseMapper {
 
     //region Entity->DTO
     @Mapping(target = "userId", source = "user.id")
-    @Mapping(target = "establishmentID", source = "id")
+    @Mapping(target = "establishmentId", source = "id")
     public abstract EstablishmentResponseDTO toDTO(Establishment establishment);
     //endregion
 
