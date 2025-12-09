@@ -11,7 +11,6 @@ interface Donation { // Define la interfaz Donation
   ubicacion: string;
   fechaPublicacion: string;
   descripcion: string;
-  imagen: string;
 }
 
 const Dashboard: React.FC = () => { 
@@ -24,14 +23,14 @@ const Dashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"disponibles" | "reservadas">("disponibles");
 
   const [donations, setDonations] = useState<Donation[]>([
-    { id: 1, producto: "Productos del día", establecimiento: "Supermercado Día", distancia: 1.2, caducidad: "12/12/2025", estado: "Reservado", cantidad: "10 Unidades", ubicacion: "Calle San Fernando, 4 Málaga", fechaPublicacion: "01/12/2025", descripcion: "Productos del día, yogures, pan y embutidos", imagen: "https://images.unsplash.com/photo-1628088062854-d1870b4553da?w=400&h=300&fit=crop" },
-    { id: 2, producto: "Mix de verduras", establecimiento: "Frutería Del Sol", distancia: 4.7, caducidad: "Dec 25, 2024", estado: "Disponible", cantidad: "15 kg", ubicacion: "456 Oak Ave, San Francisco, CA", fechaPublicacion: "Dec 21, 2024", descripcion: "Fresh organic vegetables, variety of seasonal produce.", imagen: "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&h=300&fit=crop" },
-    { id: 3, producto: "Fresh Bread Loaves", establecimiento: "Green Valley Restaurant", distancia: 2.3, caducidad: "Dec 26, 2024", estado: "Disponible", cantidad: "30 units", ubicacion: "789 Elm St, San Francisco, CA", fechaPublicacion: "Dec 22, 2024", descripcion: "Fresh artisan bread baked daily.", imagen: "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&h=300&fit=crop" },
-    { id: 4, producto: "Fresh Fruit Selection", establecimiento: "Garden Grill", distancia: 3.1, caducidad: "Dec 27, 2024", estado: "Disponible", cantidad: "20 kg", ubicacion: "321 Pine St, San Francisco, CA", fechaPublicacion: "Dec 23, 2024", descripcion: "Assorted fresh fruits.", imagen: "https://images.unsplash.com/photo-1610832958506-aa56368176cf?w=400&h=300&fit=crop" },
-    { id: 5, producto: "Bakery Items", establecimiento: "Sunrise Bakery", distancia: null, caducidad: "Dec 28, 2024", estado: "Disponible", cantidad: "50 units", ubicacion: "654 Maple Ave, San Francisco, CA", fechaPublicacion: "Dec 23, 2024", descripcion: "Variety of bakery items.", imagen: "https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=400&h=300&fit=crop" },
-    { id: 6, producto: "Canned Goods Assortment", establecimiento: "Metro Market", distancia: 5.8, caducidad: "Mar 15, 2025", estado: "Disponible", cantidad: "100 cans", ubicacion: "987 Cedar Rd, San Francisco, CA", fechaPublicacion: "Dec 20, 2024", descripcion: "Various canned goods.", imagen: "https://images.unsplash.com/photo-1585515320310-259814833e62?w=400&h=300&fit=crop" },
-    { id: 7, producto: "Pasta & Grains", establecimiento: "City Supermarket", distancia: 1.5, caducidad: "Jan 10, 2025", estado: "Disponible", cantidad: "25 kg", ubicacion: "147 Birch St, San Francisco, CA", fechaPublicacion: "Dec 19, 2024", descripcion: "Dry pasta and grains.", imagen: "https://images.unsplash.com/photo-1551462147-ff29053bfc14?w=400&h=300&fit=crop" },
-    { id: 8, producto: "Frozen Vegetables", establecimiento: "Food Hub", distancia: 3.8, caducidad: "Feb 20, 2025", estado: "Reservado", cantidad: "40 bags", ubicacion: "258 Willow Dr, San Francisco, CA", fechaPublicacion: "Dec 18, 2024", descripcion: "Frozen vegetables.", imagen: "https://images.unsplash.com/photo-1566385101042-1a0aa0c1268c?w=400&h=300&fit=crop" },
+    { id: 1, producto: "Productos del día", establecimiento: "Supermercado Día", distancia: 1.2, caducidad: "12/12/2025", estado: "Reservado", cantidad: "10 Unidades", ubicacion: "Calle San Fernando, 4 Málaga", fechaPublicacion: "01/12/2025", descripcion: "Productos del día, yogures, pan y embutidos" },
+    { id: 2, producto: "Mix de verduras", establecimiento: "Frutería Del Sol", distancia: 4.7, caducidad: "Dec 25, 2024", estado: "Disponible", cantidad: "15 kg", ubicacion: "456 Oak Ave, San Francisco, CA", fechaPublicacion: "Dec 21, 2024", descripcion: "Fresh organic vegetables, variety of seasonal produce." },
+    { id: 3, producto: "Fresh Bread Loaves", establecimiento: "Green Valley Restaurant", distancia: 2.3, caducidad: "Dec 26, 2024", estado: "Disponible", cantidad: "30 units", ubicacion: "789 Elm St, San Francisco, CA", fechaPublicacion: "Dec 22, 2024", descripcion: "Fresh artisan bread baked daily." },
+    { id: 4, producto: "Fresh Fruit Selection", establecimiento: "Garden Grill", distancia: 3.1, caducidad: "Dec 27, 2024", estado: "Disponible", cantidad: "20 kg", ubicacion: "321 Pine St, San Francisco, CA", fechaPublicacion: "Dec 23, 2024", descripcion: "Assorted fresh fruits." },
+    { id: 5, producto: "Bakery Items", establecimiento: "Sunrise Bakery", distancia: null, caducidad: "Dec 28, 2024", estado: "Disponible", cantidad: "50 units", ubicacion: "654 Maple Ave, San Francisco, CA", fechaPublicacion: "Dec 23, 2024", descripcion: "Variety of bakery items." },
+    { id: 6, producto: "Canned Goods Assortment", establecimiento: "Metro Market", distancia: 5.8, caducidad: "Mar 15, 2025", estado: "Disponible", cantidad: "100 cans", ubicacion: "987 Cedar Rd, San Francisco, CA", fechaPublicacion: "Dec 20, 2024", descripcion: "Various canned goods." },
+    { id: 7, producto: "Pasta & Grains", establecimiento: "City Supermarket", distancia: 1.5, caducidad: "Jan 10, 2025", estado: "Disponible", cantidad: "25 kg", ubicacion: "147 Birch St, San Francisco, CA", fechaPublicacion: "Dec 19, 2024", descripcion: "Dry pasta and grains." },
+    { id: 8, producto: "Frozen Vegetables", establecimiento: "Food Hub", distancia: 3.8, caducidad: "Feb 20, 2025", estado: "Reservado", cantidad: "40 bags", ubicacion: "258 Willow Dr, San Francisco, CA", fechaPublicacion: "Dec 18, 2024", descripcion: "Frozen vegetables." },
   ]);
 
   const itemsPerPage = 5;
@@ -299,39 +298,32 @@ const Dashboard: React.FC = () => {
       {selectedDonation && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="relative">
-              <img
-                src={selectedDonation.imagen}
-                alt={selectedDonation.producto}
-                className="w-full h-64 object-cover rounded-t-2xl"
-              />
-
-              {/* Botón cerrar */}
-              <button
-                onClick={() => setSelectedDonation(null)}
-                className="absolute top-4 right-4 bg-white rounded-full p-2 shadow-lg hover:bg-gray-100"
-              >
-                ✖
-              </button>
-
-              {/* Estado */}
-              <div className="absolute top-4 left-4">
-                <span
-                  className={`inline-block px-4 py-2 rounded-lg text-sm font-medium ${
-                    selectedDonation.estado === "Disponible"
-                      ? "bg-green-100 text-green-700"
-                      : "bg-yellow-100 text-yellow-700"
-                  }`}
-                >
-                  {selectedDonation.estado}
-                </span>
-              </div>
-            </div>
-
             <div className="p-6">
-              <h2 className="text-3xl font-bold text-gray-800 mb-2">
-                {selectedDonation.producto}
-              </h2>
+              {/* Header con título y botón cerrar */}
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex-1">
+                  <h2 className="text-3xl font-bold text-gray-800 mb-2">
+                    {selectedDonation.producto}
+                  </h2>
+                  <span
+                    className={`inline-block px-4 py-2 rounded-lg text-sm font-medium ${
+                      selectedDonation.estado === "Disponible"
+                        ? "bg-green-100 text-green-700"
+                        : "bg-yellow-100 text-yellow-700"
+                    }`}
+                  >
+                    {selectedDonation.estado}
+                  </span>
+                </div>
+                
+                <button
+                  onClick={() => setSelectedDonation(null)}
+                  className="ml-4 bg-gray-100 rounded-full p-2 hover:bg-gray-200"
+                >
+                  ✖
+                </button>
+              </div>
+
               <p className="text-gray-600 mb-6">{selectedDonation.descripcion}</p>
 
               <div className="grid grid-cols-2 gap-4 mb-6">
