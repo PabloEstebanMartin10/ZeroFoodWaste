@@ -28,7 +28,7 @@ public class Donation {
     private String description;
 
     @Column(nullable = false)
-    private Number quantity;
+    private Integer quantity;
 
     @Column(nullable = false)
     private String unit;

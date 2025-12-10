@@ -1,14 +1,48 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import LogoFull from "../../assets/logos/Logo_ZeroFoodWasteTransparent.png";
+import type { loginData } from "../../types/user/loginData";
+import { useLogin } from "../../hooks/useLogin/useLogin";
 import { Link } from "react-router-dom";
+import { AuthContext } from "../../context/AuthProvider";
+import { useFetchUser } from "../../hooks/useFetchUser/useFetchUser";
+import type { userInfo } from "../../types/user/userInfo";
 
 const Login: React.FC = () => {
-  const [email, setEmail] = useState("");
-  const [contrasena, setContrasena] = useState("");
+  const [loginData, setLoginData] = useState<loginData>({
+    email: "",
+    password: "",
+  });
+  const { loginFunction, loginError } = useLogin();
+  const { fetchUserFunction, error } = useFetchUser();
+  const auth = useContext(AuthContext);
+  if (!auth) throw new Error("AuthContext missing");
 
-  const handleLogin = (e: React.FormEvent) => {
+  const { setUser, setToken } = auth;
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    alert(`Intentando iniciar sesión con correo electrónico: ${email}`);
+    const token = await loginFunction(loginData);
+    if(loginError){
+      console.log(error);
+    }
+    setToken(token);
+    if(token){
+      localStorage.setItem("token", token);
+      const userLoggedIn: userInfo | null = await fetchUserFunction(token);
+      if(error){
+        console.log(error);
+      }
+      setUser(userLoggedIn);
+    }
+  };
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setLoginData((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
   };
 
   return (
@@ -37,8 +71,9 @@ const Login: React.FC = () => {
               <input
                 type="email"
                 placeholder="Ingresa tu correo electrónico"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                name="email"
+                value={loginData.email}
+                onChange={(e) => handleChange(e)}
                 className="w-full px-4 py-3 rounded-lg bg-[#F7FAF5] border border-[#C8D5B9] focus:ring-2 focus:ring-[#8FC0A9] focus:outline-none placeholder-gray-300"
               />
             </div>
@@ -50,8 +85,9 @@ const Login: React.FC = () => {
               <input
                 type="password"
                 placeholder="Ingresa tu contraseña"
-                value={contrasena}
-                onChange={(e) => setContrasena(e.target.value)}
+                name="password"
+                value={loginData.password}
+                onChange={(e) => handleChange(e)}
                 className="w-full px-4 py-3 rounded-lg bg-[#F7FAF5] border border-[#C8D5B9] focus:ring-2 focus:ring-[#8FC0A9] focus:outline-none placeholder-gray-300"
               />
             </div>

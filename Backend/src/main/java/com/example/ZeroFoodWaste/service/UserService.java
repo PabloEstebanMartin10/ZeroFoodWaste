@@ -2,6 +2,7 @@
 
 package com.example.ZeroFoodWaste.service;
 
+import com.example.ZeroFoodWaste.config.JwtUtils;
 import com.example.ZeroFoodWaste.model.dto.NewUserDTO;
 import com.example.ZeroFoodWaste.model.dto.UserResponseDTO;
 import com.example.ZeroFoodWaste.model.entity.Establishment;
@@ -11,6 +12,9 @@ import com.example.ZeroFoodWaste.model.mapper.NewUserMapper;
 import com.example.ZeroFoodWaste.model.mapper.UserResponseMapper;
 import com.example.ZeroFoodWaste.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.NoSuchElementException;
@@ -19,7 +23,7 @@ import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
-public class UserService {
+public class UserService implements UserDetailsService {
     /* todos
      todo 1 añadir @Transactional en métodos que escriben en la BD
      todo 2 crear excepciones personalizadas (UserNotFoundException, InvalidCredentialsException)
@@ -61,6 +65,28 @@ public class UserService {
         return userResponseMapper.toDTO(user) ;
     }
 
+    @Override
+    public UserDetails loadUserByUsername(String email)
+            throws UsernameNotFoundException {
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
+
+        return org.springframework.security.core.userdetails.User
+                .withUsername(user.getEmail())
+                .password(user.getPasswordHash())
+                .roles(user.getRole().toString()) // USER, ADMIN, etc
+                .build();
+    }
+
+    public UserResponseDTO getByEmail(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
+
+        UserResponseDTO userResponse = userResponseMapper.toDTO(user);
+
+        return userResponse;
+    }
     /**
      *  receives a user and a hash of the password if is all correct returns the user
      *
@@ -69,6 +95,7 @@ public class UserService {
      * @return the user if the information is correct
      * @throws NoSuchElementException if the user is not found
      */
+
     public User LoginUser(String email, String passwordHash) {
         return userRepository.findByEmailAndPasswordHash(email, passwordHash).orElseThrow(
                 () -> new NoSuchElementException("Invalid user or password "));
