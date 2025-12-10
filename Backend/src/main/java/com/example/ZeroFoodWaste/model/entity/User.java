@@ -34,11 +34,11 @@ public class User {
     @Column(nullable = false)
     private Role role;
 
-    private boolean enabled = true;
-
-    @OneToOne(mappedBy = "user")
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "establishment_id")
     private Establishment establishment;
 
-    @OneToOne(mappedBy = "user")
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "foodbankId")
     private FoodBank foodBank;
 }

@@ -1,20 +1,13 @@
 package com.example.ZeroFoodWaste.config;
 
-import com.example.ZeroFoodWaste.model.entity.Donation;
-import com.example.ZeroFoodWaste.model.entity.Establishment;
-import com.example.ZeroFoodWaste.model.entity.FoodBank;
-import com.example.ZeroFoodWaste.model.entity.User;
+import com.example.ZeroFoodWaste.model.entity.*;
 import com.example.ZeroFoodWaste.model.enums.DonationStatus;
 import com.example.ZeroFoodWaste.model.enums.Role;
-import com.example.ZeroFoodWaste.repository.DonationRepository;
-import com.example.ZeroFoodWaste.repository.EstablishmentRepository;
-import com.example.ZeroFoodWaste.repository.FoodBankRepository;
-import com.example.ZeroFoodWaste.repository.UserRepository;
+import com.example.ZeroFoodWaste.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 
@@ -25,14 +18,21 @@ public class DataLoader implements CommandLineRunner {
     private final EstablishmentRepository establishmentRepository;
     private final FoodBankRepository foodBankRepository;
     private final DonationRepository donationRepository;
+    private final DonationAssignmentRepository donationAssignmentRepository;
 
     @Override
     public void run(String... args) throws Exception {
+
+        if (userRepository.count() > 0) {
+            System.out.println("ℹ️ DataLoader: datos ya existentes, no se cargarán datos nuevos.");
+            return;
+        }
+
         // ---------- USERS ----------
         User estabUser1 = new User(null, "estab1@example.com", "pass123", Role.Establishment);
         User estabUser2 = new User(null, "estab2@example.com", "pass123", Role.Establishment);
-        User fbUser1 = new User(null, "foodbank1@example.com", "pass123", Role.foodBank);
-        User fbUser2 = new User(null, "foodbank2@example.com", "pass123", Role.foodBank);
+        User fbUser1 = new User(null, "foodbank1@example.com", "pass123", Role.FoodBank);
+        User fbUser2 = new User(null, "foodbank2@example.com", "pass123", Role.FoodBank);
 
         userRepository.save(estabUser1);
         userRepository.save(estabUser2);
@@ -58,7 +58,7 @@ public class DataLoader implements CommandLineRunner {
                 e1,
                 "Pan fresco",
                 "Pan recién horneado del día",
-                "50 unidades",
+                50,
                 LocalDateTime.now().plusDays(2),
                 DonationStatus.AVAILABLE
         );
@@ -67,7 +67,7 @@ public class DataLoader implements CommandLineRunner {
                 e2,
                 "Leche",
                 "Leche entera fresca",
-                "30 litros",
+                30,
                 LocalDateTime.now().plusDays(4),
                 DonationStatus.AVAILABLE
         );
@@ -76,7 +76,7 @@ public class DataLoader implements CommandLineRunner {
                 e1,
                 "Bollería",
                 "Croissants y napolitanas",
-                "20 unidades",
+                20,
                 LocalDateTime.now().plusDays(1),
                 DonationStatus.AVAILABLE
         );
@@ -85,7 +85,7 @@ public class DataLoader implements CommandLineRunner {
                 e2,
                 "Yogur",
                 "Yogures naturales",
-                "25 unidades",
+                25,
                 LocalDateTime.now().plusDays(3),
                 DonationStatus.AVAILABLE
         );
@@ -95,6 +95,12 @@ public class DataLoader implements CommandLineRunner {
         donationRepository.save(d3);
         donationRepository.save(d4);
 
+        // ---------- DONATIONS ASSIGNMENTS ----------
+        DonationAssignment da1 = new DonationAssignment(d1, fb1);
+        DonationAssignment da2 = new DonationAssignment(d2, fb2);
+
+        donationAssignmentRepository.save(da1);
+        donationAssignmentRepository.save(da2);
 
         System.out.println("✅ Database pre-populated with test data");
     }

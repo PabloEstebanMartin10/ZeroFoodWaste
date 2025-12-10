@@ -3,7 +3,9 @@
 package com.example.ZeroFoodWaste.service;
 
 import com.example.ZeroFoodWaste.model.dto.EstablishmentResponseDTO;
+import com.example.ZeroFoodWaste.model.dto.NewUserDTO;
 import com.example.ZeroFoodWaste.model.entity.Establishment;
+import com.example.ZeroFoodWaste.model.entity.User;
 import com.example.ZeroFoodWaste.model.mapper.EstablishmentResponseMapper;
 import com.example.ZeroFoodWaste.repository.EstablishmentRepository;
 import jakarta.transaction.Transactional;
@@ -42,6 +44,12 @@ public class EstablishmentService {
                 () -> new NoSuchElementException("Couldn't find the establishment")));
     }
 
+    //endregion
+
+    //region post
+    public EstablishmentResponseDTO createEstablishment(Establishment establishment) {
+        return establishmentResponseMapper.toDTO(establishmentRepository.save(establishment));
+    }
     //endregion
 
     //region put/patch

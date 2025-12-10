@@ -40,6 +40,12 @@ public class FoodBankService {
 
     //endregion
 
+    //region post
+    public FoodBankResponseDTO createFoodBank(FoodBank foodBank){
+        return foodBankResponseMapper.toDTO(foodBankRepository.save(foodBank));
+    }
+    //endregion
+
     //region put/patch
 
     /**
