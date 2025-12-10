@@ -23,16 +23,16 @@ public class AuthController {
         System.out.println("login");
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        request.username(),
+                        request.email(),
                         request.password()
                 )
         );
 
 // Si no lanza excepción, autenticación correcta
-        String token = jwtUtil.generateToken(request.username());
+        String token = jwtUtil.generateToken(request.email());
         return ResponseEntity.ok(new LoginResponse(token));
     }
 
-    public record LoginRequest(String username, String password) {}
+    public record LoginRequest(String email, String password) {}
     public record LoginResponse(String token) {}
 }
