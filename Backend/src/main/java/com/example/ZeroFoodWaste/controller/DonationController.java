@@ -38,7 +38,7 @@ public class DonationController {
     @PostMapping("/donations")
     public ResponseEntity<DonationResponseDTO> createDonation(@RequestBody NewDonationDTO donation) {
         DonationResponseDTO dto = donationService.createDonation(donation);
-        URI location = URI.create("donations/" + dto);
+        URI location = URI.create("donations/" + dto.getId());
         return ResponseEntity.created(location).build();
     }
 
