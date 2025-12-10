@@ -45,6 +45,7 @@ public class UserService {
       */
     public UserResponseDTO createUser(NewUserDTO dto) {
         User user = newUserMapper.toEntity(dto);
+        //todo esto tiene que estar cifrado pero no se si antes o despues
         user.setPasswordHash("jklsad");
         userRepository.save(user);
 
