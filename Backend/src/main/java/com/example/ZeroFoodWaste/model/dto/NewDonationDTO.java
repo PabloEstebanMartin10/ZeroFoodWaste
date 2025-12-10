@@ -9,7 +9,8 @@ public class NewDonationDTO {
     private Long establishmentId;
     private String productName;
     private String description;
-    private Integer quantity;
+    private Number quantity;
+    private String unit;
     private LocalDateTime expirationDate;
     private String status;
 }

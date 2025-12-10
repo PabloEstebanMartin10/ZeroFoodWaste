@@ -31,6 +31,9 @@ public class Donation {
     private Integer quantity;
 
     @Column(nullable = false)
+    private String unit;
+
+    @Column(nullable = false)
     private LocalDateTime expirationDate;
 
     private String photoUrl;
@@ -47,11 +50,12 @@ public class Donation {
     @OneToOne(mappedBy = "donation")
     private DonationAssignment assignment;
 
-    public Donation(Establishment establishment, String productName, String description, Integer quantity, LocalDateTime expirationDate, DonationStatus status) {
+    public Donation(Establishment establishment, String productName, String description, Number quantity, String unit, LocalDateTime expirationDate, DonationStatus status) {
         this.establishment = establishment;
         this.productName = productName;
         this.description = description;
         this.quantity = quantity;
+        this.unit = unit;
         this.expirationDate = expirationDate;
         this.status = status;
     }

@@ -3,7 +3,6 @@ package com.example.ZeroFoodWaste.controller;
 import com.example.ZeroFoodWaste.model.dto.DonationResponseDTO;
 import com.example.ZeroFoodWaste.model.dto.NewDonationDTO;
 import com.example.ZeroFoodWaste.service.DonationService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -40,7 +39,7 @@ public class DonationController {
     public ResponseEntity<DonationResponseDTO> createDonation(@RequestBody NewDonationDTO donation) {
         DonationResponseDTO dto = donationService.createDonation(donation);
         URI location = URI.create("donations/" + dto.getId());
-        return ResponseEntity.created(location).build();
+        return ResponseEntity.created(location).body(dto);
     }
 
     @PostMapping("/{id}/accept/{foodBankId}")
