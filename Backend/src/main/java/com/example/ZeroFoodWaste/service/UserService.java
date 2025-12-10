@@ -10,6 +10,7 @@ import com.example.ZeroFoodWaste.model.entity.User;
 import com.example.ZeroFoodWaste.model.mapper.NewUserMapper;
 import com.example.ZeroFoodWaste.model.mapper.UserResponseMapper;
 import com.example.ZeroFoodWaste.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -21,13 +22,10 @@ import java.util.NoSuchElementException;
 @RequiredArgsConstructor
 public class UserService {
     /* todos
-     todo 1 añadir @Transactional en métodos que escriben en la BD
      todo 2 crear excepciones personalizadas (UserNotFoundException, InvalidCredentialsException)
      todo 3 introducir DTOs para evitar exponer entidades directamente
-     todo 4 reemplazar BeanUtils por MapStruct u otro mapper tipado
      todo 5 validar datos de entrada con javax.validation (e.g. @Email, @NotBlank)
      todo 6 encriptar password en createUser antes de guardar
-     todo 7 manejar duplicados al registrar (email ya registrado)
       */
      private final UserRepository userRepository;
      private final NewUserMapper newUserMapper;
@@ -43,6 +41,7 @@ public class UserService {
       * @param dto the user to be saved
       * @return the user if is saved
       */
+     @Transactional
     public UserResponseDTO createUser(NewUserDTO dto) {
         User user = newUserMapper.toEntity(dto);
         //todo esto tiene que estar cifrado pero no se si antes o despues
@@ -69,6 +68,7 @@ public class UserService {
      * @return the user if the information is correct
      * @throws NoSuchElementException if the user is not found
      */
+    @Transactional
     public User LoginUser(String email, String passwordHash) {
         return userRepository.findByEmailAndPasswordHash(email, passwordHash).orElseThrow(
                 () -> new NoSuchElementException("Invalid user or password "));
