@@ -5,8 +5,11 @@ import com.example.ZeroFoodWaste.model.entity.Donation;
 import com.example.ZeroFoodWaste.model.enums.DonationStatus;
 import com.example.ZeroFoodWaste.model.entity.Establishment;
 import com.example.ZeroFoodWaste.repository.EstablishmentRepository;
+
+import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.NoSuchElementException;
@@ -20,8 +23,9 @@ public abstract class NewDonationMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
-    @Mapping(target = "establishment", source = "establishmentId")
+    @Mapping(target = "establishment", expression = "java(mapEstablishment(dto.getEstablishmentId()))")
     @Mapping(target = "status", expression = "java(mapStatus(dto.getStatus()))")
+    @Mapping(target = "unit", expression = "java(validateUnit(dto.getUnit()))")
     @Mapping(target = "assignment", ignore = true)
     public abstract Donation toEntity(NewDonationDTO dto);
 
@@ -38,5 +42,13 @@ public abstract class NewDonationMapper {
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Invalid DonationStatus: " + status);
         }
+    }
+
+    public String validateUnit(String unit) {
+        System.out.println("Validate unit: " + unit);
+        if (unit == null || unit.isBlank()) {
+            throw new IllegalArgumentException("Unit cannot be null or empty");
+        }
+        return unit;
     }
 }
