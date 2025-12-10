@@ -2,6 +2,7 @@
 
 package com.example.ZeroFoodWaste.service;
 
+import com.example.ZeroFoodWaste.config.JwtUtils;
 import com.example.ZeroFoodWaste.model.dto.NewUserDTO;
 import com.example.ZeroFoodWaste.model.dto.UserResponseDTO;
 import com.example.ZeroFoodWaste.model.entity.Establishment;
@@ -75,8 +76,16 @@ public class UserService implements UserDetailsService {
                 .withUsername(user.getEmail())
                 .password(user.getPasswordHash())
                 .roles(user.getRole().toString()) // USER, ADMIN, etc
-                .disabled(!user.isEnabled())
                 .build();
+    }
+
+    public UserResponseDTO getByEmail(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
+
+        UserResponseDTO userResponse = userResponseMapper.toDTO(user);
+
+        return userResponse;
     }
     /**
      *  receives a user and a hash of the password if is all correct returns the user
@@ -86,6 +95,7 @@ public class UserService implements UserDetailsService {
      * @return the user if the information is correct
      * @throws NoSuchElementException if the user is not found
      */
+
     public User LoginUser(String email, String passwordHash) {
         return userRepository.findByEmailAndPasswordHash(email, passwordHash).orElseThrow(
                 () -> new NoSuchElementException("Invalid user or password "));

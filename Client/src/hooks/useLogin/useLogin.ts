@@ -6,19 +6,23 @@ import type { userInfo } from "../../types/user/userInfo";
 
 const URL = "/auth/login"
 
+interface LoginResponse {
+  token: string;
+}
+
 export const useLogin = () => {
-  const [error, setError] = useState<string | null>(null);
+  const [loginError, setLoginError] = useState<string | null>(null);
 
   const loginFunction = async (loginData: loginData) => {
-    setError(null);
+    setLoginError(null);
     try {
-      const response = await zfwApiInstance.post<userInfo>(URL, loginData);
-      return response.data;
+      const response = await zfwApiInstance.post<LoginResponse>(URL, loginData);
+      return response.data.token;
     } catch {
-      setError("An error happened");
+      setLoginError("An error happened");
       return null;
     }
   };
 
-  return { loginFunction, error };
+  return { loginFunction, loginError };
 };

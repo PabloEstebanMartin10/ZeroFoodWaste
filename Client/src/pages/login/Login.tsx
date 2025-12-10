@@ -1,25 +1,39 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import LogoFull from "../../assets/logos/Logo_ZeroFoodWasteTransparent.png";
 import type { loginData } from "../../types/user/loginData";
 import { useLogin } from "../../hooks/useLogin/useLogin";
 import { Link } from "react-router-dom";
+import { AuthContext } from "../../context/AuthProvider";
+import { useFetchUser } from "../../hooks/useFetchUser/useFetchUser";
+import type { userInfo } from "../../types/user/userInfo";
 
 const Login: React.FC = () => {
   const [loginData, setLoginData] = useState<loginData>({
     email: "",
     password: "",
   });
-  const {loginFunction, error} = useLogin();
+  const { loginFunction, loginError } = useLogin();
+  const { fetchUserFunction, error } = useFetchUser();
+  const auth = useContext(AuthContext);
+  if (!auth) throw new Error("AuthContext missing");
+
+  const { setUser, setToken } = auth;
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     const token = await loginFunction(loginData);
-    if(error){
+    if(loginError){
       console.log(error);
     }
-    
-    console.log(token);
-    alert(`Intentando iniciar sesión con correo electrónico: ${loginData.email}`);
+    setToken(token);
+    if(token){
+      localStorage.setItem("token", token);
+      const userLoggedIn: userInfo | null = await fetchUserFunction(token);
+      if(error){
+        console.log(error);
+      }
+      setUser(userLoggedIn);
+    }
   };
 
   const handleChange = (
