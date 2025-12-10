@@ -29,6 +29,7 @@ public abstract class DonationResponseMapper {
     @Mapping(target = "establishmentId", source = "establishment.id")
     @Mapping(target = "assignmentId", source = "assignment.id")
     @Mapping(target = "status", source = "status")
+    @Mapping(target = "unit", source = "unit")
     public abstract DonationResponseDTO toDTO(Donation donation);
 
     public abstract List<DonationResponseDTO> toDTOList(List<Donation> donations);

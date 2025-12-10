@@ -12,6 +12,7 @@ public class DonationResponseDTO {
     private String productName;
     private String description;
     private Number quantity;
+    private String unit;
     private LocalDateTime expirationDate;
     private String status;
 }

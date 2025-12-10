@@ -14,6 +14,18 @@ interface Donation {
   photoUrl?: string;
 }
 
+const mapStatusToBackend: Record<string, string> = {
+  Disponible: "AVAILABLE",
+  Reservado: "RESERVED",
+  Completado: "COMPLETED",
+};
+
+const mapStatusFromBackend: Record<string, string> = {
+  AVAILABLE: "Disponible",
+  RESERVED: "Reservado",
+  COMPLETED: "Completado",
+};
+
 const BASE_URL = "http://localhost:8080";
 //const MOCK_URL = "http://localhost:5173";
 
@@ -49,7 +61,14 @@ export default function DashboardComercio() {
     // const url = `${MOCK_URL}/data/donaciones_comercio.json`;
     fetch(url)
       .then((res) => res.json())
-      .then((data) => setDonations(data))
+      .then((data) => {
+        const fixedData = data.map((d) => ({
+          ...d,
+          status: mapStatusFromBackend[d.status], // ⬅ convierte backend → frontend
+        }));
+        setDonations(fixedData);
+      })
+
       .catch((err) => console.error("Error cargando donaciones:", err));
   }, []);
 
@@ -104,17 +123,43 @@ export default function DashboardComercio() {
   ) => {
     if (!formData) return;
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+
+    if (name === "expirationDate") {
+      // Convertimos la fecha del input (yyyy-MM-dd) a LocalDateTime
+      const date = new Date(value);
+      const formattedDate = `${date.getFullYear()}-${String(
+        date.getMonth() + 1
+      ).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}T${String(
+        date.getHours()
+      ).padStart(2, "0")}:${String(date.getMinutes()).padStart(
+        2,
+        "0"
+      )}:${String(date.getSeconds()).padStart(2, "0")}`;
+      setFormData({ ...formData, [name]: formattedDate });
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
   };
 
   const handleSave = () => {
     if (!formData || !formData.id) return;
 
+    // Formatear fecha para LocalDateTime
+    const date = new Date(formData.expirationDate);
+    const expirationDateFormatted = `${date.getFullYear()}-${String(
+      date.getMonth() + 1
+    ).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}T${String(
+      date.getHours()
+    ).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}:${String(
+      date.getSeconds()
+    ).padStart(2, "0")}`;
+
     const payload = {
       ...formData,
-      quantity: formData.quantity.toString(),
-      expirationDate: new Date(formData.expirationDate).toISOString(),
-      establishment: { id: 1 },
+      quantity: Number(formData.quantity),
+      expirationDate: expirationDateFormatted,
+      status: mapStatusToBackend[formData.status] || "AVAILABLE",
+      establishment: { id: formData.establishment?.id || 1 },
     };
 
     fetch(`${BASE_URL}/donations/${formData.id}`, {
@@ -122,24 +167,31 @@ export default function DashboardComercio() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     })
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error(`Error en backend: ${res.status}`);
+        return res.json();
+      })
       .then((updated) => {
+        const fixedDonation = {
+          ...updated,
+          status: mapStatusFromBackend[updated.status] || "Disponible",
+        };
         setDonations((prev) =>
-          prev.map((d) => (d.id === updated.id ? updated : d))
+          prev.map((d) => (d.id === fixedDonation.id ? fixedDonation : d))
         );
         closeModal();
       })
       .catch((err) => console.error("Error modificando donación:", err));
   };
 
-  const handleNewDonationChange = (
+  /*const handleNewDonationChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
     >
   ) => {
     const { name, value } = e.target;
     setNewDonation((prev) => ({ ...prev, [name]: value }));
-  };
+  };*/
 
   const resetNewDonation = () => {
     setNewDonation({
@@ -157,18 +209,25 @@ export default function DashboardComercio() {
   };
 
   const handleCreateDonation = () => {
+    if (!newDonation.productName || newDonation.quantity <= 0) {
+      alert("Por favor completa el nombre del producto y la cantidad.");
+      return;
+    }
+
     const donationToSend = {
       productName: newDonation.productName,
-      description: newDonation.description,
-      quantity: newDonation.quantity,
-      expirationDate: newDonation.expirationDate
-        ? new Date(newDonation.expirationDate).toISOString()
-        : null,
-      status: "AVAILABLE",
-      establishmentId: 1,
+      description: newDonation.description || "",
+      quantity: Number(newDonation.quantity), // asegúrate de que sea number
+      unit: newDonation.unit || "",
+      expirationDate: newDonation.expirationDate.includes("T")
+        ? newDonation.expirationDate
+        : `${newDonation.expirationDate}T00:00:00`,
+      status: mapStatusToBackend[newDonation.status] || "AVAILABLE",
+      establishmentId: newDonation.establishment?.id || 1,
     };
 
     console.log("Enviando donación:", donationToSend);
+    console.log(JSON.stringify(donationToSend, null, 2));
 
     fetch(`${BASE_URL}/donations`, {
       method: "POST",
@@ -180,9 +239,13 @@ export default function DashboardComercio() {
         return res.json();
       })
       .then((savedDonation) => {
-        setDonations((prev) => [...prev, savedDonation]); // agrega la donación
-        setShowCreateModal(false); // cierra modal
-        resetNewDonation(); // limpia formulario
+        const fixedDonation = {
+          ...savedDonation,
+          status: mapStatusFromBackend[savedDonation.status] || "Disponible",
+        };
+        setDonations((prev) => [...prev, fixedDonation]);
+        setShowCreateModal(false);
+        resetNewDonation();
       })
       .catch((err) => console.error("Error creando donación:", err));
   };
@@ -275,7 +338,9 @@ export default function DashboardComercio() {
                         className={`px-3 py-1 rounded-full text-sm font-medium ${
                           item.status === "Disponible"
                             ? "bg-green-100 text-green-700"
-                            : "bg-yellow-100 text-yellow-700"
+                            : item.status === "Reservado"
+                            ? "bg-yellow-100 text-yellow-700"
+                            : "bg-gray-200 text-gray-700"
                         }`}
                       >
                         {item.status}
