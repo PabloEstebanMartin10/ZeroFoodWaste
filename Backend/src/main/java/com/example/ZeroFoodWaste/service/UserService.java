@@ -2,8 +2,8 @@
 
 package com.example.ZeroFoodWaste.service;
 
-import com.example.ZeroFoodWaste.config.JwtUtils;
-import com.example.ZeroFoodWaste.model.dto.LoginResponseDTO;
+import com.example.ZeroFoodWaste.exception.EmailAlreadyExistsException;
+import com.example.ZeroFoodWaste.exception.UserNotFoundException;
 import com.example.ZeroFoodWaste.model.dto.NewUserDTO;
 import com.example.ZeroFoodWaste.model.dto.UserResponseDTO;
 import com.example.ZeroFoodWaste.model.entity.Establishment;
@@ -17,44 +17,35 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.NoSuchElementException;
 
 //endregion
 
 @Service
 @RequiredArgsConstructor
 public class UserService implements UserDetailsService {
-    /* todos
-     todo 1 crear excepciones personalizadas básicas (UserNotFoundException, InvalidCredentialsException)
-     todo 2 validar datos de entrada esenciales con javax.validation (e.g. @Email, @NotBlank) en DTOs
-     todo 3 manejar duplicados al registrar con excepción personalizada (EmailAlreadyExistsException)
-     todo 4 integrar login para que devuelva LoginResponseDTO con token + UserResponseDTO
-     todo 5 documentar métodos públicos con Javadoc
-          */
+
      private final UserRepository userRepository;
      private final NewUserMapper newUserMapper;
      private final UserResponseMapper userResponseMapper;
-     private final EstablishmentService establishmentService;
-     private final FoodBankService foodBankService;
      private final PasswordEncoder passwordEncoder;
-     private final JwtUtils jwtUtils;
 
      //region post
 
-     /**
-      * saves a new user to the DB
-      *
-      * @param dto the user to be saved
-      * @return the user if is saved
-      */
+    /**
+     * Creates and saves a new user in the database.
+     * Depending on the user's role, initializes Establishment or FoodBank entities.
+     * The password is hashed before saving.
+     *
+     * @param dto DTO containing the new user's data, including email, password, and optionally establishment or food bank details
+     * @return UserResponseDTO with the saved user's data, excluding the password
+     * @throws EmailAlreadyExistsException if the email is already registered
+     */
      @Transactional
-    public UserResponseDTO createUser(NewUserDTO dto) {
+    public UserResponseDTO createUser(NewUserDTO dto) throws EmailAlreadyExistsException {
          if (userRepository.existsByEmail(dto.getEmail())) {
-             throw new IllegalArgumentException("Email already registered");
+             throw new EmailAlreadyExistsException("Email already registered");
          }
 
          User user = newUserMapper.toEntity(dto);
@@ -78,12 +69,20 @@ public class UserService implements UserDetailsService {
         return userResponseMapper.toDTOWithoutPass(saved) ;
     }
 
+    /**
+     * Loads a user by email for Spring Security authentication.
+     * Used automatically during login.
+     *
+     * @param email the email of the user to authenticate
+     * @return UserDetails required by Spring Security
+     * @throws UserNotFoundException if no user with the given email exists
+     */
     @Override
     public UserDetails loadUserByUsername(String email)
-            throws UsernameNotFoundException {
+            throws UserNotFoundException {
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
+                .orElseThrow(() -> new UserNotFoundException("User not found: " + email));
 
         return org.springframework.security.core.userdetails.User
                 .withUsername(user.getEmail())
@@ -92,13 +91,18 @@ public class UserService implements UserDetailsService {
                 .build();
     }
 
-    public UserResponseDTO getByEmail(String email) {
+    /**
+     * Retrieves user information by email.
+     *
+     * @param email the email of the user to retrieve
+     * @return UserResponseDTO containing user data, excluding the password
+     * @throws UserNotFoundException if no user with the given email exists
+     */
+    public UserResponseDTO getByEmail(String email) throws UserNotFoundException{
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
+                .orElseThrow(() -> new UserNotFoundException("User not found: " + email));
 
-        UserResponseDTO userResponse = userResponseMapper.toDTO(user);
-
-        return userResponse;
+        return userResponseMapper.toDTO(user);
     }
 
     //endregion
