@@ -36,6 +36,7 @@ public class Donation {
     private String photoUrl;
 
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private DonationStatus status;
 
     @Column(nullable = false)
