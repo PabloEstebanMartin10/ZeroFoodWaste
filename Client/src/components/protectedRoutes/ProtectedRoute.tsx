@@ -1,15 +1,19 @@
 import { useContext } from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
-import { AuthContext } from '../../context/AuthProvider';
+import { AuthContext } from '../../context/AuthContext';
 
-const ProtectedRoute = () => {
+type ProtectedRouteProps = {
+  allowedRoles?: string[];
+};
+
+const ProtectedRoute = ({ allowedRoles }: ProtectedRouteProps) => {
   const auth = useContext(AuthContext);
   if (!auth) throw new Error("AuthContext missing");
   const { user } = auth; 
-  
-  const isAuthenticated = !!user; 
-
-  return isAuthenticated ? <Outlet /> : <Navigate to="/login" replace />;
+  if (!user || !allowedRoles || !allowedRoles.includes(user.role)) {
+    return <Navigate to="/" replace />;
+  }
+  return <Outlet />;
 };
 
 export default ProtectedRoute;

@@ -1,7 +1,7 @@
-import React, { useState, useRef, useEffect, useContext } from "react";
+import { useState, useRef, useEffect, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Logo from "../../assets/logos/Logo_ZFWTransparent.png";
-import { AuthContext } from "../../context/AuthProvider";
+import { AuthContext } from "../../context/AuthContext";
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -10,7 +10,7 @@ export default function Navbar() {
 
   const auth = useContext(AuthContext);
   if (!auth) throw new Error("AuthContext missing");
-  const { user, setUser, token, setToken } = auth;
+  const { user, setUser, setToken } = auth;
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -26,6 +26,7 @@ export default function Navbar() {
     setMenuOpen(false);
     setUser(null);
     setToken(null);
+    localStorage.removeItem("user");
     localStorage.removeItem("token");
     navigate("/login");
   }
@@ -91,7 +92,7 @@ export default function Navbar() {
               </div>
 
               <Link
-                to="/comercio"
+                to={user.role === "Establishment" ? "/comercio" : "/banco"}
                 className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
                 onClick={() => setMenuOpen(false)}
               >
@@ -99,7 +100,7 @@ export default function Navbar() {
               </Link>
 
               <Link
-                to="/perfil-comercio"
+                to={user.role === "Establishment" ? "/perfil-comercio" : "/perfil-banco"}
                 className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
                 onClick={() => setMenuOpen(false)}
               >

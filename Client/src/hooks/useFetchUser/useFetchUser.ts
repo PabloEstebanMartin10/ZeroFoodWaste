@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { zfwApiInstance } from "../../api/apiInstance";
-import { useNavigate } from "react-router-dom";
+//import { useNavigate } from "react-router-dom";
 import type { userInfo } from "../../types/user/userInfo";
 
 const URL = "/User"

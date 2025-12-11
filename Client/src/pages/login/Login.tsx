@@ -3,9 +3,9 @@ import LogoFull from "../../assets/logos/Logo_ZeroFoodWasteTransparent.png";
 import type { loginData } from "../../types/user/loginData";
 import { useLogin } from "../../hooks/useLogin/useLogin";
 import { Link, useNavigate } from "react-router-dom";
-import { AuthContext } from "../../context/AuthProvider";
 import { useFetchUser } from "../../hooks/useFetchUser/useFetchUser";
 import type { userInfo } from "../../types/user/userInfo";
+import { AuthContext } from "../../context/AuthContext";
 
 const Login: React.FC = () => {
   const [stayConnected, setStayConnected] = useState(false);
@@ -25,16 +25,17 @@ const Login: React.FC = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     const token = await loginFunction(loginData);
-    if(loginError){
+    if(loginError){ //casi seguro que esto no funciona
       console.log(loginError);
     }
     setToken(token);
     if(token){
-      if (stayConnected){
+      // if (stayConnected){
         localStorage.setItem("token", token);
-      }
+      // }
       const userLoggedIn: userInfo | null = await fetchUserFunction(token);
-      if(error){
+      localStorage.setItem("user", JSON.stringify(userLoggedIn))
+      if(error){ //casi seguro que esto no funciona
         console.log(error);
       }
       setUser(userLoggedIn);

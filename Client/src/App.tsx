@@ -9,7 +9,7 @@ import DashboardBanco from "./pages/dashboardBanco/DashboardBanco";
 import { AuthProvider } from "./context/AuthProvider";
 import ProfileComercio from "./pages/profileComercio/ProfileComercio";
 import ProfileBanco from "./pages/profileBanco/ProfileBanco";
-import ProtectedRoute from "./components/protectedRoutes/protectedRoute";
+import ProtectedRoute from "./components/protectedRoutes/ProtectedRoute";
 
 const router = createBrowserRouter([
   {
@@ -21,12 +21,17 @@ const router = createBrowserRouter([
       { path: "login", element: <Login /> },
       { path: "registro", element: <Register /> },
       {
-        element: <ProtectedRoute />, 
+        element: <ProtectedRoute allowedRoles={['Establishment']} />,
         children: [
-          { path: "comercio", element: <DashboardComercio /> },
-          { path: "banco", element: <DashboardBanco /> },
-          { path: "perfil-comercio", element: <ProfileComercio /> },
-          { path: "perfil-banco", element: <ProfileBanco /> },
+          { path: 'comercio', element: <DashboardComercio /> },
+          { path: 'perfil-comercio', element: <ProfileComercio /> },
+        ],
+      },
+      {
+        element: <ProtectedRoute allowedRoles={['FoodBank']} />,
+        children: [
+          { path: 'banco', element: <DashboardBanco /> },
+          { path: 'perfil-banco', element: <ProfileBanco /> },
         ],
       },
     ],
