@@ -3,6 +3,7 @@
 package com.example.ZeroFoodWaste.service;
 
 import com.example.ZeroFoodWaste.config.JwtUtils;
+import com.example.ZeroFoodWaste.model.dto.LoginResponseDTO;
 import com.example.ZeroFoodWaste.model.dto.NewUserDTO;
 import com.example.ZeroFoodWaste.model.dto.UserResponseDTO;
 import com.example.ZeroFoodWaste.model.entity.Establishment;
@@ -16,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.NoSuchElementException;
@@ -36,6 +38,8 @@ public class UserService implements UserDetailsService {
      private final UserResponseMapper userResponseMapper;
      private final EstablishmentService establishmentService;
      private final FoodBankService foodBankService;
+     private final PasswordEncoder passwordEncoder;
+     private final JwtUtils jwtUtils;
 
      //region post
 
@@ -48,8 +52,7 @@ public class UserService implements UserDetailsService {
      @Transactional
     public UserResponseDTO createUser(NewUserDTO dto) {
         User user = newUserMapper.toEntity(dto);
-        //todo esto tiene que estar cifrado pero no se si antes o despues
-        user.setPasswordHash("jklsad");
+        user.setPasswordHash(passwordEncoder.encode(dto.getPassword()));
         userRepository.save(user);
 
         if (user.getEstablishment() != null) {
@@ -86,18 +89,24 @@ public class UserService implements UserDetailsService {
 
         return userResponse;
     }
+
     /**
      *  receives a user and a hash of the password if is all correct returns the user
      *
      * @param email the email of the user
-     * @param passwordHash a hash of the password from the user
+     * @param rawPassword a hash of the password from the user
      * @return the user if the information is correct
      * @throws NoSuchElementException if the user is not found
      */
+    public LoginResponseDTO LoginUser(String email, String rawPassword) {
+        User user = userRepository.findByEmailAndPasswordHash(email, rawPassword).orElseThrow(
+                () -> new NoSuchElementException("Invalid user or password "));
+        if (!passwordEncoder.matches(rawPassword, user.getPasswordHash())) {
+            //todo throws
+        }
+        String token = jwtUtils.generateToken(user.getEmail());
 
-    public User LoginUser(String email, String passwordHash) {
-        return userRepository.findByEmailAndPasswordHash(email, passwordHash).orElseThrow(
-                () -> new UserNotFoundException(email));
+        return new LoginResponseDTO(token,userResponseMapper.toDTO(user));
     }
 
     //endregion
