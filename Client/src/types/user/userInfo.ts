@@ -1,7 +1,7 @@
 export interface userInfo {
   id: number;
   email: string;
-  rol: string;
+  role: string;
   establishmentId?: number;
   foodBankId?: number;
 }

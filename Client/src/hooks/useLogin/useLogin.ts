@@ -1,8 +1,8 @@
 import type { loginData } from './../../types/user/loginData';
 import { useState } from "react";
 import { zfwApiInstance } from "../../api/apiInstance";
-import { useNavigate } from "react-router-dom";
-import type { userInfo } from "../../types/user/userInfo";
+// import { useNavigate } from "react-router-dom";
+// import type { userInfo } from "../../types/user/userInfo";
 
 const URL = "/auth/login"
 
