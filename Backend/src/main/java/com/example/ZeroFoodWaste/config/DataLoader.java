@@ -100,11 +100,11 @@ public class DataLoader implements CommandLineRunner {
         donationRepository.save(d4);
 
         // ---------- DONATIONS ASSIGNMENTS ----------
-        DonationAssignment da1 = new DonationAssignment(d1, fb1);
-        DonationAssignment da2 = new DonationAssignment(d2, fb2);
+        // DonationAssignment da1 = new DonationAssignment(d1, fb1);
+        // DonationAssignment da2 = new DonationAssignment(d2, fb2);
 
-        donationAssignmentRepository.save(da1);
-        donationAssignmentRepository.save(da2);
+        // donationAssignmentRepository.save(da1);
+        // donationAssignmentRepository.save(da2);
 
         System.out.println("✅ Database pre-populated with test data");
     }

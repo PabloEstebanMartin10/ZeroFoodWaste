@@ -42,16 +42,30 @@ public class DonationController {
         return ResponseEntity.created(location).body(dto);
     }
 
-    @PostMapping("/{id}/accept/{foodBankId}")
+    @PostMapping("/donations/{id}/accept/{foodBankId}")
     public ResponseEntity<DonationResponseDTO> acceptDonation(@PathVariable Long id, @PathVariable Long foodBankId) {
         DonationResponseDTO dto = donationService.acceptDonation(id,foodBankId);
         return ResponseEntity.ok(dto);
     }
 
-    @PostMapping("/{id}/pickup")
+    @PostMapping("/donations/{id}/pickup")
     public ResponseEntity<DonationResponseDTO> pickUpDonation(@PathVariable Long id) {
         //todo
         DonationResponseDTO dto = donationService.pickUpDonation(id);
+        return ResponseEntity.ok(dto);
+    }
+
+    @GetMapping("/donations/reserved")
+    public ResponseEntity<List<DonationResponseDTO>> getReservedDonations(@RequestParam Long foodBankId) {
+        List<DonationResponseDTO> responseDTOS = donationService.getReservedDonationsByBank(foodBankId);
+        return ResponseEntity.ok(responseDTOS);
+    }
+
+    @PostMapping("/donations/{id}/cancel/{foodBankId}")
+    public ResponseEntity<DonationResponseDTO> cancelReservation(
+            @PathVariable Long id,
+            @PathVariable Long foodBankId) {
+        DonationResponseDTO dto = donationService.cancelReservation(id, foodBankId);
         return ResponseEntity.ok(dto);
     }
 

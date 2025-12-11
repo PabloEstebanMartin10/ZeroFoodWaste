@@ -39,6 +39,7 @@ public class Donation {
     private String photoUrl;
 
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private DonationStatus status;
 
     @Column(nullable = false)
@@ -47,8 +48,9 @@ public class Donation {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
-    @OneToOne(mappedBy = "donation")
+    @OneToOne(mappedBy = "donation", cascade = CascadeType.ALL, orphanRemoval = true)
     private DonationAssignment assignment;
+
 
     public Donation(Establishment establishment, String productName, String description, Integer quantity, String unit, LocalDateTime expirationDate, DonationStatus status) {
         this.establishment = establishment;
