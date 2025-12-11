@@ -2,19 +2,22 @@ import React, { useContext, useState } from "react";
 import LogoFull from "../../assets/logos/Logo_ZeroFoodWasteTransparent.png";
 import type { loginData } from "../../types/user/loginData";
 import { useLogin } from "../../hooks/useLogin/useLogin";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthProvider";
 import { useFetchUser } from "../../hooks/useFetchUser/useFetchUser";
 import type { userInfo } from "../../types/user/userInfo";
 
 const Login: React.FC = () => {
+  const [stayConnected, setStayConnected] = useState(false);
   const [loginData, setLoginData] = useState<loginData>({
     email: "",
     password: "",
   });
   const { loginFunction, loginError } = useLogin();
   const { fetchUserFunction, error } = useFetchUser();
+  const navigate = useNavigate();
   const auth = useContext(AuthContext);
+
   if (!auth) throw new Error("AuthContext missing");
 
   const { setUser, setToken } = auth;
@@ -23,16 +26,19 @@ const Login: React.FC = () => {
     e.preventDefault();
     const token = await loginFunction(loginData);
     if(loginError){
-      console.log(error);
+      console.log(loginError);
     }
     setToken(token);
     if(token){
-      localStorage.setItem("token", token);
+      if (stayConnected){
+        localStorage.setItem("token", token);
+      }
       const userLoggedIn: userInfo | null = await fetchUserFunction(token);
       if(error){
         console.log(error);
       }
       setUser(userLoggedIn);
+      navigate("/");
     }
   };
 
@@ -90,6 +96,15 @@ const Login: React.FC = () => {
                 onChange={(e) => handleChange(e)}
                 className="w-full px-4 py-3 rounded-lg bg-[#F7FAF5] border border-[#C8D5B9] focus:ring-2 focus:ring-[#8FC0A9] focus:outline-none placeholder-gray-300"
               />
+              <label className="flex items-center space-x-2 cursor-pointer select-none mt-4">
+                <input 
+                  type="checkbox"
+                  checked={stayConnected}
+                  onChange={(e) => setStayConnected(e.target.checked)}
+                  className="h-4 w-4 rounded border-gray-300 text-green-800 focus:text-green-800"
+                />
+                <span className="text-green-800 font-medium">Mantener la sesión iniciada</span>
+              </label>
             </div>
 
             <button
