@@ -22,9 +22,7 @@ public class EstablishmentService {
     /* todos
     todo 2 crear excepciones personalizadas (EstablishmentNotFoundException, InvalidUpdateException)
     todo 3 introducir DTOs para evitar exponer entidades (EstablishmentDTO, UpdateEstablishmentDTO)
-    todo 4 reemplazar BeanUtils por MapStruct u otro mapper tipado
     todo 5 validar entrada con javax.validation (@NotBlank, @Valid en controller)
-    todo 6 revisar qué propiedades deben permitirse modificar y proteger user/donations
     todo 7 evaluar si se requiere control de permisos antes de modificar establecimientos
      */
     private final EstablishmentRepository establishmentRepository;
@@ -47,6 +45,7 @@ public class EstablishmentService {
     //endregion
 
     //region post
+    @Transactional
     public EstablishmentResponseDTO createEstablishment(Establishment establishment) {
         return establishmentResponseMapper.toDTO(establishmentRepository.save(establishment));
     }

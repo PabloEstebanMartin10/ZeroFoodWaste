@@ -6,6 +6,7 @@ import com.example.ZeroFoodWaste.model.dto.FoodBankResponseDTO;
 import com.example.ZeroFoodWaste.model.entity.FoodBank;
 import com.example.ZeroFoodWaste.model.mapper.FoodBankResponseMapper;
 import com.example.ZeroFoodWaste.repository.FoodBankRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +18,6 @@ import java.util.NoSuchElementException;
 @RequiredArgsConstructor
 public class FoodBankService {
     /* todos
-    todo 1 añadir @Transactional en métodos que modifican la BD (modifyFoodBank)
     todo 2 crear excepciones personalizadas (FoodBankNotFoundException, UpdateNotAllowedException)
     todo 5 validar campos de entrada con javax.validation (@NotBlank, @Valid en controller)
      */
@@ -41,6 +41,7 @@ public class FoodBankService {
     //endregion
 
     //region post
+    @Transactional
     public FoodBankResponseDTO createFoodBank(FoodBank foodBank){
         return foodBankResponseMapper.toDTO(foodBankRepository.save(foodBank));
     }
@@ -56,6 +57,7 @@ public class FoodBankService {
      * @return the food bank after modification
      * @throws  NoSuchElementException if cant find the food bank
      */
+    @Transactional
     public FoodBankResponseDTO modifyFoodBank(Long id,FoodBankResponseDTO dto){
         FoodBank foodBank = foodBankRepository.findById(id).orElseThrow(
                 ()->new NoSuchElementException("Couldn't find the food bank"));
