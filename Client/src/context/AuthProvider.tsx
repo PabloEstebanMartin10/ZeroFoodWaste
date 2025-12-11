@@ -8,7 +8,9 @@ export const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<userInfo | null>(null);
+  const [entity, setEntity] = useState<userInfo | null>(null);
   const [token, setToken] = useState<string | null>(null);
+
   const {fetchUserFunction, error} = useFetchUser()
 
   useEffect(() => {

@@ -22,10 +22,7 @@ public class UserController {
 
     @GetMapping
     public ResponseEntity<UserResponseDTO> getUserByToken(@RequestParam String token){
-        System.out.println("called");
-        System.out.println(token);
         String email = jwtUtil.extractUsername(token);
-
         return ResponseEntity.ok(userService.getByEmail(email));
     }
 }
