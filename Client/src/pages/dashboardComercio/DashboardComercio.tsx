@@ -250,14 +250,38 @@ export default function DashboardComercio() {
       .catch((err) => console.error("Error creando donación:", err));
   };
 
-  const handleDeleteDonation = (index: number) => {
-    if (
-      window.confirm("¿Estás seguro de que quieres eliminar esta donación?")
-    ) {
-      const realIndex = donations.findIndex((d) => d === donationsList[index]);
-      setDonations(donations.filter((_, i) => i !== realIndex));
+ const handleDeleteDonation = async (index: number) => {
+  if (!window.confirm("¿Estás seguro de que quieres eliminar esta donación?")) {
+    return;
+  }
+
+  // Obtener índice REAL dentro de donations[]
+  const realIndex = donations.findIndex((d) => d === donationsList[index]);
+  const donation = donations[realIndex];
+
+  if (!donation?.id) {
+    console.error("Donación sin ID, no se puede eliminar");
+    return;
+  }
+
+  try {
+    const res = await fetch(`http://localhost:8080//donations/${donation.id}`, {
+      method: "DELETE",
+    });
+
+    if (!res.ok) {
+      throw new Error(`Error backend al eliminar: ${res.status}`);
     }
-  };
+
+    // Eliminar del estado
+    setDonations((prev) => prev.filter((d) => d.id !== donation.id));
+
+  } catch (err) {
+    console.error(err);
+    alert("Hubo un problema eliminando la donación.");
+  }
+};
+
 
   return (
     <div className="min-h-screen bg-amber-50 p-10">
