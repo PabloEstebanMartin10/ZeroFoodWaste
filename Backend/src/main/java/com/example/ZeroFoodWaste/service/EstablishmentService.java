@@ -39,8 +39,8 @@ public class EstablishmentService {
      * @return the {@link EstablishmentResponseDTO} linked to the user
      * @throws NoSuchElementException if no establishment is found for the given user ID
      */
-    public EstablishmentResponseDTO getEstablishment(Long userId) {
-        return establishmentResponseMapper.toDTO(establishmentRepository.findByUserId(userId).orElseThrow(
+    public EstablishmentResponseDTO getEstablishment(Long Id) {
+        return establishmentResponseMapper.toDTO(establishmentRepository.findById(Id).orElseThrow(
                 () -> new NoSuchElementException("Couldn't find the establishment")));
     }
 
