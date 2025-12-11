@@ -9,6 +9,7 @@ import DashboardBanco from "./pages/dashboardBanco/DashboardBanco";
 import { AuthProvider } from "./context/AuthProvider";
 import ProfileComercio from "./pages/profileComercio/ProfileComercio";
 import ProfileBanco from "./pages/profileBanco/ProfileBanco";
+import ProtectedRoute from "./components/protectedRoutes/protectedRoute";
 
 const router = createBrowserRouter([
   {
@@ -19,13 +20,19 @@ const router = createBrowserRouter([
       { index: true, element: <Home /> },
       { path: "login", element: <Login /> },
       { path: "registro", element: <Register /> },
-      { path: "comercio", element: <DashboardComercio /> },
-      { path: "banco", element: <DashboardBanco /> },
-      { path: "perfil-comercio", element: <ProfileComercio /> },
-      { path: "perfil-banco", element: <ProfileBanco /> },
+      {
+        element: <ProtectedRoute />, 
+        children: [
+          { path: "comercio", element: <DashboardComercio /> },
+          { path: "banco", element: <DashboardBanco /> },
+          { path: "perfil-comercio", element: <ProfileComercio /> },
+          { path: "perfil-banco", element: <ProfileBanco /> },
+        ],
+      },
     ],
   },
 ]);
+
 export default function App() {
   return (
     <AuthProvider>

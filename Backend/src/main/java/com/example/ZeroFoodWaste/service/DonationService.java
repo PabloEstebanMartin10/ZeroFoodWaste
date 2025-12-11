@@ -21,6 +21,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 //endregion
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -57,6 +58,38 @@ public class DonationService {
     public List<DonationResponseDTO> getDonationsByStatus(String statusStr) {
         DonationStatus status = DonationStatus.valueOf(statusStr.trim().toUpperCase());
         return donationResponseMapper.toDTOList(donationRepository.findByStatus(status));
+    }
+
+    public List<DonationResponseDTO> getReservedDonationsByBank(Long foodBankId) {
+    return assignmentRepository.findByFoodBankId(foodBankId)
+        .stream()
+        .map(assignment -> {
+            Donation donation = assignment.getDonation();
+            DonationResponseDTO dto = donationResponseMapper.toDTO(donation);
+            dto.setAssignmentId(assignment.getId());
+            return dto;
+        })
+        .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public DonationResponseDTO cancelReservation(Long donationId, Long foodBankId) {
+        Donation donation = donationRepository.findById(donationId)
+                .orElseThrow(() -> new NoSuchElementException("Donation not found"));
+
+        DonationAssignment assignment = donation.getAssignment();
+        if (assignment == null || !assignment.getFoodBank().getId().equals(foodBankId)) {
+            throw new NoSuchElementException("No assignment found for this FoodBank");
+        }
+
+        // Eliminar la asignación de la base de datos
+        assignmentRepository.delete(assignment);
+
+        // Actualizar estado de la donación
+        donation.setAssignment(null);
+        donation.setStatus(DonationStatus.AVAILABLE);
+
+        return donationResponseMapper.toDTO(donationRepository.save(donation));
     }
 
     /**
@@ -105,18 +138,28 @@ public class DonationService {
      * @return the updated donation mapped to a response DTO
      */
     @Transactional
-    public DonationResponseDTO acceptDonation(Long id, Long foodBankId) {
-        Donation donation = donationRepository.findById(id).orElseThrow(
-                () -> new NoSuchElementException("Couldn't find the Donation")
-        );
-        FoodBank foodBank = foodBankRepository.findById(foodBankId).orElseThrow(
-                () -> new NoSuchElementException("Couldn't find the Food Bank")
-        );
+    public DonationResponseDTO acceptDonation(Long donationId, Long foodBankId) {
+        Donation donation = donationRepository.findById(donationId)
+                .orElseThrow(() -> new NoSuchElementException("Donation not found"));
+
+        // Comprueba si ya tiene asignación
+        if (donation.getAssignment() != null) {
+            throw new IllegalStateException("Donation is already reserved by a FoodBank");
+        }
+
+        FoodBank foodBank = foodBankRepository.findById(foodBankId)
+                .orElseThrow(() -> new NoSuchElementException("FoodBank not found"));
+
+        // Crear y guardar nueva asignación
         DonationAssignment assignment = new DonationAssignment(donation, foodBank);
         assignmentRepository.save(assignment);
+
+        donation.setAssignment(assignment);
         donation.setStatus(DonationStatus.RESERVED);
+
         return donationResponseMapper.toDTO(donationRepository.save(donation));
     }
+
 
     /**
      * modifies the status of the donation selected to picked up

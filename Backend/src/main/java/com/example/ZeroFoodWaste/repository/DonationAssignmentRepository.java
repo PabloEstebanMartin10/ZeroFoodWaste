@@ -9,4 +9,5 @@ import java.util.Optional;
 public interface DonationAssignmentRepository extends JpaRepository<DonationAssignment,Long> {
     Optional<DonationAssignment> findByDonationId(Long donationId);
     List<DonationAssignment> findByFoodBankId(Long foodBankId);
+    Optional<DonationAssignment> findByDonationIdAndFoodBankId(Long donationId, Long foodBankId);
 }
