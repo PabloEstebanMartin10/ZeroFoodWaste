@@ -265,7 +265,7 @@ export default function DashboardComercio() {
   }
 
   try {
-    const res = await fetch(`http://localhost:8080//donations/${donation.id}`, {
+    const res = await fetch(`${BASE_URL}/donations/${donation.id}`, {
       method: "DELETE",
     });
 
