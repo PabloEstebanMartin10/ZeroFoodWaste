@@ -3,11 +3,13 @@
 package com.example.ZeroFoodWaste.service;
 
 import com.example.ZeroFoodWaste.config.JwtUtils;
+import com.example.ZeroFoodWaste.model.dto.LoginResponseDTO;
 import com.example.ZeroFoodWaste.model.dto.NewUserDTO;
 import com.example.ZeroFoodWaste.model.dto.UserResponseDTO;
 import com.example.ZeroFoodWaste.model.entity.Establishment;
 import com.example.ZeroFoodWaste.model.entity.FoodBank;
 import com.example.ZeroFoodWaste.model.entity.User;
+import com.example.ZeroFoodWaste.model.enums.Role;
 import com.example.ZeroFoodWaste.model.mapper.NewUserMapper;
 import com.example.ZeroFoodWaste.model.mapper.UserResponseMapper;
 import com.example.ZeroFoodWaste.repository.UserRepository;
@@ -16,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.NoSuchElementException;
@@ -26,16 +29,19 @@ import java.util.NoSuchElementException;
 @RequiredArgsConstructor
 public class UserService implements UserDetailsService {
     /* todos
-     todo 2 crear excepciones personalizadas (UserNotFoundException, InvalidCredentialsException)
-     todo 3 introducir DTOs para evitar exponer entidades directamente
-     todo 5 validar datos de entrada con javax.validation (e.g. @Email, @NotBlank)
-     todo 6 encriptar password en createUser antes de guardar
-      */
+     todo 1 crear excepciones personalizadas básicas (UserNotFoundException, InvalidCredentialsException)
+     todo 2 validar datos de entrada esenciales con javax.validation (e.g. @Email, @NotBlank) en DTOs
+     todo 3 manejar duplicados al registrar con excepción personalizada (EmailAlreadyExistsException)
+     todo 4 integrar login para que devuelva LoginResponseDTO con token + UserResponseDTO
+     todo 5 documentar métodos públicos con Javadoc
+          */
      private final UserRepository userRepository;
      private final NewUserMapper newUserMapper;
      private final UserResponseMapper userResponseMapper;
      private final EstablishmentService establishmentService;
      private final FoodBankService foodBankService;
+     private final PasswordEncoder passwordEncoder;
+     private final JwtUtils jwtUtils;
 
      //region post
 
@@ -47,21 +53,29 @@ public class UserService implements UserDetailsService {
       */
      @Transactional
     public UserResponseDTO createUser(NewUserDTO dto) {
-        User user = newUserMapper.toEntity(dto);
-        //todo esto tiene que estar cifrado pero no se si antes o despues
-        user.setPasswordHash("jklsad");
-        userRepository.save(user);
+         if (userRepository.existsByEmail(dto.getEmail())) {
+             throw new IllegalArgumentException("Email already registered");
+         }
 
-        if (user.getEstablishment() != null) {
-            Establishment est = user.getEstablishment();
-            est.setUser(user);
-            establishmentService.createEstablishment(est);
-        }else if (user.getFoodBank() != null) {
-            FoodBank foodBank = user.getFoodBank();
-            foodBank.setUser(user);
-            foodBankService.createFoodBank(foodBank);
-        }
-        return userResponseMapper.toDTO(user) ;
+         User user = newUserMapper.toEntity(dto);
+         user.setPasswordHash(passwordEncoder.encode(dto.getPassword()));
+
+         if (user.getRole() == Role.Establishment) {
+             Establishment est = new Establishment();
+             est.setName(dto.getEstablishmentName());
+             est.setContactPhone(dto.getEstablishmentContactPhone());
+             user.setEstablishment(est);
+         }
+
+         if (user.getRole() == Role.FoodBank) {
+             FoodBank fb = new FoodBank();
+             fb.setName(dto.getFoodBankName());
+             fb.setContactPhone(dto.getFoodBankContactPhone());
+             user.setFoodBank(fb);
+         }
+
+         User saved = userRepository.save(user);
+        return userResponseMapper.toDTOWithoutPass(saved) ;
     }
 
     @Override
@@ -85,19 +99,6 @@ public class UserService implements UserDetailsService {
         UserResponseDTO userResponse = userResponseMapper.toDTO(user);
 
         return userResponse;
-    }
-    /**
-     *  receives a user and a hash of the password if is all correct returns the user
-     *
-     * @param email the email of the user
-     * @param passwordHash a hash of the password from the user
-     * @return the user if the information is correct
-     * @throws NoSuchElementException if the user is not found
-     */
-
-    public User LoginUser(String email, String passwordHash) {
-        return userRepository.findByEmailAndPasswordHash(email, passwordHash).orElseThrow(
-                () -> new UserNotFoundException(email));
     }
 
     //endregion
