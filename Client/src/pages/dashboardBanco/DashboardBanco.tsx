@@ -1,391 +1,385 @@
-import React, { useState } from "react";
-// Todos los componentes e interfaces necesarios
-interface Donation { // Define la interfaz Donation
-  id: number; 
-  producto: string;
-  establecimiento: string;
-  distancia: number | null;
-  caducidad: string;
-  estado: "Reservado" | "Disponible";
-  cantidad: string;
-  ubicacion: string;
-  fechaPublicacion: string;
-  descripcion: string;
+import { useEffect, useState } from "react";
+
+interface Donation {
+  id: number;
+  productName: string;
+  quantity: number;
+  unit?: string;
+  expirationDate: string;
+  status: "Disponible" | "Reservado" | "Completado";
+  description?: string;
+  establishment?: { id: number; name?: string };
+  assignmentId?: number;
 }
 
-const Dashboard: React.FC = () => { 
-  const [searchTerm, setSearchTerm] = useState("");
+const mapStatusToBackend: Record<string, string> = {
+  Disponible: "AVAILABLE",
+  Reservado: "RESERVED",
+  Completado: "COMPLETED",
+};
+
+const mapStatusFromBackend: Record<string, string> = {
+  AVAILABLE: "Disponible",
+  RESERVED: "Reservado",
+  COMPLETED: "Completado",
+};
+
+const BASE_URL = "http://localhost:8080";
+const MY_FOODBANK_ID = 1;
+
+export default function DashboardBanco() {
+  const [donations, setDonations] = useState<Donation[]>([]);
+  const [selectedDonation, setSelectedDonation] = useState<Donation | null>(
+    null
+  );
+  const [activeTab, setActiveTab] = useState<"disponibles" | "reservadas">(
+    "disponibles"
+  );
+
   const [currentPage, setCurrentPage] = useState(1);
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
-  const [distanceSort, setDistanceSort] = useState<"asc" | "desc" | null>(null);
-  const [statusSort, setStatusSort] = useState<"asc" | "desc" | null>(null);
-  const [selectedDonation, setSelectedDonation] = useState<Donation | null>(null);
-  const [activeTab, setActiveTab] = useState<"disponibles" | "reservadas">("disponibles");
+  const ITEMS_PER_PAGE = 10;
 
-  const [donations, setDonations] = useState<Donation[]>([
-    { id: 1, producto: "Productos del día", establecimiento: "Supermercado Día", distancia: 1.2, caducidad: "12/12/2025", estado: "Reservado", cantidad: "10 Unidades", ubicacion: "Calle San Fernando, 4 Málaga", fechaPublicacion: "01/12/2025", descripcion: "Productos del día, yogures, pan y embutidos" },
-    { id: 2, producto: "Mix de verduras", establecimiento: "Frutería Del Sol", distancia: 4.7, caducidad: "Dec 25, 2024", estado: "Disponible", cantidad: "15 kg", ubicacion: "456 Oak Ave, San Francisco, CA", fechaPublicacion: "Dec 21, 2024", descripcion: "Fresh organic vegetables, variety of seasonal produce." },
-    { id: 3, producto: "Fresh Bread Loaves", establecimiento: "Green Valley Restaurant", distancia: 2.3, caducidad: "Dec 26, 2024", estado: "Disponible", cantidad: "30 units", ubicacion: "789 Elm St, San Francisco, CA", fechaPublicacion: "Dec 22, 2024", descripcion: "Fresh artisan bread baked daily." },
-    { id: 4, producto: "Fresh Fruit Selection", establecimiento: "Garden Grill", distancia: 3.1, caducidad: "Dec 27, 2024", estado: "Disponible", cantidad: "20 kg", ubicacion: "321 Pine St, San Francisco, CA", fechaPublicacion: "Dec 23, 2024", descripcion: "Assorted fresh fruits." },
-    { id: 5, producto: "Bakery Items", establecimiento: "Sunrise Bakery", distancia: null, caducidad: "Dec 28, 2024", estado: "Disponible", cantidad: "50 units", ubicacion: "654 Maple Ave, San Francisco, CA", fechaPublicacion: "Dec 23, 2024", descripcion: "Variety of bakery items." },
-    { id: 6, producto: "Canned Goods Assortment", establecimiento: "Metro Market", distancia: 5.8, caducidad: "Mar 15, 2025", estado: "Disponible", cantidad: "100 cans", ubicacion: "987 Cedar Rd, San Francisco, CA", fechaPublicacion: "Dec 20, 2024", descripcion: "Various canned goods." },
-    { id: 7, producto: "Pasta & Grains", establecimiento: "City Supermarket", distancia: 1.5, caducidad: "Jan 10, 2025", estado: "Disponible", cantidad: "25 kg", ubicacion: "147 Birch St, San Francisco, CA", fechaPublicacion: "Dec 19, 2024", descripcion: "Dry pasta and grains." },
-    { id: 8, producto: "Frozen Vegetables", establecimiento: "Food Hub", distancia: 3.8, caducidad: "Feb 20, 2025", estado: "Reservado", cantidad: "40 bags", ubicacion: "258 Willow Dr, San Francisco, CA", fechaPublicacion: "Dec 18, 2024", descripcion: "Frozen vegetables." },
-  ]);
+  // ============================
+  // FETCH DONACIONES SEGÚN STATUS
+  // ============================
+  const fetchDonations = async (): Promise<Donation[]> => {
+    try {
+      let url = `${BASE_URL}/donations?status=AVAILABLE`;
 
-  const itemsPerPage = 5;
+      if (activeTab === "reservadas") {
+        url = `${BASE_URL}/donations/reserved?foodBankId=${MY_FOODBANK_ID}`;
+      }
 
-  // Filtro por búsqueda y por pestaña activa
-  const filteredDonations = donations.filter((donation) => {
-    const matchesSearch = 
-      donation.producto.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      donation.establecimiento.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesTab = 
-      activeTab === "disponibles" 
-        ? donation.estado === "Disponible"
-        : donation.estado === "Reservado";
-    
-    return matchesSearch && matchesTab;
-  });
+      const res = await fetch(url);
+      const data = await res.json();
 
-  // Esto es para ordenar distancia, fecha y estado
-  const sortedDonations = [...filteredDonations];
-
-  sortedDonations.sort((a, b) => {
-    const dateA = new Date(a.caducidad).getTime();
-    const dateB = new Date(b.caducidad).getTime();
-    return sortOrder === "asc" ? dateA - dateB : dateB - dateA;
-  });
-
-  if (distanceSort) {
-    sortedDonations.sort((a, b) => {
-      const distA = a.distancia ?? 999;
-      const distB = b.distancia ?? 999;
-      return distanceSort === "asc" ? distA - distB : distB - distA;
-    });
-  }
-
-  if (statusSort) {
-    sortedDonations.sort((a, b) => {
-      return statusSort === "asc"
-        ? a.estado.localeCompare(b.estado)
-        : b.estado.localeCompare(a.estado);
-    });
-  }
-
-  // Paginación
-  const totalPages = Math.ceil(sortedDonations.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedDonations = sortedDonations.slice(startIndex, startIndex + itemsPerPage);
-
-  const toggleDateSort = () => {
-    setSortOrder(sortOrder === "asc" ? "desc" : "asc");
-    setDistanceSort(null);
-    setStatusSort(null);
-  };
-
-  const toggleDistanceSort = () => {
-    setDistanceSort(distanceSort === "asc" ? "desc" : distanceSort === "desc" ? null : "asc");
-    setSortOrder("asc");
-    setStatusSort(null);
-  };
-
-  const toggleStatusSort = () => {
-    setStatusSort(statusSort === "asc" ? "desc" : statusSort === "desc" ? null : "asc");
-    setSortOrder("asc");
-    setDistanceSort(null);
-  };
-
-  const handleReserve = () => {
-    if (selectedDonation) {
-      setDonations(donations.map((d) =>
-        d.id === selectedDonation.id
-          ? { ...d, estado: d.estado === "Disponible" ? "Reservado" : "Disponible" }
-          : d
-      ));
-      setSelectedDonation({
-        ...selectedDonation,
-        estado: selectedDonation.estado === "Disponible" ? "Reservado" : "Disponible",
+      // Mapear estados y filtrar duplicados
+      const donationsMap: Record<number, Donation> = {};
+      data.forEach((d: any) => {
+        donationsMap[d.id] = {
+          ...d,
+          status: d.status ? mapStatusFromBackend[d.status] : "Disponible",
+        };
       });
+
+      const donationsList: Donation[] = Object.values(donationsMap);
+      setDonations(donationsList);
+      return donationsList;
+    } catch (err) {
+      console.error("Error cargando donaciones:", err);
+      return [];
     }
   };
 
+  // ============================
+  // RESERVAR / CANCELAR
+  // ============================
+  const toggleReservation = async () => {
+    if (!selectedDonation) return;
+
+    try {
+      let res: Response;
+
+      if (selectedDonation.status === "Disponible") {
+        // RESERVAR
+        res = await fetch(
+          `${BASE_URL}/donations/${selectedDonation.id}/accept/${MY_FOODBANK_ID}`,
+          { method: "POST" }
+        );
+      } else if (selectedDonation.status === "Reservado") {
+        // CANCELAR
+        res = await fetch(
+          `${BASE_URL}/donations/${selectedDonation.id}/cancel/${MY_FOODBANK_ID}`,
+          { method: "POST" } // revisar si tu backend requiere DELETE
+        );
+      } else {
+        return; // no hacemos nada si es "Completado"
+      }
+
+      if (!res.ok) throw new Error("Error en la petición");
+
+      // ===== Actualizamos localmente =====
+      setDonations((prev) => {
+        const updated = prev.map((d) => {
+          if (d.id === selectedDonation.id) {
+            if (d.status === "Disponible") return { ...d, status: "Reservado" };
+            if (d.status === "Reservado") return { ...d, status: "Disponible" };
+          }
+          return d;
+        });
+
+        // filtramos según el tab activo
+        if (activeTab === "disponibles") {
+          return updated.filter((d) => d.status === "Disponible");
+        }
+        if (activeTab === "reservadas") {
+          return updated.filter((d) => d.status === "Reservado");
+        }
+        return updated;
+      });
+
+      // actualizamos el modal
+      setSelectedDonation((prev) => {
+        if (!prev) return null;
+        if (prev.status === "Disponible")
+          return { ...prev, status: "Reservado" };
+        if (prev.status === "Reservado")
+          return { ...prev, status: "Disponible" };
+        return prev;
+      });
+    } catch (err) {
+      console.error("Error al cambiar estado de la donación:", err);
+    }
+  };
+
+  // ============================
+  // ORDENACIÓN
+  // ============================
+  const [sortConfig, setSortConfig] = useState<{
+    key: string;
+    direction: "asc" | "desc";
+  }>({ key: "productName", direction: "asc" });
+
+  const sortedDonations = [...donations].sort((a, b) => {
+    const key = sortConfig.key as keyof Donation;
+    let aVal = a[key] ?? "";
+    let bVal = b[key] ?? "";
+
+    if (key === "expirationDate") {
+      aVal = new Date(aVal).getTime();
+      bVal = new Date(bVal).getTime();
+    }
+
+    if (aVal < bVal) return sortConfig.direction === "asc" ? -1 : 1;
+    if (aVal > bVal) return sortConfig.direction === "asc" ? 1 : -1;
+    return 0;
+  });
+
+  const handleSort = (key: string) => {
+    setSortConfig((prev) => ({
+      key,
+      direction: prev.key === key && prev.direction === "asc" ? "desc" : "asc",
+    }));
+  };
+
+  // ============================
+  // PAGINACIÓN
+  // ============================
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const paginatedDonations = sortedDonations.slice(
+    startIndex,
+    startIndex + ITEMS_PER_PAGE
+  );
+  const totalPages = Math.ceil(sortedDonations.length / ITEMS_PER_PAGE);
+
+  // ============================
+  // USE EFFECTS
+  // ============================
+  useEffect(() => {
+    fetchDonations();
+    setCurrentPage(1);
+  }, [activeTab]);
+
+  // ============================
+  // RENDER
+  // ============================
   return (
-    <div className="min-h-screen bg-amber-50">
-      {/* Header */}
-      <div className="bg-amber-50 border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-6 py-6">
-          <h1 className="text-4xl font-bold text-gray-800">Banco de Alimentos</h1>
-          <p className="text-gray-600 mt-1">Administra tus donaciones de comida</p>
-        </div>
+    <div className="min-h-screen bg-amber-50 p-10">
+      <header className="mb-10">
+        <h1 className="text-4xl font-bold text-gray-800">Banco de Alimentos</h1>
+        <p className="text-gray-600">Gestiona las donaciones disponibles</p>
+      </header>
+
+      {/* TABS */}
+      <div className="mb-6 flex gap-4">
+        <button
+          className={`px-6 py-2 rounded-lg font-semibold transition ${
+            activeTab === "disponibles"
+              ? "bg-green-600 text-white"
+              : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-100"
+          }`}
+          onClick={() => setActiveTab("disponibles")}
+        >
+          Donaciones Disponibles
+        </button>
+
+        <button
+          className={`px-6 py-2 rounded-lg font-semibold transition ${
+            activeTab === "reservadas"
+              ? "bg-green-600 text-white"
+              : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-100"
+          }`}
+          onClick={() => setActiveTab("reservadas")}
+        >
+          Mis Reservas
+        </button>
       </div>
 
-      {/* Content */}
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        {/* Tabs */}
-        <div className="mb-6 flex gap-4 items-center">
-          <button
-            onClick={() => {
-              setActiveTab("disponibles");
-              setCurrentPage(1);
-            }}
-            className={`px-6 py-3 rounded-lg font-semibold text-lg transition-all ${
-              activeTab === "disponibles"
-                ? "bg-green-700 text-white shadow-md"
-                : "bg-white text-gray-600 border-2 border-gray-200 hover:border-green-300"
-            }`}
-          >
-            Donaciones Disponibles
-          </button>
-          
-          <button
-            onClick={() => {
-              setActiveTab("reservadas");
-              setCurrentPage(1);
-            }}
-            className={`px-6 py-3 rounded-lg font-semibold text-lg transition-all ${
-              activeTab === "reservadas"
-                ? "bg-yellow-600 text-white shadow-md"
-                : "bg-white text-gray-600 border-2 border-gray-200 hover:border-yellow-300"
-            }`}
-          >
-            Donaciones Reservadas
-          </button>
-        </div>
+      {/* TABLA */}
+      <div className="bg-white rounded-lg shadow-md p-6">
+        <h2 className="text-xl font-semibold text-green-800 mb-3">
+          {activeTab === "disponibles"
+            ? "Donaciones Disponibles"
+            : "Mis Reservas"}
+        </h2>
 
-        <div className="mb-6">
-          <p className="text-gray-600">
-            {activeTab === "disponibles" 
-              ? "Alimentos listos para recoger de establecimientos locales"
-              : "Alimentos que ya has reservado"}
-          </p>
-        </div>
-
-        {/* Barra de busqueda */}
-        <div className="mb-6">
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="Buscar por producto o establecimiento..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-4 pr-4 py-3 rounded-lg bg-white border border-gray-300 focus:ring-2 focus:ring-green-500 focus:outline-none placeholder-gray-400"
-            />
-          </div>
-        </div>
-
-        {/* Tabla */}
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200">
-          <table className="w-full">
-            <thead className="bg-green-100">
-              <tr>
-                <th className="px-6 py-4 text-left text-sm font-bold text-green-800 uppercase tracking-wide">
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="bg-green-100 text-left text-gray-600 uppercase text-sm">
+                <th
+                  className="py-3 px-4 cursor-pointer"
+                  onClick={() => handleSort("productName")}
+                >
                   Producto
                 </th>
-                <th className="px-6 py-4 text-left text-sm font-bold text-green-800 uppercase tracking-wide">
-                  Establecimiento
+                <th
+                  className="py-3 px-4 cursor-pointer"
+                  onClick={() => handleSort("quantity")}
+                >
+                  Cantidad
                 </th>
-
-                {/* Distancia */}
-                <th className="px-6 py-4 text-left text-sm font-bold text-green-800 uppercase tracking-wide">
-                  <button
-                    onClick={toggleDistanceSort}
-                    className="flex items-center gap-2 hover:text-green-700"
-                  >
-                    Distancia
-                    <span>{distanceSort === "asc" ? "▲" : distanceSort === "desc" ? "▼" : "—"}</span>
-                  </button>
+                <th
+                  className="py-3 px-4 cursor-pointer"
+                  onClick={() => handleSort("expirationDate")}
+                >
+                  Caducidad
                 </th>
-
-                {/* Fecha */}
-                <th className="px-6 py-4 text-left text-sm font-bold text-green-800 uppercase tracking-wide">
-                  <button
-                    onClick={toggleDateSort}
-                    className="flex items-center gap-2 hover:text-green-700"
-                  >
-                    Fecha Caducidad
-                    <span>{sortOrder === "asc" ? "▲" : "▼"}</span>
-                  </button>
+                <th
+                  className="py-3 px-4 cursor-pointer"
+                  onClick={() => handleSort("status")}
+                >
+                  Estado
                 </th>
-
-                {/* Estado */}
-                <th className="px-6 py-4 text-left text-sm font-bold text-green-800 uppercase tracking-wide">
-                  <button
-                    onClick={toggleStatusSort}
-                    className="flex items-center gap-2 hover:text-green-700"
-                  >
-                    Estado
-                    <span>{statusSort === "asc" ? "▲" : statusSort === "desc" ? "▼" : "—"}</span>
-                  </button>
-                </th>
+                <th className="py-3 px-4">Detalles</th>
               </tr>
             </thead>
 
-            <tbody className="divide-y divide-gray-100">
-              {paginatedDonations.map((donation) => (
-                <tr
-                  key={donation.id}
-                  onClick={() => setSelectedDonation(donation)}
-                  className="hover:bg-gray-50 cursor-pointer"
-                >
-                  <td className="px-6 py-4 text-gray-800 font-medium">{donation.producto}</td>
-                  <td className="px-6 py-4 text-gray-600">{donation.establecimiento}</td>
-                  <td className="px-6 py-4 text-gray-600">
-                    {donation.distancia ? `${donation.distancia} Km` : "—"}
+            <tbody>
+              {paginatedDonations.map((item) => (
+                <tr key={item.id} className="border-b hover:bg-gray-50">
+                  <td className="py-4 px-4 font-medium">{item.productName}</td>
+                  <td className="py-4 px-4">
+                    {item.quantity} {item.unit}
                   </td>
-                  <td className="px-6 py-4 text-gray-600">{donation.caducidad}</td>
-                  <td className="px-6 py-4">
+                  <td className="py-4 px-4">
+                    {new Date(item.expirationDate).toLocaleDateString()}
+                  </td>
+                  <td className="py-4 px-4">
                     <span
-                      className={`inline-block px-4 py-1.5 rounded-lg text-sm font-medium ${
-                        donation.estado === "Disponible"
+                      className={`px-3 py-1 rounded-full text-sm font-medium ${
+                        item.status === "Disponible"
                           ? "bg-green-100 text-green-700"
-                          : "bg-yellow-100 text-yellow-700"
+                          : item.status === "Reservado"
+                          ? "bg-yellow-100 text-yellow-700"
+                          : "bg-gray-200 text-gray-700"
                       }`}
                     >
-                      {donation.estado}
+                      {item.status}
                     </span>
+                  </td>
+                  <td className="py-4 px-4">
+                    <button
+                      onClick={() => setSelectedDonation(item)}
+                      className="text-green-700 font-semibold hover:underline"
+                    >
+                      Ver Detalles
+                    </button>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
+        </div>
 
-          {/* Paginación */}
-          <div className="border-t border-gray-200 px-6 py-4 flex items-center justify-between bg-white">
-            <p className="text-sm text-gray-600">
-              Mostrando {startIndex + 1} a{" "}
-              {Math.min(startIndex + itemsPerPage, sortedDonations.length)} de{" "}
-              {sortedDonations.length} donaciones
-            </p>
+        {/* PAGINACIÓN */}
+        <div className="flex justify-center items-center gap-4 mt-6">
+          <button
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage((p) => p - 1)}
+            className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+          >
+            Anterior
+          </button>
 
-            <div className="flex gap-2">
-              <button
-                onClick={() => setCurrentPage(currentPage - 1)}
-                disabled={currentPage === 1}
-                className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-40"
-              >
-                Anterior
-              </button>
+          <span className="font-semibold">
+            Página {currentPage} de {totalPages}
+          </span>
 
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                <button
-                  key={page}
-                  onClick={() => setCurrentPage(page)}
-                  className={`px-4 py-2 rounded-lg font-medium ${
-                    currentPage === page
-                      ? "bg-green-700 text-white"
-                      : "border border-gray-300 text-gray-700 hover:bg-gray-50"
-                  }`}
-                >
-                  {page}
-                </button>
-              ))}
-
-              <button
-                onClick={() => setCurrentPage(currentPage + 1)}
-                disabled={currentPage === totalPages}
-                className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-40"
-              >
-                Siguiente
-              </button>
-            </div>
-          </div>
+          <button
+            disabled={currentPage === totalPages}
+            onClick={() => setCurrentPage((p) => p + 1)}
+            className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+          >
+            Siguiente
+          </button>
         </div>
       </div>
 
-      {/* Modal */}
+      {/* MODAL */}
       {selectedDonation && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              {/* Header con título y botón cerrar */}
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex-1">
-                  <h2 className="text-3xl font-bold text-gray-800 mb-2">
-                    {selectedDonation.producto}
-                  </h2>
-                  <span
-                    className={`inline-block px-4 py-2 rounded-lg text-sm font-medium ${
-                      selectedDonation.estado === "Disponible"
-                        ? "bg-green-100 text-green-700"
-                        : "bg-yellow-100 text-yellow-700"
-                    }`}
-                  >
-                    {selectedDonation.estado}
-                  </span>
-                </div>
-                
-                <button
-                  onClick={() => setSelectedDonation(null)}
-                  className="ml-4 bg-gray-100 rounded-full p-2 hover:bg-gray-200"
-                >
-                  ✖
-                </button>
-              </div>
+        <>
+          <div
+            className="fixed inset-0 bg-black bg-opacity-30"
+            onClick={() => setSelectedDonation(null)}
+          />
 
-              <p className="text-gray-600 mb-6">{selectedDonation.descripcion}</p>
+          <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
+            <div
+              className="bg-white rounded-lg max-w-xl w-full shadow-lg relative p-6"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                onClick={() => setSelectedDonation(null)}
+                className="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
+              >
+                ✕
+              </button>
 
-              <div className="grid grid-cols-2 gap-4 mb-6">
-                <div>
-                  <p className="text-sm text-gray-500 uppercase mb-1">Cantidad</p>
-                  <p className="text-gray-800 font-semibold">{selectedDonation.cantidad}</p>
-                </div>
+              <h2 className="text-2xl font-bold mb-3">
+                {selectedDonation.productName}
+              </h2>
 
-                <div>
-                  <p className="text-sm text-gray-500 uppercase mb-1">Fecha Caducidad</p>
-                  <p className="text-gray-800 font-semibold">{selectedDonation.caducidad}</p>
-                </div>
+              <p className="text-gray-600 mb-4">
+                {selectedDonation.description}
+              </p>
 
-                <div>
-                  <p className="text-sm text-gray-500 uppercase mb-1">Establecimiento</p>
-                  <p className="text-gray-800 font-semibold">
-                    {selectedDonation.establecimiento}
-                  </p>
-                </div>
-
-                <div>
-                  <p className="text-sm text-gray-500 uppercase mb-1">Distancia</p>
-                  <p className="text-gray-800 font-semibold">
-                    {selectedDonation.distancia
-                      ? `${selectedDonation.distancia} Km`
-                      : "No especificada"}
-                  </p>
-                </div>
-
-                <div className="col-span-2">
-                  <p className="text-sm text-gray-500 uppercase mb-1">Ubicación</p>
-                  <p className="text-gray-800 font-semibold">
-                    📍 {selectedDonation.ubicacion}
-                  </p>
-                </div>
-
-                <div>
-                  <p className="text-sm text-gray-500 uppercase mb-1">Publicado</p>
-                  <p className="text-gray-800 font-semibold">
-                    {selectedDonation.fechaPublicacion}
-                  </p>
-                </div>
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <p>
+                  <strong>Cantidad:</strong> {selectedDonation.quantity}{" "}
+                  {selectedDonation.unit}
+                </p>
+                <p>
+                  <strong>Caducidad:</strong>{" "}
+                  {new Date(
+                    selectedDonation.expirationDate
+                  ).toLocaleDateString()}
+                </p>
+                <p>
+                  <strong>Estado:</strong> {selectedDonation.status}
+                </p>
+                <p>
+                  <strong>Comercio:</strong>{" "}
+                  {selectedDonation.establishment?.name || "—"}
+                </p>
               </div>
 
               <button
-                onClick={handleReserve}
-                className={`w-full py-3 rounded-lg text-lg font-medium shadow-md hover:shadow-lg ${
-                  selectedDonation.estado === "Disponible"
-                    ? "bg-green-700 text-white hover:bg-green-800"
-                    : "bg-yellow-600 text-white hover:bg-yellow-700"
+                onClick={toggleReservation}
+                className={`w-full py-3 rounded-lg text-white font-semibold ${
+                  selectedDonation.status === "Disponible"
+                    ? "bg-green-600 hover:bg-green-700"
+                    : "bg-yellow-600 hover:bg-yellow-700"
                 }`}
               >
-                {selectedDonation.estado === "Disponible"
+                {selectedDonation.status === "Disponible"
                   ? "Reservar Donación"
                   : "Cancelar Reserva"}
               </button>
             </div>
           </div>
-        </div>
+        </>
       )}
     </div>
   );
-};
-
-export default Dashboard;
+}
