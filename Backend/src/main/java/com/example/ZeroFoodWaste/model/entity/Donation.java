@@ -50,7 +50,7 @@ public class Donation {
     @OneToOne(mappedBy = "donation")
     private DonationAssignment assignment;
 
-    public Donation(Establishment establishment, String productName, String description, Number quantity, String unit, LocalDateTime expirationDate, DonationStatus status) {
+    public Donation(Establishment establishment, String productName, String description, Integer quantity, String unit, LocalDateTime expirationDate, DonationStatus status) {
         this.establishment = establishment;
         this.productName = productName;
         this.description = description;
