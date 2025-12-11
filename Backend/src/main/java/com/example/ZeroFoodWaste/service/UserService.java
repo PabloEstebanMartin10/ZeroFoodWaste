@@ -2,6 +2,8 @@
 
 package com.example.ZeroFoodWaste.service;
 
+import com.example.ZeroFoodWaste.exception.ErrorUtils;
+import com.example.ZeroFoodWaste.exception.UserNotFoundException;
 import com.example.ZeroFoodWaste.model.dto.NewUserDTO;
 import com.example.ZeroFoodWaste.model.dto.UserResponseDTO;
 import com.example.ZeroFoodWaste.model.entity.Establishment;
@@ -71,7 +73,7 @@ public class UserService {
     @Transactional
     public User LoginUser(String email, String passwordHash) {
         return userRepository.findByEmailAndPasswordHash(email, passwordHash).orElseThrow(
-                () -> new NoSuchElementException("Invalid user or password "));
+                () -> new UserNotFoundException(email));
     }
 
     //endregion
