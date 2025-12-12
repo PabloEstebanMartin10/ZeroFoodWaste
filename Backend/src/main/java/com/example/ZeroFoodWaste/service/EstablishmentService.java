@@ -20,11 +20,7 @@ import java.util.NoSuchElementException;
 @Service
 @RequiredArgsConstructor
 public class EstablishmentService {
-    /* todos
-    todo 3 introducir DTOs para evitar exponer entidades (EstablishmentDTO, UpdateEstablishmentDTO)
-    todo 5 validar entrada con javax.validation (@NotBlank, @Valid en controller)
-    todo 7 evaluar si se requiere control de permisos antes de modificar establecimientos
-     */
+
     private final EstablishmentRepository establishmentRepository;
     private final EstablishmentResponseMapper establishmentResponseMapper;
 
@@ -33,13 +29,13 @@ public class EstablishmentService {
     /**
      * Retrieves an establishment associated with a specific user ID.
      *
-     * @param userId the ID of the user whose establishment is to be retrieved
+     * @param id the ID of the user whose establishment is to be retrieved
      * @return the {@link EstablishmentResponseDTO} linked to the user
      * @throws NoSuchElementException if no establishment is found for the given user ID
      */
-    public EstablishmentResponseDTO getEstablishment(Long Id) {
-        return establishmentResponseMapper.toDTO(establishmentRepository.findById(Id).orElseThrow(
-                () -> new EstablishmentNotFoundException(Id)));
+    public EstablishmentResponseDTO getEstablishment(Long id) {
+        return establishmentResponseMapper.toDTO(establishmentRepository.findById(id).orElseThrow(
+                () -> new EstablishmentNotFoundException(id)));
     }
 
     //endregion

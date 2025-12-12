@@ -18,12 +18,10 @@ import java.util.NoSuchElementException;
 @Service
 @RequiredArgsConstructor
 public class FoodBankService {
-    /* todos
-    todo 5 validar campos de entrada con javax.validation (@NotBlank, @Valid en controller)
-     */
 
     private final FoodBankRepository foodBankRepository;
     private final FoodBankResponseMapper foodBankResponseMapper;
+
     //region get
 
     /**
@@ -33,16 +31,16 @@ public class FoodBankService {
      * @return retrieves the food bank if found
      * @throws FoodBankNotFoundException if cant find the food bank
      */
-    public FoodBankResponseDTO getFoodBank(Long id){
+    public FoodBankResponseDTO getFoodBank(Long id) {
         return foodBankResponseMapper.toDTO(foodBankRepository.findById(id).orElseThrow(
-                ()->new FoodBankNotFoundException(id)));
+                () -> new FoodBankNotFoundException(id)));
     }
 
     //endregion
 
     //region post
     @Transactional
-    public FoodBankResponseDTO createFoodBank(FoodBank foodBank){
+    public FoodBankResponseDTO createFoodBank(FoodBank foodBank) {
         return foodBankResponseMapper.toDTO(foodBankRepository.save(foodBank));
     }
     //endregion
@@ -55,13 +53,13 @@ public class FoodBankService {
      * @param id
      * @param dto is the object with the  properties modified
      * @return the food bank after modification
-     * @throws  FoodBankNotFoundException if cant find the food bank
+     * @throws FoodBankNotFoundException if cant find the food bank
      */
     @Transactional
-    public FoodBankResponseDTO modifyFoodBank(Long id,FoodBankResponseDTO dto){
+    public FoodBankResponseDTO modifyFoodBank(Long id, FoodBankResponseDTO dto) {
         FoodBank foodBank = foodBankRepository.findById(id).orElseThrow(
-                ()->new FoodBankNotFoundException(id));
-        foodBankResponseMapper.updateEntityFromDTO(dto,foodBank);
+                () -> new FoodBankNotFoundException(id));
+        foodBankResponseMapper.updateEntityFromDTO(dto, foodBank);
         return foodBankResponseMapper.toDTO(foodBankRepository.save(foodBank));
     }
 

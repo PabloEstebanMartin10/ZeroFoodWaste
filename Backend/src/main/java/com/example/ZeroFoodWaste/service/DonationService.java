@@ -30,11 +30,6 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class DonationService {
-    /* todos
-    todo 3 factorizar un método genérico findOrThrow(id, exception) para Donation, Establishment y FoodBank
-    todo 8 validar parámetros de entrada con javax.validation y @Valid (especialmente fechas, status y quantities)
-    todo 9 revisar integridad referencial en DonationAssignment (evitar duplicados o inconsistencias)
-    */
 
     //region repositories
     private final DonationRepository donationRepository;
@@ -72,28 +67,6 @@ public class DonationService {
             return dto;
         })
         .collect(Collectors.toList());
-    }
-
-    @Transactional
-    public DonationResponseDTO cancelReservation(Long donationId, Long foodBankId) {
-        Donation donation = donationRepository.findById(donationId)
-                .orElseThrow(() -> new DonationNotFoundException("Couldn't find a donation with id: "+donationId +
-                        " & foodbankId: "+ foodBankId));
-
-        DonationAssignment assignment = donation.getAssignment();
-        if (assignment == null || !assignment.getFoodBank().getId().equals(foodBankId)) {
-            throw new AssignmentNotFoundException("Assignment is null or couldn't find an assignment with foodbankId: "+
-                    foodBankId);
-        }
-
-        // Eliminar la asignación de la base de datos
-        assignmentRepository.delete(assignment);
-
-        // Actualizar estado de la donación
-        donation.setAssignment(null);
-        donation.setStatus(DonationStatus.AVAILABLE);
-
-        return donationResponseMapper.toDTO(donationRepository.save(donation));
     }
 
     /**
@@ -137,7 +110,7 @@ public class DonationService {
 
     /**
      *
-     * @param id         id of the donation accepted
+     * @param donationId id of the donation accepted
      * @param foodBankId transform into {@link FoodBank} the food bank that accepted the donation
      * @return the updated donation mapped to a response DTO
      */
@@ -182,6 +155,28 @@ public class DonationService {
         donation.setStatus(DonationStatus.COMPLETED);
         assignment.setPickedUpAt(LocalDateTime.now());
         assignmentRepository.save(assignment);
+        return donationResponseMapper.toDTO(donationRepository.save(donation));
+    }
+
+    @Transactional
+    public DonationResponseDTO cancelReservation(Long donationId, Long foodBankId) {
+        Donation donation = donationRepository.findById(donationId)
+                .orElseThrow(() -> new DonationNotFoundException("Couldn't find a donation with id: "+donationId +
+                        " & foodbankId: "+ foodBankId));
+
+        DonationAssignment assignment = donation.getAssignment();
+        if (assignment == null || !assignment.getFoodBank().getId().equals(foodBankId)) {
+            throw new AssignmentNotFoundException("Assignment is null or couldn't find an assignment with foodbankId: "+
+                    foodBankId);
+        }
+
+        // Eliminar la asignación de la base de datos
+        assignmentRepository.delete(assignment);
+
+        // Actualizar estado de la donación
+        donation.setAssignment(null);
+        donation.setStatus(DonationStatus.AVAILABLE);
+
         return donationResponseMapper.toDTO(donationRepository.save(donation));
     }
     //endregion
