@@ -623,14 +623,13 @@ const RestaurantProfile: React.FC = () => {
                             </p>
                             <div className="flex items-center gap-4 mt-1 text-xs text-gray-500">
                               <span>📍 {donation.destino}</span>
-                              <span>📅 {donation.fecha}</span>
                             </div>
                           </div>
                           <span
                             className={`px-3 py-1 rounded-lg text-sm font-medium ${
-                              donation.estado === "Completado"
+                              donation.estado === "AVAILABLE"
                                 ? "bg-green-100 text-green-700"
-                                : donation.estado === "Programado"
+                                : donation.estado === "COMPLETED"
                                 ? "bg-blue-100 text-blue-700"
                                 : "bg-yellow-100 text-yellow-700"
                             }`}
