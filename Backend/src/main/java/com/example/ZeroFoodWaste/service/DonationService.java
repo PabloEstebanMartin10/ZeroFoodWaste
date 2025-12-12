@@ -72,28 +72,6 @@ public class DonationService {
         .collect(Collectors.toList());
     }
 
-    @Transactional
-    public DonationResponseDTO cancelReservation(Long donationId, Long foodBankId) {
-        Donation donation = donationRepository.findById(donationId)
-                .orElseThrow(() -> new DonationNotFoundException("Couldn't find a donation with id: "+donationId +
-                        " & foodbankId: "+ foodBankId));
-
-        DonationAssignment assignment = donation.getAssignment();
-        if (assignment == null || !assignment.getFoodBank().getId().equals(foodBankId)) {
-            throw new AssignmentNotFoundException("Assignment is null or couldn't find an assignment with foodbankId: "+
-                    foodBankId);
-        }
-
-        // Eliminar la asignación de la base de datos
-        assignmentRepository.delete(assignment);
-
-        // Actualizar estado de la donación
-        donation.setAssignment(null);
-        donation.setStatus(DonationStatus.AVAILABLE);
-
-        return donationResponseMapper.toDTO(donationRepository.save(donation));
-    }
-
     /**
      * receives an establishment id and search all the donations from that establishment
      *
@@ -180,6 +158,28 @@ public class DonationService {
         donation.setStatus(DonationStatus.COMPLETED);
         assignment.setPickedUpAt(LocalDateTime.now());
         assignmentRepository.save(assignment);
+        return donationResponseMapper.toDTO(donationRepository.save(donation));
+    }
+
+    @Transactional
+    public DonationResponseDTO cancelReservation(Long donationId, Long foodBankId) {
+        Donation donation = donationRepository.findById(donationId)
+                .orElseThrow(() -> new DonationNotFoundException("Couldn't find a donation with id: "+donationId +
+                        " & foodbankId: "+ foodBankId));
+
+        DonationAssignment assignment = donation.getAssignment();
+        if (assignment == null || !assignment.getFoodBank().getId().equals(foodBankId)) {
+            throw new AssignmentNotFoundException("Assignment is null or couldn't find an assignment with foodbankId: "+
+                    foodBankId);
+        }
+
+        // Eliminar la asignación de la base de datos
+        assignmentRepository.delete(assignment);
+
+        // Actualizar estado de la donación
+        donation.setAssignment(null);
+        donation.setStatus(DonationStatus.AVAILABLE);
+
         return donationResponseMapper.toDTO(donationRepository.save(donation));
     }
     //endregion
