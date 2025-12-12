@@ -2,6 +2,7 @@
 
 package com.example.ZeroFoodWaste.service;
 
+import com.example.ZeroFoodWaste.exception.FoodBankNotFoundException;
 import com.example.ZeroFoodWaste.model.dto.FoodBankResponseDTO;
 import com.example.ZeroFoodWaste.model.entity.FoodBank;
 import com.example.ZeroFoodWaste.model.mapper.FoodBankResponseMapper;
@@ -18,7 +19,6 @@ import java.util.NoSuchElementException;
 @RequiredArgsConstructor
 public class FoodBankService {
     /* todos
-    todo 2 crear excepciones personalizadas (FoodBankNotFoundException, UpdateNotAllowedException)
     todo 5 validar campos de entrada con javax.validation (@NotBlank, @Valid en controller)
      */
 
@@ -29,13 +29,13 @@ public class FoodBankService {
     /**
      * search and retrieves a food bank by its id
      *
-     * @param userId the id of the food bank
+     * @param id the id of the food bank
      * @return retrieves the food bank if found
-     * @throws NoSuchElementException if cant find the food bank
+     * @throws FoodBankNotFoundException if cant find the food bank
      */
-    public FoodBankResponseDTO getFoodBank(Long userId){
-        return foodBankResponseMapper.toDTO(foodBankRepository.findByUserId(userId).orElseThrow(
-                ()->new NoSuchElementException("Couldn't find the food bank")));
+    public FoodBankResponseDTO getFoodBank(Long id){
+        return foodBankResponseMapper.toDTO(foodBankRepository.findById(id).orElseThrow(
+                ()->new FoodBankNotFoundException(id)));
     }
 
     //endregion
@@ -55,12 +55,12 @@ public class FoodBankService {
      * @param id
      * @param dto is the object with the  properties modified
      * @return the food bank after modification
-     * @throws  NoSuchElementException if cant find the food bank
+     * @throws  FoodBankNotFoundException if cant find the food bank
      */
     @Transactional
     public FoodBankResponseDTO modifyFoodBank(Long id,FoodBankResponseDTO dto){
         FoodBank foodBank = foodBankRepository.findById(id).orElseThrow(
-                ()->new NoSuchElementException("Couldn't find the food bank"));
+                ()->new FoodBankNotFoundException(id));
         foodBankResponseMapper.updateEntityFromDTO(dto,foodBank);
         return foodBankResponseMapper.toDTO(foodBankRepository.save(foodBank));
     }
