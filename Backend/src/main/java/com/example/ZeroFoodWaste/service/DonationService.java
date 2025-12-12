@@ -135,7 +135,7 @@ public class DonationService {
 
     /**
      *
-     * @param id         id of the donation accepted
+     * @param donationId id of the donation accepted
      * @param foodBankId transform into {@link FoodBank} the food bank that accepted the donation
      * @return the updated donation mapped to a response DTO
      */
