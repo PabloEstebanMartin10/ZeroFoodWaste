@@ -33,6 +33,9 @@ public class Establishment {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String openingHours;
 
+    @Column(nullable = false)
+    private String description;
+
     @OneToMany(mappedBy = "establishment")
     private List<Donation> donations;
 
