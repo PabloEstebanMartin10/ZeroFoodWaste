@@ -20,11 +20,7 @@ import java.util.NoSuchElementException;
 @Service
 @RequiredArgsConstructor
 public class EstablishmentService {
-    /* todos
-    todo 3 introducir DTOs para evitar exponer entidades (EstablishmentDTO, UpdateEstablishmentDTO)
-    todo 5 validar entrada con javax.validation (@NotBlank, @Valid en controller)
-    todo 7 evaluar si se requiere control de permisos antes de modificar establecimientos
-     */
+
     private final EstablishmentRepository establishmentRepository;
     private final EstablishmentResponseMapper establishmentResponseMapper;
 
