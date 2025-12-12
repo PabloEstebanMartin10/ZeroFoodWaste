@@ -27,7 +27,6 @@ interface Donation {
 type Tab = "general" | "config" | "historial";
 
 const REST_API_BASE = "http://localhost:8080";
-const DEFAULT_ESTABLISHMENT_ID = 1;
 
 const defaultHorarios = (): Horarios => ({
   lunes: { inicio: "09:00", cierre: "17:00" },
@@ -116,7 +115,7 @@ const RestaurantProfile: React.FC = () => {
     direccion: "",
     descripcion: "",
     horarios: defaultHorarios(),
-    establishmentId: DEFAULT_ESTABLISHMENT_ID,
+    establishmentId: 0,
   });
 
   const [donationsHistory, setDonationsHistory] = useState<Donation[]>([]);
@@ -141,7 +140,7 @@ const RestaurantProfile: React.FC = () => {
   };
 
   // Fetch establishment data
-  const fetchEstablishment = async (id: number = DEFAULT_ESTABLISHMENT_ID) => {
+  const fetchEstablishment = async (id: number) => {
     try {
       const res = await fetch(`${REST_API_BASE}/establishment/${id}`);
       if (!res.ok) {
@@ -168,11 +167,9 @@ const RestaurantProfile: React.FC = () => {
   };
 
   // Fetch donations history
-  const fetchDonations = async () => {
+  const fetchDonations = async (id: number) => {
     try {
-      const res = await fetch(
-        `${REST_API_BASE}/donations/establishment/${DEFAULT_ESTABLISHMENT_ID}`
-      );
+      const res = await fetch(`${REST_API_BASE}/donations/establishment/${id}`);
       if (!res.ok) {
         throw new Error(`Error al obtener donaciones (status ${res.status})`);
       }
@@ -222,8 +219,29 @@ const RestaurantProfile: React.FC = () => {
       setLoading(true);
       setError(null);
       try {
-        await fetchEstablishment();
-        await fetchDonations();
+        const storedUser = localStorage.getItem("user");
+
+        let currentId = 0;
+
+        if (storedUser) {
+          const userObj = JSON.parse(storedUser);
+          // Dependiendo de cómo guardes el objeto usuario, el ID puede estar en:
+          // userObj.id, userObj.establishmentId, o userObj.userId
+          currentId = userObj.establishmentId || userObj.id;
+        }
+
+        if (!currentId) {
+          throw new Error(
+            "No se encontró sesión de usuario. Por favor inicie sesión."
+          );
+        }
+
+        // Actualizamos el estado con el ID correcto
+        setProfileData((prev) => ({ ...prev, establishmentId: currentId }));
+
+        // 2. Usar ese ID para las peticiones
+        await fetchEstablishment(currentId);
+        await fetchDonations(currentId);
       } catch (err: any) {
         setError(err.message || "Error al cargar datos");
       } finally {
