@@ -11,7 +11,6 @@ import type { EstablishmentInfo } from "../../types/establishment/EstablishmentI
 import type { FoodBankInfo } from "../../types/foodbank/FoodBankInfo";
 
 const Login: React.FC = () => {
-  const [stayConnected, setStayConnected] = useState(false);
   const [loginData, setLoginData] = useState<loginData>({
     email: "",
     password: "",
@@ -109,15 +108,6 @@ const Login: React.FC = () => {
                 onChange={(e) => handleChange(e)}
                 className="w-full px-4 py-3 rounded-lg bg-[#F7FAF5] border border-[#C8D5B9] focus:ring-2 focus:ring-[#8FC0A9] focus:outline-none placeholder-gray-300"
               />
-              <label className="flex items-center space-x-2 cursor-pointer select-none mt-4">
-                <input 
-                  type="checkbox"
-                  checked={stayConnected}
-                  onChange={(e) => setStayConnected(e.target.checked)}
-                  className="h-4 w-4 rounded border-gray-300 text-green-800 focus:text-green-800"
-                />
-                <span className="text-green-800 font-medium">Mantener la sesión iniciada</span>
-              </label>
             </div>
 
             <button
