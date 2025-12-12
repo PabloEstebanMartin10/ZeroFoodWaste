@@ -17,6 +17,7 @@ public class NewUserDTO {
     private String establishmentAddress;
     private String establishmentContactPhone;
     private String openingHours;
+    private String description;
     //endregion
 
     //region FoodBankData

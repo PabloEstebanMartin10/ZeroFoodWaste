@@ -80,26 +80,6 @@ public class DonationService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional
-    public DonationResponseDTO cancelReservation(Long donationId, Long foodBankId) {
-        Donation donation = donationRepository.findById(donationId)
-                .orElseThrow(() -> new NoSuchElementException("Donation not found"));
-
-        DonationAssignment assignment = donation.getAssignment();
-        if (assignment == null || !assignment.getFoodBank().getId().equals(foodBankId)) {
-            throw new NoSuchElementException("No assignment found for this FoodBank");
-        }
-
-        // Eliminar la asignación de la base de datos
-        assignmentRepository.delete(assignment);
-
-        // Actualizar estado de la donación
-        donation.setAssignment(null);
-        donation.setStatus(DonationStatus.AVAILABLE);
-
-        return donationResponseMapper.toDTO(donationRepository.save(donation));
-    }
-
     /**
      * receives an establishment id and search all the donations from that establishment
      *
