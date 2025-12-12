@@ -25,7 +25,6 @@ const mapStatusFromBackend: Record<string, string> = {
 };
 
 const BASE_URL = "http://localhost:8080";
-const MY_FOODBANK_ID = 1;
 
 export default function DashboardBanco() {
   const [donations, setDonations] = useState<Donation[]>([]);
@@ -36,21 +35,53 @@ export default function DashboardBanco() {
     "disponibles"
   );
 
+  const [foodBankId, setFoodBankId] = useState<number>(0);
+  const [loading, setLoading] = useState(true);
+
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 10;
+
+  useEffect(() => {
+    const loadUser = () => {
+      try {
+        const storedUser = localStorage.getItem("user");
+        if (storedUser) {
+          const userObj = JSON.parse(storedUser);
+          // Buscamos el ID específico o el ID genérico
+          const currentId = userObj.foodBankId || userObj.id;
+
+          if (currentId) {
+            setFoodBankId(currentId);
+          } else {
+            console.error("No se encontró foodBankId en el usuario logueado");
+          }
+        }
+      } catch (error) {
+        console.error("Error leyendo localStorage:", error);
+      } finally {
+        // Una vez intentado cargar el usuario, quitamos el loading inicial
+        // (aunque luego haremos fetch de datos)
+        setLoading(false);
+      }
+    };
+    loadUser();
+  }, []);
 
   // ============================
   // FETCH DONACIONES SEGÚN STATUS
   // ============================
-  const fetchDonations = async (): Promise<Donation[]> => {
+  const fetchDonations = async () => {
+    if (!foodBankId) return;
     try {
       let url = `${BASE_URL}/donations?status=AVAILABLE`;
 
       if (activeTab === "reservadas") {
-        url = `${BASE_URL}/donations/reserved?foodBankId=${MY_FOODBANK_ID}`;
+        url = `${BASE_URL}/donations/reserved?foodBankId=${foodBankId}`;
       }
 
       const res = await fetch(url);
+      if (!res.ok) throw new Error("Error fetching data");
+
       const data = await res.json();
 
       // Mapear estados y filtrar duplicados
@@ -64,10 +95,9 @@ export default function DashboardBanco() {
 
       const donationsList: Donation[] = Object.values(donationsMap);
       setDonations(donationsList);
-      return donationsList;
     } catch (err) {
       console.error("Error cargando donaciones:", err);
-      return [];
+      setDonations([]);
     }
   };
 
@@ -75,22 +105,22 @@ export default function DashboardBanco() {
   // RESERVAR / CANCELAR
   // ============================
   const toggleReservation = async () => {
-    if (!selectedDonation) return;
+    if (!selectedDonation || !foodBankId) return; // Protección si no hay ID
 
     try {
       let res: Response;
 
       if (selectedDonation.status === "Disponible") {
-        // RESERVAR
+        // RESERVAR - ✅ ID DINÁMICO
         res = await fetch(
-          `${BASE_URL}/donations/${selectedDonation.id}/accept/${MY_FOODBANK_ID}`,
+          `${BASE_URL}/donations/${selectedDonation.id}/accept/${foodBankId}`,
           { method: "POST" }
         );
       } else if (selectedDonation.status === "Reservado") {
-        // CANCELAR
+        // CANCELAR - ✅ ID DINÁMICO
         res = await fetch(
-          `${BASE_URL}/donations/${selectedDonation.id}/cancel/${MY_FOODBANK_ID}`,
-          { method: "POST" } // revisar si tu backend requiere DELETE
+          `${BASE_URL}/donations/${selectedDonation.id}/cancel/${foodBankId}`,
+          { method: "POST" }
         );
       } else {
         return; // no hacemos nada si es "Completado"
@@ -108,7 +138,7 @@ export default function DashboardBanco() {
           return d;
         });
 
-        // filtramos según el tab activo
+        // filtramos según el tab activo para que desaparezca de la vista si ya no corresponde
         if (activeTab === "disponibles") {
           return updated.filter((d) => d.status === "Disponible");
         }
@@ -129,6 +159,9 @@ export default function DashboardBanco() {
       });
     } catch (err) {
       console.error("Error al cambiar estado de la donación:", err);
+      alert(
+        "No se pudo realizar la acción. Verifica si la donación sigue disponible."
+      );
     }
   };
 
@@ -173,21 +206,44 @@ export default function DashboardBanco() {
   const totalPages = Math.ceil(sortedDonations.length / ITEMS_PER_PAGE);
 
   // ============================
+  // USE EFFECTS (Carga de datos)
+  // ============================
+
+  // Este efecto se dispara cuando cambia el tab O cuando obtenemos el foodBankId
+  useEffect(() => {
+    if (foodBankId > 0) {
+      fetchDonations();
+    }
+    setCurrentPage(1);
+  }, [activeTab, foodBankId]);
+
+  // ============================
   // USE EFFECTS
   // ============================
-  useEffect(() => {
-    fetchDonations();
-    setCurrentPage(1);
-  }, [activeTab]);
 
   // ============================
   // RENDER
   // ============================
+  if (loading && foodBankId === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-amber-50 text-gray-500">
+        Cargando perfil...
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-amber-50 p-10">
       <header className="mb-10">
         <h1 className="text-4xl font-bold text-gray-800">Banco de Alimentos</h1>
-        <p className="text-gray-600">Gestiona las donaciones disponibles</p>
+        <p className="text-gray-600">
+          Gestiona las donaciones disponibles{" "}
+          {foodBankId > 0 && (
+            <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded ml-2">
+              ID: {foodBankId}
+            </span>
+          )}
+        </p>
       </header>
 
       {/* TABS */}
@@ -256,64 +312,76 @@ export default function DashboardBanco() {
             </thead>
 
             <tbody>
-              {paginatedDonations.map((item) => (
-                <tr key={item.id} className="border-b hover:bg-gray-50">
-                  <td className="py-4 px-4 font-medium">{item.productName}</td>
-                  <td className="py-4 px-4">
-                    {item.quantity} {item.unit}
-                  </td>
-                  <td className="py-4 px-4">
-                    {new Date(item.expirationDate).toLocaleDateString()}
-                  </td>
-                  <td className="py-4 px-4">
-                    <span
-                      className={`px-3 py-1 rounded-full text-sm font-medium ${
-                        item.status === "Disponible"
-                          ? "bg-green-100 text-green-700"
-                          : item.status === "Reservado"
-                          ? "bg-yellow-100 text-yellow-700"
-                          : "bg-gray-200 text-gray-700"
-                      }`}
-                    >
-                      {item.status}
-                    </span>
-                  </td>
-                  <td className="py-4 px-4">
-                    <button
-                      onClick={() => setSelectedDonation(item)}
-                      className="text-green-700 font-semibold hover:underline"
-                    >
-                      Ver Detalles
-                    </button>
+              {paginatedDonations.length > 0 ? (
+                paginatedDonations.map((item) => (
+                  <tr key={item.id} className="border-b hover:bg-gray-50">
+                    <td className="py-4 px-4 font-medium">
+                      {item.productName}
+                    </td>
+                    <td className="py-4 px-4">
+                      {item.quantity} {item.unit}
+                    </td>
+                    <td className="py-4 px-4">
+                      {new Date(item.expirationDate).toLocaleDateString()}
+                    </td>
+                    <td className="py-4 px-4">
+                      <span
+                        className={`px-3 py-1 rounded-full text-sm font-medium ${
+                          item.status === "Disponible"
+                            ? "bg-green-100 text-green-700"
+                            : item.status === "Reservado"
+                            ? "bg-yellow-100 text-yellow-700"
+                            : "bg-gray-200 text-gray-700"
+                        }`}
+                      >
+                        {item.status}
+                      </span>
+                    </td>
+                    <td className="py-4 px-4">
+                      <button
+                        onClick={() => setSelectedDonation(item)}
+                        className="text-green-700 font-semibold hover:underline"
+                      >
+                        Ver Detalles
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={5} className="text-center py-8 text-gray-500">
+                    No hay donaciones en esta sección.
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>
 
         {/* PAGINACIÓN */}
-        <div className="flex justify-center items-center gap-4 mt-6">
-          <button
-            disabled={currentPage === 1}
-            onClick={() => setCurrentPage((p) => p - 1)}
-            className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
-          >
-            Anterior
-          </button>
+        {totalPages > 1 && (
+          <div className="flex justify-center items-center gap-4 mt-6">
+            <button
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage((p) => p - 1)}
+              className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+            >
+              Anterior
+            </button>
 
-          <span className="font-semibold">
-            Página {currentPage} de {totalPages}
-          </span>
+            <span className="font-semibold">
+              Página {currentPage} de {totalPages}
+            </span>
 
-          <button
-            disabled={currentPage === totalPages}
-            onClick={() => setCurrentPage((p) => p + 1)}
-            className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
-          >
-            Siguiente
-          </button>
-        </div>
+            <button
+              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage((p) => p + 1)}
+              className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+            >
+              Siguiente
+            </button>
+          </div>
+        )}
       </div>
 
       {/* MODAL */}
