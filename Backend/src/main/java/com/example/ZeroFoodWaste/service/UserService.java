@@ -26,12 +26,12 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class UserService implements UserDetailsService {
 
-     private final UserRepository userRepository;
-     private final NewUserMapper newUserMapper;
-     private final UserResponseMapper userResponseMapper;
-     private final PasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
+    private final NewUserMapper newUserMapper;
+    private final UserResponseMapper userResponseMapper;
+    private final PasswordEncoder passwordEncoder;
 
-     //region post
+    //region post
 
     /**
      * Creates and saves a new user in the database.
@@ -42,31 +42,35 @@ public class UserService implements UserDetailsService {
      * @return UserResponseDTO with the saved user's data, excluding the password
      * @throws EmailAlreadyExistsException if the email is already registered
      */
-     @Transactional
+    @Transactional
     public UserResponseDTO createUser(NewUserDTO dto) throws EmailAlreadyExistsException {
-         if (userRepository.existsByEmail(dto.getEmail())) {
-             throw new EmailAlreadyExistsException("Email already registered");
-         }
+        if (userRepository.existsByEmail(dto.getEmail())) {
+            throw new EmailAlreadyExistsException("Email already registered");
+        }
 
-         User user = newUserMapper.toEntity(dto);
-         user.setPasswordHash(passwordEncoder.encode(dto.getPassword()));
+        User user = newUserMapper.toEntity(dto);
+        user.setPasswordHash(passwordEncoder.encode(dto.getPassword()));
 
-         if (user.getRole() == Role.Establishment) {
-             Establishment est = new Establishment();
-             est.setName(dto.getEstablishmentName());
-             est.setContactPhone(dto.getEstablishmentContactPhone());
-             user.setEstablishment(est);
-         }
+        if (user.getRole() == Role.Establishment) {
+            Establishment est = new Establishment();
+            est.setName(dto.getEstablishmentName());
+            est.setAddress(dto.getEstablishmentAddress());
+            est.setContactPhone(dto.getEstablishmentContactPhone());
+            est.setOpeningHours(dto.getOpeningHours());
+            user.setEstablishment(est);
+        }
 
-         if (user.getRole() == Role.FoodBank) {
-             FoodBank fb = new FoodBank();
-             fb.setName(dto.getFoodBankName());
-             fb.setContactPhone(dto.getFoodBankContactPhone());
-             user.setFoodBank(fb);
-         }
+        if (user.getRole() == Role.FoodBank) {
+            FoodBank fb = new FoodBank();
+            fb.setName(dto.getFoodBankName());
+            fb.setAddress(dto.getFoodBankAddress());
+            fb.setContactPhone(dto.getFoodBankContactPhone());
+            fb.setCoverageArea(dto.getCoverageArea());
+            user.setFoodBank(fb);
+        }
 
-         User saved = userRepository.save(user);
-        return userResponseMapper.toDTOWithoutPass(saved) ;
+        User saved = userRepository.save(user);
+        return userResponseMapper.toDTOWithoutPass(saved);
     }
 
     /**
@@ -98,7 +102,7 @@ public class UserService implements UserDetailsService {
      * @return UserResponseDTO containing user data, excluding the password
      * @throws UserNotFoundException if no user with the given email exists
      */
-    public UserResponseDTO getByEmail(String email) throws UserNotFoundException{
+    public UserResponseDTO getByEmail(String email) throws UserNotFoundException {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("User not found: " + email));
 

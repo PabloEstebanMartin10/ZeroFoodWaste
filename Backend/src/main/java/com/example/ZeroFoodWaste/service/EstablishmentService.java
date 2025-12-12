@@ -2,6 +2,7 @@
 
 package com.example.ZeroFoodWaste.service;
 
+import com.example.ZeroFoodWaste.exception.EstablishmentNotFoundException;
 import com.example.ZeroFoodWaste.model.dto.EstablishmentResponseDTO;
 import com.example.ZeroFoodWaste.model.dto.NewUserDTO;
 import com.example.ZeroFoodWaste.model.entity.Establishment;
@@ -19,12 +20,7 @@ import java.util.NoSuchElementException;
 @Service
 @RequiredArgsConstructor
 public class EstablishmentService {
-    /* todos
-    todo 2 crear excepciones personalizadas (EstablishmentNotFoundException, InvalidUpdateException)
-    todo 3 introducir DTOs para evitar exponer entidades (EstablishmentDTO, UpdateEstablishmentDTO)
-    todo 5 validar entrada con javax.validation (@NotBlank, @Valid en controller)
-    todo 7 evaluar si se requiere control de permisos antes de modificar establecimientos
-     */
+
     private final EstablishmentRepository establishmentRepository;
     private final EstablishmentResponseMapper establishmentResponseMapper;
 
@@ -33,13 +29,13 @@ public class EstablishmentService {
     /**
      * Retrieves an establishment associated with a specific user ID.
      *
-     * @param userId the ID of the user whose establishment is to be retrieved
+     * @param id the ID of the user whose establishment is to be retrieved
      * @return the {@link EstablishmentResponseDTO} linked to the user
      * @throws NoSuchElementException if no establishment is found for the given user ID
      */
-    public EstablishmentResponseDTO getEstablishment(Long Id) {
-        return establishmentResponseMapper.toDTO(establishmentRepository.findById(Id).orElseThrow(
-                () -> new NoSuchElementException("Couldn't find the establishment")));
+    public EstablishmentResponseDTO getEstablishment(Long id) {
+        return establishmentResponseMapper.toDTO(establishmentRepository.findById(id).orElseThrow(
+                () -> new EstablishmentNotFoundException(id)));
     }
 
     //endregion
@@ -65,7 +61,7 @@ public class EstablishmentService {
     @Transactional
     public EstablishmentResponseDTO modifyEstablishment(Long id, EstablishmentResponseDTO dto) {
         Establishment establishment = establishmentRepository.findById(id).orElseThrow(
-                () -> new NoSuchElementException("Couldn't find the establishment")
+                () -> new EstablishmentNotFoundException(id)
         );
         establishmentResponseMapper.updateEntityFromDTO(dto, establishment);
         return establishmentResponseMapper.toDTO(establishmentRepository.save(establishment));

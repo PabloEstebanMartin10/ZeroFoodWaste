@@ -1,6 +1,10 @@
 //region imports
 package com.example.ZeroFoodWaste.service;
 
+import com.example.ZeroFoodWaste.exception.AssignmentNotFoundException;
+import com.example.ZeroFoodWaste.exception.DonationAlreadyReserved;
+import com.example.ZeroFoodWaste.exception.DonationNotFoundException;
+import com.example.ZeroFoodWaste.exception.FoodBankNotFoundException;
 import com.example.ZeroFoodWaste.model.dto.DonationResponseDTO;
 import com.example.ZeroFoodWaste.model.dto.NewDonationDTO;
 import com.example.ZeroFoodWaste.model.entity.Donation;
@@ -26,13 +30,6 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class DonationService {
-    /* todos
-    todo 3 factorizar un método genérico findOrThrow(id, exception) para Donation, Establishment y FoodBank
-    todo 4 crear excepciones específicas (DonationNotFoundException, EstablishmentNotFoundException,
-            FoodBankNotFoundException, DonationPermissionException, AssignmentNotFoundException)
-    todo 8 validar parámetros de entrada con javax.validation y @Valid (especialmente fechas, status y quantities)
-    todo 9 revisar integridad referencial en DonationAssignment (evitar duplicados o inconsistencias)
-    */
 
     //region repositories
     private final DonationRepository donationRepository;
@@ -123,7 +120,7 @@ public class DonationService {
      */
     public DonationResponseDTO getDonation(Long id) throws NoSuchElementException {
         return donationResponseMapper.toDTO(donationRepository.findById(id).orElseThrow(
-                () -> new NoSuchElementException("Couldn't find the Donation")
+                () -> new DonationNotFoundException("Couldn't find a donation with id: "+id)
         ));
     }
     //endregion
@@ -144,22 +141,22 @@ public class DonationService {
 
     /**
      *
-     * @param id         id of the donation accepted
+     * @param donationId id of the donation accepted
      * @param foodBankId transform into {@link FoodBank} the food bank that accepted the donation
      * @return the updated donation mapped to a response DTO
      */
     @Transactional
     public DonationResponseDTO acceptDonation(Long donationId, Long foodBankId) {
         Donation donation = donationRepository.findById(donationId)
-                .orElseThrow(() -> new NoSuchElementException("Donation not found"));
+                .orElseThrow(() -> new DonationNotFoundException("Couldn't find a donation with id: "+donationId));
 
         // Comprueba si ya tiene asignación
         if (donation.getAssignment() != null) {
-            throw new IllegalStateException("Donation is already reserved by a FoodBank");
+            throw new DonationAlreadyReserved("Donation is already reserved");
         }
 
         FoodBank foodBank = foodBankRepository.findById(foodBankId)
-                .orElseThrow(() -> new NoSuchElementException("FoodBank not found"));
+                .orElseThrow(() -> new FoodBankNotFoundException(foodBankId));
 
         // Crear y guardar nueva asignación
         DonationAssignment assignment = new DonationAssignment(donation, foodBank);
@@ -181,14 +178,36 @@ public class DonationService {
     @Transactional
     public DonationResponseDTO pickUpDonation(Long id) {
         Donation donation = donationRepository.findById(id).orElseThrow(
-                () -> new NoSuchElementException("Couldn't find the Donation")
+                () -> new DonationNotFoundException("Couldn't find a Donation with id: "+id)
         );
         DonationAssignment assignment = assignmentRepository.findByDonationId(id).orElseThrow(
-                () -> new NoSuchElementException("Couldn't find the Assignment")
+                () -> new AssignmentNotFoundException("Couldn't find the Assignment with donationId: "+id)
         );
         donation.setStatus(DonationStatus.COMPLETED);
         assignment.setPickedUpAt(LocalDateTime.now());
         assignmentRepository.save(assignment);
+        return donationResponseMapper.toDTO(donationRepository.save(donation));
+    }
+
+    @Transactional
+    public DonationResponseDTO cancelReservation(Long donationId, Long foodBankId) {
+        Donation donation = donationRepository.findById(donationId)
+                .orElseThrow(() -> new DonationNotFoundException("Couldn't find a donation with id: "+donationId +
+                        " & foodbankId: "+ foodBankId));
+
+        DonationAssignment assignment = donation.getAssignment();
+        if (assignment == null || !assignment.getFoodBank().getId().equals(foodBankId)) {
+            throw new AssignmentNotFoundException("Assignment is null or couldn't find an assignment with foodbankId: "+
+                    foodBankId);
+        }
+
+        // Eliminar la asignación de la base de datos
+        assignmentRepository.delete(assignment);
+
+        // Actualizar estado de la donación
+        donation.setAssignment(null);
+        donation.setStatus(DonationStatus.AVAILABLE);
+
         return donationResponseMapper.toDTO(donationRepository.save(donation));
     }
     //endregion
@@ -204,7 +223,7 @@ public class DonationService {
     @Transactional
     public DonationResponseDTO deleteDonation(Long id) throws NoSuchElementException {
         Donation donation = donationRepository.findById(id).orElseThrow(
-                () -> new NoSuchElementException("Couldn't find the Donation")
+                () -> new DonationNotFoundException("Couldn't find a Donation with id: "+id)
         );
         donationRepository.delete(donation);
         return donationResponseMapper.toDTO(donation);
@@ -223,7 +242,7 @@ public class DonationService {
     @Transactional
     public DonationResponseDTO modifyDonation(DonationResponseDTO dto) {
         Donation donation = donationRepository.findById(dto.getId())
-                .orElseThrow(() -> new NoSuchElementException("Donation not found"));
+                .orElseThrow(() -> new DonationNotFoundException("Couldn't find a Donation with id: "+dto.getId()));
         donationResponseMapper.updateEntityFromDTO(dto, donation);
         Donation saved = donationRepository.save(donation);
         return donationResponseMapper.toDTO(saved);
