@@ -57,6 +57,7 @@ public class UserService implements UserDetailsService {
             est.setAddress(dto.getEstablishmentAddress());
             est.setContactPhone(dto.getEstablishmentContactPhone());
             est.setOpeningHours(dto.getOpeningHours());
+            est.setDescription(dto.getDescription());
             user.setEstablishment(est);
         }
 
@@ -65,7 +66,8 @@ public class UserService implements UserDetailsService {
             fb.setName(dto.getFoodBankName());
             fb.setAddress(dto.getFoodBankAddress());
             fb.setContactPhone(dto.getFoodBankContactPhone());
-            fb.setCoverageArea(dto.getCoverageArea());
+            fb.setOpeningHours(dto.getOpeningHours());
+            fb.setDescription(dto.getDescription());
             user.setFoodBank(fb);
         }
 
