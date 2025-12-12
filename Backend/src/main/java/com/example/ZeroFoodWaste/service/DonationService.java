@@ -32,8 +32,6 @@ import java.util.stream.Collectors;
 public class DonationService {
     /* todos
     todo 3 factorizar un método genérico findOrThrow(id, exception) para Donation, Establishment y FoodBank
-    todo 8 validar parámetros de entrada con javax.validation y @Valid (especialmente fechas, status y quantities)
-    todo 9 revisar integridad referencial en DonationAssignment (evitar duplicados o inconsistencias)
     */
 
     //region repositories
