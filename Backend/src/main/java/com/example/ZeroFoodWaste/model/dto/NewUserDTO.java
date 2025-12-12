@@ -23,7 +23,6 @@ public class NewUserDTO {
     private String foodBankName;
     private String foodBankAddress;
     private String foodBankContactPhone;
-    private String coverageArea;
     //endregion
 
 }

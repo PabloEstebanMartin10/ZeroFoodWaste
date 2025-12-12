@@ -68,7 +68,8 @@ public class DataLoader implements CommandLineRunner {
         fb1.setName("Banco de Alimentos Norte");
         fb1.setAddress("Avenida Siempre Viva 1");
         fb1.setContactPhone("555-3333");
-        fb1.setCoverageArea("Zona Norte");
+        fb1.setOpeningHours("7:00-19:00");
+        fb1.setDescription("Banco de alimentos principal de la zona norte."); // También description si lo pusiste not-null
         fb1.setUser(fbUser1);
         fbUser1.setFoodBank(fb1);
 
@@ -81,7 +82,8 @@ public class DataLoader implements CommandLineRunner {
         fb2.setName("Banco de Alimentos Sur");
         fb2.setAddress("Calle Principal 2");
         fb2.setContactPhone("555-4444");
-        fb2.setCoverageArea("Zona Sur");
+        fb2.setOpeningHours("7:00-19:00");
+        fb2.setDescription("Banco de alimentos principal de la zona norte."); // También description si lo pusiste not-null
         fb2.setUser(fbUser2);
         fbUser2.setFoodBank(fb2);
 
@@ -104,18 +106,18 @@ public class DataLoader implements CommandLineRunner {
         donationRepository.save(d4);
 
         // ---------------- DONATION ASSIGNMENTS ----------------
-        DonationAssignment assign1 = new DonationAssignment();
-        assign1.setDonation(d1);
-        assign1.setFoodBank(fb1);
-        d1.setAssignment(assign1);
+        // DonationAssignment assign1 = new DonationAssignment();
+        // assign1.setDonation(d1);
+        // assign1.setFoodBank(fb1);
+        // d1.setAssignment(assign1);
 
-        DonationAssignment assign2 = new DonationAssignment();
-        assign2.setDonation(d2);
-        assign2.setFoodBank(fb2);
-        d2.setAssignment(assign2);
+        // DonationAssignment assign2 = new DonationAssignment();
+        // assign2.setDonation(d2);
+        // assign2.setFoodBank(fb2);
+        // d2.setAssignment(assign2);
 
-        donationRepository.save(d1);
-        donationRepository.save(d2);
+        // donationRepository.save(d1);
+        // donationRepository.save(d2);
 
         System.out.println("✅ Database pre-populated with test data");
     }

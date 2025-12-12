@@ -72,6 +72,17 @@ public class DonationService {
         .collect(Collectors.toList());
     }
 
+    public List<DonationResponseDTO> getDonationsByFoodBank(Long foodBankId) {
+        // 1. Buscamos en el repositorio usando el ID del banco
+        List<Donation> donations = donationRepository.findByAssignment_FoodBank_Id(foodBankId);
+        
+        // 2. Convertimos la lista de Entidades a DTOs usando el mapper
+        // Si tu mapper tiene un método toDTOList úsalo, si no, usa stream:
+        return donations.stream()
+                .map(donationResponseMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
     @Transactional
     public DonationResponseDTO cancelReservation(Long donationId, Long foodBankId) {
         Donation donation = donationRepository.findById(donationId)

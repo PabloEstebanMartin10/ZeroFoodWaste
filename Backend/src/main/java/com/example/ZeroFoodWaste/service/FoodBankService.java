@@ -33,8 +33,8 @@ public class FoodBankService {
      * @return retrieves the food bank if found
      * @throws NoSuchElementException if cant find the food bank
      */
-    public FoodBankResponseDTO getFoodBank(Long userId){
-        return foodBankResponseMapper.toDTO(foodBankRepository.findByUserId(userId).orElseThrow(
+    public FoodBankResponseDTO getFoodBank(Long Id){
+        return foodBankResponseMapper.toDTO(foodBankRepository.findById(Id).orElseThrow(
                 ()->new NoSuchElementException("Couldn't find the food bank")));
     }
 

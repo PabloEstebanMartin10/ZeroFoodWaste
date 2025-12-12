@@ -29,6 +29,15 @@ public class DonationController {
         return ResponseEntity.ok(responseDTOS);
     }
 
+    @GetMapping("/foodbank/{id}/donations")
+    public ResponseEntity<List<DonationResponseDTO>> getDonationsByFoodBank(@PathVariable Long id) {
+        // CORREGIDO: Antes llamaba a getDonationsByEstablishment
+        // Asegúrate de tener este método en tu DonationService
+        List<DonationResponseDTO> responseDTOS = donationService.getDonationsByFoodBank(id); 
+        return ResponseEntity.ok(responseDTOS);
+    }
+
+
     @GetMapping("/donations/{id}")
     public ResponseEntity<DonationResponseDTO> getDonation(@PathVariable Long id) {
         DonationResponseDTO dto = donationService.getDonation(id);
