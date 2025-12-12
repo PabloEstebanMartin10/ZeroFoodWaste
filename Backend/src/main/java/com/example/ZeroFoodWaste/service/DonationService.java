@@ -30,9 +30,6 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class DonationService {
-    /* todos
-    todo 3 factorizar un método genérico findOrThrow(id, exception) para Donation, Establishment y FoodBank
-    */
 
     //region repositories
     private final DonationRepository donationRepository;
