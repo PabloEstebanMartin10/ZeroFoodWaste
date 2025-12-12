@@ -33,13 +33,13 @@ public class EstablishmentService {
     /**
      * Retrieves an establishment associated with a specific user ID.
      *
-     * @param userId the ID of the user whose establishment is to be retrieved
+     * @param id the ID of the user whose establishment is to be retrieved
      * @return the {@link EstablishmentResponseDTO} linked to the user
      * @throws NoSuchElementException if no establishment is found for the given user ID
      */
-    public EstablishmentResponseDTO getEstablishment(Long Id) {
-        return establishmentResponseMapper.toDTO(establishmentRepository.findById(Id).orElseThrow(
-                () -> new EstablishmentNotFoundException(Id)));
+    public EstablishmentResponseDTO getEstablishment(Long id) {
+        return establishmentResponseMapper.toDTO(establishmentRepository.findById(id).orElseThrow(
+                () -> new EstablishmentNotFoundException(id)));
     }
 
     //endregion
