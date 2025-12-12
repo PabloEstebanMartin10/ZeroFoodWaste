@@ -24,6 +24,7 @@ public abstract class NewUserMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "establishment", ignore = true)
     @Mapping(target = "foodBank", ignore = true)
+    @Mapping(target = "passwordHash", ignore = true)
     public abstract User toEntity(NewUserDTO dto);
 
     @AfterMapping
