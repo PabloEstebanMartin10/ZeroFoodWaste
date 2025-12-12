@@ -10,7 +10,7 @@ export default function Navbar() {
 
   const auth = useContext(AuthContext);
   if (!auth) throw new Error("AuthContext missing");
-  const { user, setUser, setToken } = auth;
+  const { user, setUser, setToken, entity, setEntity } = auth;
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -24,10 +24,12 @@ export default function Navbar() {
 
   const handleLogout = () => {
     setMenuOpen(false);
+    setEntity(null);
     setUser(null);
     setToken(null);
     localStorage.removeItem("user");
     localStorage.removeItem("token");
+    localStorage.removeItem("entity");
     navigate("/login");
   }
 
@@ -84,7 +86,7 @@ export default function Navbar() {
             <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 z-50">
               <div className="px-4 py-3 border-b">
                 <p className="text-sm font-semibold text-gray-900">
-                    {user.id }
+                    {entity?.name}
                 </p>
                 <p className="text-xs text-gray-500 truncate">
                   {user.email}

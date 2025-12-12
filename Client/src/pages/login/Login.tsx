@@ -6,6 +6,9 @@ import { Link, useNavigate } from "react-router-dom";
 import { useFetchUser } from "../../hooks/useFetchUser/useFetchUser";
 import type { userInfo } from "../../types/user/userInfo";
 import { AuthContext } from "../../context/AuthContext";
+import { useFetchEntity } from "../../hooks/useFetchEntity/useFetchEntity";
+import type { EstablishmentInfo } from "../../types/establishment/EstablishmentInfo";
+import type { FoodBankInfo } from "../../types/foodbank/FoodBankInfo";
 
 const Login: React.FC = () => {
   const [stayConnected, setStayConnected] = useState(false);
@@ -14,13 +17,14 @@ const Login: React.FC = () => {
     password: "",
   });
   const { loginFunction, loginError } = useLogin();
-  const { fetchUserFunction, error } = useFetchUser();
+  const { fetchUserFunction, error } = useFetchUser()
+  const { fetchEntityFunction, entityError } = useFetchEntity();
   const navigate = useNavigate();
   const auth = useContext(AuthContext);
 
   if (!auth) throw new Error("AuthContext missing");
 
-  const { setUser, setToken } = auth;
+  const { setUser, setToken, setEntity } = auth;
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,11 +34,19 @@ const Login: React.FC = () => {
     }
     setToken(token);
     if(token){
-      // if (stayConnected){
-        localStorage.setItem("token", token);
-      // }
+      localStorage.setItem("token", token);
       const userLoggedIn: userInfo | null = await fetchUserFunction(token);
-      localStorage.setItem("user", JSON.stringify(userLoggedIn))
+      localStorage.setItem("user", JSON.stringify(userLoggedIn));
+      if (userLoggedIn?.role.toLowerCase() === "establishment" && userLoggedIn?.establishmentId) {
+        const establishment: EstablishmentInfo | null = await fetchEntityFunction(`/establishment/${userLoggedIn.establishmentId}`) as EstablishmentInfo | null;
+        localStorage.setItem("entity", JSON.stringify(establishment));
+        setEntity(establishment);
+      }
+      if (userLoggedIn?.role.toLowerCase() === "foodbank" && userLoggedIn?.foodBankId) {
+        const foodBank: FoodBankInfo | null = await fetchEntityFunction(`/foodbank/${userLoggedIn.foodBankId}`) as FoodBankInfo | null;
+        localStorage.setItem("entity", JSON.stringify(foodBank));
+        setEntity(foodBank);
+      }
       if(error){ //casi seguro que esto no funciona
         console.log(error);
       }
