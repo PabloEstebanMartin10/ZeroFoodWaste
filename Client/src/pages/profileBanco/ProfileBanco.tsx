@@ -183,16 +183,29 @@ const FoodBankProfile: React.FC = () => {
       setLoading(true);
       setError(null);
       try {
-        // En un caso real, obtendrías este ID del contexto de autenticación
-        // IMPORTANTE: Este ID debe ser el ID de la tabla FoodBanks,
-        // o si usas el ID de Usuario, el backend debe saber resolverlo.
-        const currentFoodBankId = 1;
+        const storedUser = localStorage.getItem("user");
 
-        const data = await fetchFoodBank(currentFoodBankId);
+        let currentId = 0;
 
-        if (data && data.foodBankId) {
-          await fetchDonations(data.foodBankId);
+        if (storedUser) {
+          const userObj = JSON.parse(storedUser);
+          // Dependiendo de cómo guardes el objeto usuario, el ID puede estar en:
+          // userObj.id, userObj.establishmentId, o userObj.userId
+          currentId = userObj.foodBankId || userObj.id;
         }
+
+        if (!currentId) {
+          throw new Error(
+            "No se encontró sesión de usuario. Por favor inicie sesión."
+          );
+        }
+
+        // Actualizamos el estado con el ID correcto
+        setProfileData((prev) => ({ ...prev, foodBankId: currentId }));
+
+        // 2. Usar ese ID para las peticiones
+        await fetchFoodBank(currentId);
+        await fetchDonations(currentId);
       } catch (err: any) {
         setError(err.message || "Error al cargar datos");
       } finally {
