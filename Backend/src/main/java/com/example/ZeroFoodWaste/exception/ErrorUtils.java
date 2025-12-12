@@ -13,9 +13,11 @@ public class ErrorUtils {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
     }
 
+    // ✅ CÓDIGO CORREGIDO
     @ExceptionHandler(FoodBankNotFoundException.class)
-    public ResponseEntity<String> handleFoodBankNotFoundException(UserNotFoundException e) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    // Cambia 'UserNotFoundException' por 'FoodBankNotFoundException' 👇
+    public ResponseEntity<String> handleFoodBankNotFoundException(FoodBankNotFoundException ex) { 
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
 
     @ExceptionHandler(EstablishmentNotFoundException.class)

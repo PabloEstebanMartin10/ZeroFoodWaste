@@ -27,7 +27,6 @@ const mapStatusFromBackend: Record<string, string> = {
 };
 
 const BASE_URL = "http://localhost:8080";
-//const MOCK_URL = "http://localhost:5173";
 
 export default function DashboardComercio() {
   const [donations, setDonations] = useState<Donation[]>([]);
@@ -41,6 +40,11 @@ export default function DashboardComercio() {
   );
   const [showCreateModal, setShowCreateModal] = useState(false);
 
+  // ✅ NUEVO: Estado para el ID dinámico
+  const [establishmentId, setEstablishmentId] = useState<number>(0);
+  const [loading, setLoading] = useState(true);
+
+  // Estado para nueva donación (inicialmente vacío hasta tener el ID)
   const [newDonation, setNewDonation] = useState<Donation>({
     productName: "",
     quantity: 0,
@@ -48,52 +52,71 @@ export default function DashboardComercio() {
     expirationDate: "",
     status: "Disponible",
     description: "",
-    establishment: { id: 1 },
+    establishment: { id: 0 }, // Se actualizará cuando cargue el ID
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     photoUrl: "",
   });
 
-  // Fetch inicial
+  // ============================
+  // 1. CARGAR ID DEL USUARIO (localStorage)
+  // ============================
   useEffect(() => {
-    const establishmentId = 1;
-    const url = `${BASE_URL}/donations/establishment/${establishmentId}`;
-    // const url = `${MOCK_URL}/data/donaciones_comercio.json`;
-    fetch(url)
-      .then((res) => res.json())
-      .then((data) => {
-        const fixedData = data.map((d) => ({
-          ...d,
-          status: mapStatusFromBackend[d.status], // ⬅ convierte backend → frontend
-        }));
-        setDonations(fixedData);
-      })
+    const loadUser = () => {
+      try {
+        const storedUser = localStorage.getItem("user");
+        if (storedUser) {
+          const userObj = JSON.parse(storedUser);
+          // Buscamos establishmentId o el id genérico
+          const currentId = userObj.establishmentId || userObj.id;
 
-      .catch((err) => console.error("Error cargando donaciones:", err));
+          if (currentId) {
+            setEstablishmentId(currentId);
+            // Actualizamos el estado inicial de newDonation con el ID correcto
+            setNewDonation((prev) => ({
+              ...prev,
+              establishment: { id: currentId },
+            }));
+          } else {
+            console.error(
+              "No se encontró establishmentId en el usuario logueado"
+            );
+          }
+        }
+      } catch (error) {
+        console.error("Error leyendo localStorage:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadUser();
   }, []);
 
-  //Fetch prueba usuarios
-  /*useEffect(() => {
-    // 1️⃣ Obtener usuario logueado
-    fetch(`${BASE_URL}/users/me`)
-      .then((res) => res.json())
-      .then((user) => {
-        console.log("Usuario recibido:", user); // 👈 Aquí
-        // Guardamos el establecimiento del usuario
-        setUserEstablishment(user.establishment);
-
-        if (!user.establishment?.id) return [];
-
-        // 2️⃣ Obtener donaciones de ese establecimiento
-        return fetch(
-          `${BASE_URL}/donations/establishment/${user.establishment.id}`
-        ).then((res) => res.json());
-      })
-      .then((donations) => {
-        if (donations) setDonations(donations);
-      })
-      .catch((err) => console.error("Error cargando donaciones:", err));
-  }, []);*/
+  // ============================
+  // 2. FETCH DE DONACIONES (Depende del ID)
+  // ============================
+  useEffect(() => {
+    // Solo ejecutamos si ya tenemos el ID
+    if (establishmentId > 0) {
+      const url = `${BASE_URL}/donations/establishment/${establishmentId}`;
+      fetch(url)
+        .then((res) => {
+          if (!res.ok) throw new Error("Error fetching");
+          return res.json();
+        })
+        .then((data) => {
+          const fixedData = data.map((d: any) => ({
+            ...d,
+            status: mapStatusFromBackend[d.status], // ⬅ convierte backend → frontend
+          }));
+          setDonations(fixedData);
+        })
+        .catch((err) => {
+          console.error("Error cargando donaciones:", err);
+          setDonations([]); // Limpiar en caso de error
+        });
+    }
+  }, [establishmentId]); // Se ejecuta cuando el ID cambia (de 0 al real)
 
   // Filtrado
   const donationsList = donations.filter((d) => d.status !== "Completado");
@@ -127,15 +150,15 @@ export default function DashboardComercio() {
     if (name === "expirationDate") {
       // Convertimos la fecha del input (yyyy-MM-dd) a LocalDateTime
       const date = new Date(value);
-      const formattedDate = `${date.getFullYear()}-${String(
-        date.getMonth() + 1
-      ).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}T${String(
-        date.getHours()
-      ).padStart(2, "0")}:${String(date.getMinutes()).padStart(
-        2,
-        "0"
-      )}:${String(date.getSeconds()).padStart(2, "0")}`;
-      setFormData({ ...formData, [name]: formattedDate });
+      if (!isNaN(date.getTime())) {
+        const formattedDate = `${date.getFullYear()}-${String(
+          date.getMonth() + 1
+        ).padStart(2, "0")}-${String(date.getDate()).padStart(
+          2,
+          "0"
+        )}T00:00:00`;
+        setFormData({ ...formData, [name]: formattedDate });
+      }
     } else {
       setFormData({ ...formData, [name]: value });
     }
@@ -144,22 +167,19 @@ export default function DashboardComercio() {
   const handleSave = () => {
     if (!formData || !formData.id) return;
 
-    // Formatear fecha para LocalDateTime
+    // Formatear fecha para LocalDateTime si es necesario
     const date = new Date(formData.expirationDate);
     const expirationDateFormatted = `${date.getFullYear()}-${String(
       date.getMonth() + 1
-    ).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}T${String(
-      date.getHours()
-    ).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}:${String(
-      date.getSeconds()
-    ).padStart(2, "0")}`;
+    ).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}T00:00:00`; // Simplificamos la hora para evitar problemas
 
     const payload = {
       ...formData,
       quantity: Number(formData.quantity),
       expirationDate: expirationDateFormatted,
       status: mapStatusToBackend[formData.status] || "AVAILABLE",
-      establishment: { id: formData.establishment?.id || 1 },
+      // ✅ USAMOS EL ID DINÁMICO AQUÍ TAMBIÉN POR SEGURIDAD
+      establishment: { id: establishmentId },
     };
 
     fetch(`${BASE_URL}/donations/${formData.id}`, {
@@ -184,15 +204,6 @@ export default function DashboardComercio() {
       .catch((err) => console.error("Error modificando donación:", err));
   };
 
-  /*const handleNewDonationChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-    >
-  ) => {
-    const { name, value } = e.target;
-    setNewDonation((prev) => ({ ...prev, [name]: value }));
-  };*/
-
   const resetNewDonation = () => {
     setNewDonation({
       productName: "",
@@ -201,7 +212,7 @@ export default function DashboardComercio() {
       expirationDate: "",
       status: "Disponible",
       description: "",
-      establishment: { id: 1 },
+      establishment: { id: establishmentId }, // ✅ Mantenemos el ID correcto
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       photoUrl: "",
@@ -217,17 +228,17 @@ export default function DashboardComercio() {
     const donationToSend = {
       productName: newDonation.productName,
       description: newDonation.description || "",
-      quantity: Number(newDonation.quantity), // asegúrate de que sea number
+      quantity: Number(newDonation.quantity),
       unit: newDonation.unit || "",
       expirationDate: newDonation.expirationDate.includes("T")
         ? newDonation.expirationDate
         : `${newDonation.expirationDate}T00:00:00`,
       status: mapStatusToBackend[newDonation.status] || "AVAILABLE",
-      establishmentId: newDonation.establishment?.id || 1,
+      // ✅ USAMOS EL ID DINÁMICO
+      establishmentId: establishmentId,
     };
 
     console.log("Enviando donación:", donationToSend);
-    console.log(JSON.stringify(donationToSend, null, 2));
 
     fetch(`${BASE_URL}/donations`, {
       method: "POST",
@@ -250,45 +261,58 @@ export default function DashboardComercio() {
       .catch((err) => console.error("Error creando donación:", err));
   };
 
- const handleDeleteDonation = async (index: number) => {
-  if (!window.confirm("¿Estás seguro de que quieres eliminar esta donación?")) {
-    return;
-  }
-
-  // Obtener índice REAL dentro de donations[]
-  const realIndex = donations.findIndex((d) => d === donationsList[index]);
-  const donation = donations[realIndex];
-
-  if (!donation?.id) {
-    console.error("Donación sin ID, no se puede eliminar");
-    return;
-  }
-
-  try {
-    const res = await fetch(`${BASE_URL}/donations/${donation.id}`, {
-      method: "DELETE",
-    });
-
-    if (!res.ok) {
-      throw new Error(`Error backend al eliminar: ${res.status}`);
+  const handleDeleteDonation = async (index: number) => {
+    if (
+      !window.confirm("¿Estás seguro de que quieres eliminar esta donación?")
+    ) {
+      return;
     }
 
-    // Eliminar del estado
-    setDonations((prev) => prev.filter((d) => d.id !== donation.id));
+    const realIndex = donations.findIndex((d) => d === donationsList[index]);
+    const donation = donations[realIndex];
 
-  } catch (err) {
-    console.error(err);
-    alert("Hubo un problema eliminando la donación.");
+    if (!donation?.id) {
+      console.error("Donación sin ID, no se puede eliminar");
+      return;
+    }
+
+    try {
+      const res = await fetch(`${BASE_URL}/donations/${donation.id}`, {
+        method: "DELETE",
+      });
+
+      if (!res.ok) {
+        throw new Error(`Error backend al eliminar: ${res.status}`);
+      }
+
+      setDonations((prev) => prev.filter((d) => d.id !== donation.id));
+    } catch (err) {
+      console.error(err);
+      alert("Hubo un problema eliminando la donación.");
+    }
+  };
+
+  if (loading && establishmentId === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-amber-50 text-gray-500">
+        Cargando comercio...
+      </div>
+    );
   }
-};
-
 
   return (
     <div className="min-h-screen bg-amber-50 p-10">
       <header className="mb-10 flex items-center justify-between">
         <div>
-          <h1 className="text-4xl font-bold text-gray-800">Burger King</h1>
-          <p className="text-gray-600">Administra tus donaciones de comida</p>
+          <h1 className="text-4xl font-bold text-gray-800">Mi Comercio</h1>
+          <p className="text-gray-600">
+            Administra tus donaciones de comida{" "}
+            {establishmentId > 0 && (
+              <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded ml-2">
+                ID: {establishmentId}
+              </span>
+            )}
+          </p>
         </div>
       </header>
 
@@ -346,48 +370,56 @@ export default function DashboardComercio() {
                 </tr>
               </thead>
               <tbody>
-                {donationsList.map((item, i) => (
-                  <tr key={i} className="border-b hover:bg-gray-50">
-                    <td className="py-4 px-4 font-medium">
-                      {item.productName}
-                    </td>
-                    <td className="py-4 px-4">
-                      {item.quantity} {item.unit}
-                    </td>
-                    <td className="py-4 px-4">
-                      {new Date(item.expirationDate).toLocaleDateString()}
-                    </td>
-                    <td className="py-4 px-4">
-                      <span
-                        className={`px-3 py-1 rounded-full text-sm font-medium ${
-                          item.status === "Disponible"
-                            ? "bg-green-100 text-green-700"
-                            : item.status === "Reservado"
-                            ? "bg-yellow-100 text-yellow-700"
-                            : "bg-gray-200 text-gray-700"
-                        }`}
-                      >
-                        {item.status}
-                      </span>
-                    </td>
-                    <td className="py-4 px-4">
-                      <button
-                        onClick={() => openModal(i)}
-                        className="text-green-700 font-semibold hover:underline"
-                      >
-                        Ver Detalles
-                      </button>
-                    </td>
-                    <td className="py-4 px-4">
-                      <button
-                        onClick={() => handleDeleteDonation(i)}
-                        className="text-red-600 font-semibold hover:text-red-800 hover:underline"
-                      >
-                        Eliminar
-                      </button>
+                {donationsList.length > 0 ? (
+                  donationsList.map((item, i) => (
+                    <tr key={i} className="border-b hover:bg-gray-50">
+                      <td className="py-4 px-4 font-medium">
+                        {item.productName}
+                      </td>
+                      <td className="py-4 px-4">
+                        {item.quantity} {item.unit}
+                      </td>
+                      <td className="py-4 px-4">
+                        {new Date(item.expirationDate).toLocaleDateString()}
+                      </td>
+                      <td className="py-4 px-4">
+                        <span
+                          className={`px-3 py-1 rounded-full text-sm font-medium ${
+                            item.status === "Disponible"
+                              ? "bg-green-100 text-green-700"
+                              : item.status === "Reservado"
+                              ? "bg-yellow-100 text-yellow-700"
+                              : "bg-gray-200 text-gray-700"
+                          }`}
+                        >
+                          {item.status}
+                        </span>
+                      </td>
+                      <td className="py-4 px-4">
+                        <button
+                          onClick={() => openModal(i)}
+                          className="text-green-700 font-semibold hover:underline"
+                        >
+                          Ver Detalles
+                        </button>
+                      </td>
+                      <td className="py-4 px-4">
+                        <button
+                          onClick={() => handleDeleteDonation(i)}
+                          className="text-red-600 font-semibold hover:text-red-800 hover:underline"
+                        >
+                          Eliminar
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={6} className="text-center py-4 text-gray-500">
+                      No hay donaciones activas.
                     </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           )}
@@ -404,30 +436,38 @@ export default function DashboardComercio() {
                 </tr>
               </thead>
               <tbody>
-                {donationsCompletadas.map((item, i) => (
-                  <tr key={i} className="border-b hover:bg-gray-50">
-                    <td className="py-4 px-4 font-medium">
-                      {item.productName}
-                    </td>
-                    <td className="py-4 px-4">{item.quantity}</td>
-                    <td className="py-4 px-4">
-                      {item.establishment?.name || "—"}
-                    </td>
-                    <td className="py-4 px-4">
-                      <span className="px-3 py-1 rounded-full text-sm font-medium bg-gray-200 text-gray-700">
-                        Completado
-                      </span>
-                    </td>
-                    <td className="py-4 px-4">
-                      <button
-                        onClick={() => openModal(i)}
-                        className="text-green-700 font-semibold hover:underline"
-                      >
-                        Ver Detalles
-                      </button>
+                {donationsCompletadas.length > 0 ? (
+                  donationsCompletadas.map((item, i) => (
+                    <tr key={i} className="border-b hover:bg-gray-50">
+                      <td className="py-4 px-4 font-medium">
+                        {item.productName}
+                      </td>
+                      <td className="py-4 px-4">{item.quantity}</td>
+                      <td className="py-4 px-4">
+                        {item.establishment?.name || "—"}
+                      </td>
+                      <td className="py-4 px-4">
+                        <span className="px-3 py-1 rounded-full text-sm font-medium bg-gray-200 text-gray-700">
+                          Completado
+                        </span>
+                      </td>
+                      <td className="py-4 px-4">
+                        <button
+                          onClick={() => openModal(i)}
+                          className="text-green-700 font-semibold hover:underline"
+                        >
+                          Ver Detalles
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={5} className="text-center py-4 text-gray-500">
+                      No hay donaciones completadas aún.
                     </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           )}
