@@ -9,5 +9,6 @@ public class FoodBankResponseDTO {
     private String name;
     private String address;
     private String contactPhone;
-    private String coverageArea;
+    private String openingHours;
+    private String description;
 }

@@ -29,8 +29,13 @@ public class FoodBank {
     @Column(nullable = false)
     private String contactPhone;
 
+    // --- NUEVOS CAMPOS AÑADIDOS ---
+    @Column(nullable = false, columnDefinition = "TEXT")
+    private String openingHours; // Para guardar el horario JSON
+
     @Column(nullable = false)
-    private String coverageArea;
+    private String description;
+    // -----------------------------
 
     @OneToMany(mappedBy = "foodBank")
     private List<DonationAssignment> assignments;

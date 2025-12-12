@@ -43,7 +43,6 @@ public abstract class NewUserMapper {
             fb.setName(dto.getFoodBankName());
             fb.setAddress(dto.getFoodBankAddress());
             fb.setContactPhone(dto.getFoodBankContactPhone());
-            fb.setCoverageArea(dto.getCoverageArea());
             user.setFoodBank(fb);
         }
     }
