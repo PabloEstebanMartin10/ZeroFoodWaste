@@ -2,12 +2,14 @@
 
 package com.example.ZeroFoodWaste.service;
 
-import com.example.ZeroFoodWaste.config.JwtUtils;
+import com.example.ZeroFoodWaste.exception.EmailAlreadyExistsException;
+import com.example.ZeroFoodWaste.exception.UserNotFoundException;
 import com.example.ZeroFoodWaste.model.dto.NewUserDTO;
 import com.example.ZeroFoodWaste.model.dto.UserResponseDTO;
 import com.example.ZeroFoodWaste.model.entity.Establishment;
 import com.example.ZeroFoodWaste.model.entity.FoodBank;
 import com.example.ZeroFoodWaste.model.entity.User;
+import com.example.ZeroFoodWaste.model.enums.Role;
 import com.example.ZeroFoodWaste.model.mapper.NewUserMapper;
 import com.example.ZeroFoodWaste.model.mapper.UserResponseMapper;
 import com.example.ZeroFoodWaste.repository.UserRepository;
@@ -15,61 +17,76 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.NoSuchElementException;
 
 //endregion
 
 @Service
 @RequiredArgsConstructor
 public class UserService implements UserDetailsService {
-    /* todos
-     todo 2 crear excepciones personalizadas (UserNotFoundException, InvalidCredentialsException)
-     todo 3 introducir DTOs para evitar exponer entidades directamente
-     todo 5 validar datos de entrada con javax.validation (e.g. @Email, @NotBlank)
-     todo 6 encriptar password en createUser antes de guardar
-      */
-     private final UserRepository userRepository;
-     private final NewUserMapper newUserMapper;
-     private final UserResponseMapper userResponseMapper;
-     private final EstablishmentService establishmentService;
-     private final FoodBankService foodBankService;
 
-     //region post
+    private final UserRepository userRepository;
+    private final NewUserMapper newUserMapper;
+    private final UserResponseMapper userResponseMapper;
+    private final PasswordEncoder passwordEncoder;
 
-     /**
-      * saves a new user to the DB
-      *
-      * @param dto the user to be saved
-      * @return the user if is saved
-      */
-     @Transactional
-    public UserResponseDTO createUser(NewUserDTO dto) {
-        User user = newUserMapper.toEntity(dto);
-        //todo esto tiene que estar cifrado pero no se si antes o despues
-        user.setPasswordHash("jklsad");
-        userRepository.save(user);
+    //region post
 
-        if (user.getEstablishment() != null) {
-            Establishment est = user.getEstablishment();
-            est.setUser(user);
-            establishmentService.createEstablishment(est);
-        }else if (user.getFoodBank() != null) {
-            FoodBank foodBank = user.getFoodBank();
-            foodBank.setUser(user);
-            foodBankService.createFoodBank(foodBank);
+    /**
+     * Creates and saves a new user in the database.
+     * Depending on the user's role, initializes Establishment or FoodBank entities.
+     * The password is hashed before saving.
+     *
+     * @param dto DTO containing the new user's data, including email, password, and optionally establishment or food bank details
+     * @return UserResponseDTO with the saved user's data, excluding the password
+     * @throws EmailAlreadyExistsException if the email is already registered
+     */
+    @Transactional
+    public UserResponseDTO createUser(NewUserDTO dto) throws EmailAlreadyExistsException {
+        if (userRepository.existsByEmail(dto.getEmail())) {
+            throw new EmailAlreadyExistsException("Email already registered");
         }
-        return userResponseMapper.toDTO(user) ;
+
+        User user = newUserMapper.toEntity(dto);
+        user.setPasswordHash(passwordEncoder.encode(dto.getPassword()));
+
+        if (user.getRole() == Role.Establishment) {
+            Establishment est = new Establishment();
+            est.setName(dto.getEstablishmentName());
+            est.setAddress(dto.getEstablishmentAddress());
+            est.setContactPhone(dto.getEstablishmentContactPhone());
+            est.setOpeningHours(dto.getOpeningHours());
+            user.setEstablishment(est);
+        }
+
+        if (user.getRole() == Role.FoodBank) {
+            FoodBank fb = new FoodBank();
+            fb.setName(dto.getFoodBankName());
+            fb.setAddress(dto.getFoodBankAddress());
+            fb.setContactPhone(dto.getFoodBankContactPhone());
+            fb.setCoverageArea(dto.getCoverageArea());
+            user.setFoodBank(fb);
+        }
+
+        User saved = userRepository.save(user);
+        return userResponseMapper.toDTOWithoutPass(saved);
     }
 
+    /**
+     * Loads a user by email for Spring Security authentication.
+     * Used automatically during login.
+     *
+     * @param email the email of the user to authenticate
+     * @return UserDetails required by Spring Security
+     * @throws UserNotFoundException if no user with the given email exists
+     */
     @Override
     public UserDetails loadUserByUsername(String email)
-            throws UsernameNotFoundException {
+            throws UserNotFoundException {
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
+                .orElseThrow(() -> new UserNotFoundException("User not found: " + email));
 
         return org.springframework.security.core.userdetails.User
                 .withUsername(user.getEmail())
@@ -78,26 +95,18 @@ public class UserService implements UserDetailsService {
                 .build();
     }
 
-    public UserResponseDTO getByEmail(String email) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
-
-        UserResponseDTO userResponse = userResponseMapper.toDTO(user);
-
-        return userResponse;
-    }
     /**
-     *  receives a user and a hash of the password if is all correct returns the user
+     * Retrieves user information by email.
      *
-     * @param email the email of the user
-     * @param passwordHash a hash of the password from the user
-     * @return the user if the information is correct
-     * @throws NoSuchElementException if the user is not found
+     * @param email the email of the user to retrieve
+     * @return UserResponseDTO containing user data, excluding the password
+     * @throws UserNotFoundException if no user with the given email exists
      */
+    public UserResponseDTO getByEmail(String email) throws UserNotFoundException {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("User not found: " + email));
 
-    public User LoginUser(String email, String passwordHash) {
-        return userRepository.findByEmailAndPasswordHash(email, passwordHash).orElseThrow(
-                () -> new UserNotFoundException(email));
+        return userResponseMapper.toDTO(user);
     }
 
     //endregion
