@@ -1,10 +1,11 @@
 import { useState } from "react";
+import type { NewUserData, TipoRegistro } from "../../types/user/NewUserData";
+import { useRegister } from "../../hooks/useRegister/useRegister";
 
-type TipoRegistro = "comercio" | "banco";
-
-interface FormData {
+interface RegisterFormData {
   tipo: TipoRegistro | "";
   nombre: string;
+  descripcion: string;
   direccion: string;
   telefono: string;
   // Solo para comercio
@@ -70,9 +71,10 @@ const provincias = [
 ];
 
 export default function Register() {
-  const [formData, setFormData] = useState<FormData>({
+  const [formData, setFormData] = useState<RegisterFormData>({
     tipo: "",
     nombre: "",
+    descripcion: "",
     direccion: "",
     telefono: "",
     cif: "",
@@ -81,6 +83,7 @@ export default function Register() {
     password: "",
     repeatPassword: "",
   });
+  const { registerFunction, registerError } = useRegister();
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -93,7 +96,6 @@ export default function Register() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
     if (formData.tipo === "") {
       alert("Por favor, selecciona si eres Comercio o Banco de Alimentos.");
       return;
@@ -103,10 +105,27 @@ export default function Register() {
       alert("Las contraseñas no coinciden.");
       return;
     }
+    
+    const formDataToSend: NewUserData = {
+      email: formData.email,
+      password: formData.password,
+      role: formData.tipo === "comercio" ? "Establishment" : "FoodBank",
+      establishmentName: formData.tipo === "comercio" ? formData.nombre : undefined,
+      establishmentAddress: formData.tipo === "comercio" ? formData.direccion : undefined,
+      establishmentContactPhone: formData.tipo === "comercio" ? formData.telefono : undefined,
+      description: formData.descripcion,
+      foodBankName: formData.tipo === "banco" ? formData.nombre : undefined,
+      foodBankAddress: formData.tipo === "banco" ? formData.direccion : undefined,
+      foodBankContactPhone: formData.tipo === "banco" ? formData.telefono : undefined,
+    };
 
+    const response = registerFunction(formDataToSend);
+    console.log(response);
+    if (registerError) {
+      console.log(registerError);
+    }
     // Aquí puedes procesar el formData o enviarlo al backend
     console.log("Formulario enviado:", formData);
-    alert("Registro enviado correctamente");
   };
 
   return (
@@ -140,8 +159,8 @@ export default function Register() {
         <label className="block mb-4">
           <span className="text-green-800 font-medium">
             {formData.tipo === "banco"
-              ? "Nombre del banco de alimentos"
-              : "Nombre del comercio"}
+              ? "Nombre del banco de alimentos *"
+              : "Nombre del comercio *"}
           </span>
           <input
             type="text"
@@ -159,9 +178,28 @@ export default function Register() {
           />
         </label>
 
+        <label className="block mb-4">
+          <span className="text-green-800 font-medium">
+            Descripcion
+          </span>
+          <input
+            type="text"
+            name="descripcion"
+            value={formData.descripcion}
+            onChange={handleChange}
+            placeholder={
+              formData.tipo === "banco"
+                ? "Descripcion del banco de alimentos"
+                : "Descripcion del comercio"
+            }
+            className="mt-2 w-full px-4 py-3 rounded-lg bg-[#F7FAF5] border border-[#C8D5B9] 
+                       focus:ring-2 focus:ring-green-300 focus:outline-none"
+          />
+        </label>
+
         {/* Dirección */}
         <label className="block mb-4">
-          <span className="text-green-800 font-medium">Dirección</span>
+          <span className="text-green-800 font-medium">Dirección *</span>
           <input
             type="text"
             name="direccion"
@@ -176,7 +214,7 @@ export default function Register() {
 
         {/* Teléfono */}
         <label className="block mb-4">
-          <span className="text-green-800 font-medium">Teléfono</span>
+          <span className="text-green-800 font-medium">Teléfono *</span>
           <input
             type="text"
             name="telefono"
@@ -192,7 +230,7 @@ export default function Register() {
         {/* Campo condicional: CIF / NIF para Comercio */}
         {formData.tipo === "comercio" && (
           <label className="block mb-4">
-            <span className="text-green-800 font-medium">CIF / NIF</span>
+            <span className="text-green-800 font-medium">CIF / NIF *</span>
             <input
               type="text"
               name="cif"
@@ -209,7 +247,7 @@ export default function Register() {
         {/* Campo condicional: Provincia para Banco */}
         {formData.tipo === "banco" && (
           <label className="block mb-4">
-            <span className="text-green-800 font-medium">Provincia</span>
+            <span className="text-green-800 font-medium">Provincia *</span>
             <select
               name="provincia"
               value={formData.provincia}
@@ -230,7 +268,7 @@ export default function Register() {
 
         {/* Email */}
         <label className="block mb-4">
-          <span className="text-green-800 font-medium">Email</span>
+          <span className="text-green-800 font-medium">Email *</span>
           <input
             type="email"
             name="email"
@@ -246,7 +284,7 @@ export default function Register() {
         {/* Contraseña y repetir */}
         <div className="flex gap-4 mb-6">
           <label className="w-1/2">
-            <span className="text-green-800 font-medium">Contraseña</span>
+            <span className="text-green-800 font-medium">Contraseña *</span>
             <input
               type="password"
               name="password"
@@ -261,7 +299,7 @@ export default function Register() {
 
           <label className="w-1/2">
             <span className="text-green-800 font-medium">
-              Repite contraseña
+              Repite contraseña *
             </span>
             <input
               type="password"

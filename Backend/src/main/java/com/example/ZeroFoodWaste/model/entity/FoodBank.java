@@ -30,10 +30,9 @@ public class FoodBank {
     private String contactPhone;
 
     // --- NUEVOS CAMPOS AÑADIDOS ---
-    @Column(nullable = false, columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT")
     private String openingHours; // Para guardar el horario JSON
 
-    @Column(nullable = false)
     private String description;
     // -----------------------------
 

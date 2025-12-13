@@ -35,7 +35,6 @@ public abstract class NewUserMapper {
             est.setName(dto.getEstablishmentName());
             est.setAddress(dto.getEstablishmentAddress());
             est.setContactPhone(dto.getEstablishmentContactPhone());
-            est.setOpeningHours(dto.getOpeningHours());
             user.setEstablishment(est);
         }else if (dto.getRole() == Role.FoodBank) {
             FoodBank fb = new FoodBank();

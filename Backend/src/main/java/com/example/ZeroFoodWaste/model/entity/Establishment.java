@@ -30,10 +30,9 @@ public class Establishment {
     @Column(nullable = false)
     private String contactPhone;
 
-    @Column(nullable = false, columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT")
     private String openingHours;
 
-    @Column(nullable = false)
     private String description;
 
     @OneToMany(mappedBy = "establishment")
