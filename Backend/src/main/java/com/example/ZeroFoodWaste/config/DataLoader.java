@@ -79,7 +79,6 @@ public class DataLoader implements CommandLineRunner {
             dto.setEstablishmentName(name);
             dto.setEstablishmentAddress(address);
             dto.setEstablishmentContactPhone(phone);
-            dto.setOpeningHours(hours);
             dto.setDescription(description);
 
             userService.createUser(dto);
@@ -123,7 +122,6 @@ public class DataLoader implements CommandLineRunner {
             dto.setFoodBankAddress(address);
             dto.setFoodBankContactPhone(phone);
             // Asegúrate de que tu NewUserDTO tenga estos setters. Si no, quítalos.
-            dto.setOpeningHours(hours); 
             dto.setDescription(desc);
 
             userService.createUser(dto);

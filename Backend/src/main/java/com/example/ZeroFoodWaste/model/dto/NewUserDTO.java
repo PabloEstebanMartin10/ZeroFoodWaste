@@ -16,7 +16,6 @@ public class NewUserDTO {
     private String establishmentName;
     private String establishmentAddress;
     private String establishmentContactPhone;
-    private String openingHours;
     private String description;
     //endregion
 
