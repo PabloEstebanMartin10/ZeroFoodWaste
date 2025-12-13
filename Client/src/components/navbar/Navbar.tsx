@@ -34,7 +34,7 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="w-full grid grid-cols-3 items-center h-14 pl-4 bg-green-600 shadow-md fixed top-0 left-0 z-50">
+    <nav className="w-full flex justify-between items-center h-14 pl-4 bg-green-600 shadow-md fixed top-0 left-0 z-50">
       <div className="flex items-center space-x-4 text-white">
         <img
           src={Logo}
@@ -45,14 +45,15 @@ export default function Navbar() {
         <span className="font-bold text-2xl">ZeroFoodWaste</span>
       </div>
 
-      <div className="flex items-center justify-center space-x-4">
+      {/* <div className="flex items-center justify-center space-x-4">
         <Link
           to="/"
           className="text-xl text-white font-semibold hover:opacity-80"
         >
           Inicio
         </Link>
-      </div>
+      </div> */}
+
       <div className="flex text-white items-center justify-end h-full">
         {!user ? (
           <div className="flex h-full overflow-hidden bg-green-600">
