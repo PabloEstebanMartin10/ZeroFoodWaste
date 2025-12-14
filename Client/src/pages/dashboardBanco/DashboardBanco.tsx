@@ -8,7 +8,7 @@ interface Donation {
   expirationDate: string;
   status: "Disponible" | "Reservado" | "Completado";
   description?: string;
-  establishment?: { id: number; name?: string };
+  establishment?: string;
   assignmentId?: number;
 }
 
@@ -423,7 +423,7 @@ export default function DashboardBanco() {
                 </p>
                 <p>
                   <strong>Comercio:</strong>{" "}
-                  {selectedDonation.establishment?.name || "—"}
+                  {selectedDonation.establishment || "—"}
                 </p>
               </div>
 

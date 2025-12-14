@@ -283,7 +283,6 @@ const FoodBankProfile: React.FC = () => {
 
       await fetchFoodBank(profileData.foodBankId);
 
-      alert("Cambios guardados correctamente");
       setActiveTab("general");
     } catch (err: any) {
       console.error(err);
