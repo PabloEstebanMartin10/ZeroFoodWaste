@@ -35,6 +35,11 @@ export default function DashboardBanco() {
     "disponibles"
   );
 
+  // ESTADO: Controla la visibilidad del cartel
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  // ESTADO: Controla el TEXTO del cartel
+  const [notification, setNotification] = useState({ title: "", body: "" });
+
   const [foodBankId, setFoodBankId] = useState<number>(0);
   const [loading, setLoading] = useState(true);
 
@@ -47,7 +52,6 @@ export default function DashboardBanco() {
         const storedUser = localStorage.getItem("user");
         if (storedUser) {
           const userObj = JSON.parse(storedUser);
-          // Buscamos el ID específico o el ID genérico
           const currentId = userObj.foodBankId || userObj.id;
 
           if (currentId) {
@@ -59,8 +63,6 @@ export default function DashboardBanco() {
       } catch (error) {
         console.error("Error leyendo localStorage:", error);
       } finally {
-        // Una vez intentado cargar el usuario, quitamos el loading inicial
-        // (aunque luego haremos fetch de datos)
         setLoading(false);
       }
     };
@@ -68,7 +70,7 @@ export default function DashboardBanco() {
   }, []);
 
   // ============================
-  // FETCH DONACIONES SEGÚN STATUS
+  // FETCH DONACIONES
   // ============================
   const fetchDonations = async () => {
     if (!foodBankId) return;
@@ -84,7 +86,6 @@ export default function DashboardBanco() {
 
       const data = await res.json();
 
-      // Mapear estados y filtrar duplicados
       const donationsMap: Record<number, Donation> = {};
       data.forEach((d: any) => {
         donationsMap[d.id] = {
@@ -105,30 +106,26 @@ export default function DashboardBanco() {
   // RESERVAR / CANCELAR
   // ============================
   const toggleReservation = async () => {
-    if (!selectedDonation || !foodBankId) return; // Protección si no hay ID
+    if (!selectedDonation || !foodBankId) return;
+
+    const isReserving = selectedDonation.status === "Disponible";
+
+    let url = "";
+    if (isReserving) {
+      url = `${BASE_URL}/donations/${selectedDonation.id}/accept/${foodBankId}`;
+    } else if (selectedDonation.status === "Reservado") {
+      url = `${BASE_URL}/donations/${selectedDonation.id}/cancel/${foodBankId}`;
+    } else {
+      return;
+    }
 
     try {
-      let res: Response;
+      const res = await fetch(url, { method: "POST" });
 
-      if (selectedDonation.status === "Disponible") {
-        // RESERVAR - ✅ ID DINÁMICO
-        res = await fetch(
-          `${BASE_URL}/donations/${selectedDonation.id}/accept/${foodBankId}`,
-          { method: "POST" }
-        );
-      } else if (selectedDonation.status === "Reservado") {
-        // CANCELAR - ✅ ID DINÁMICO
-        res = await fetch(
-          `${BASE_URL}/donations/${selectedDonation.id}/cancel/${foodBankId}`,
-          { method: "POST" }
-        );
-      } else {
-        return; // no hacemos nada si es "Completado"
+      if (!res.ok) {
+        throw new Error("La respuesta del servidor no fue exitosa");
       }
 
-      if (!res.ok) throw new Error("Error en la petición");
-
-      // ===== Actualizamos localmente =====
       setDonations((prev) => {
         const updated = prev.map((d) => {
           if (d.id === selectedDonation.id) {
@@ -138,7 +135,6 @@ export default function DashboardBanco() {
           return d;
         });
 
-        // filtramos según el tab activo para que desaparezca de la vista si ya no corresponde
         if (activeTab === "disponibles") {
           return updated.filter((d) => d.status === "Disponible");
         }
@@ -148,15 +144,23 @@ export default function DashboardBanco() {
         return updated;
       });
 
-      // actualizamos el modal
-      setSelectedDonation((prev) => {
-        if (!prev) return null;
-        if (prev.status === "Disponible")
-          return { ...prev, status: "Reservado" };
-        if (prev.status === "Reservado")
-          return { ...prev, status: "Disponible" };
-        return prev;
-      });
+      // ===== LÓGICA DE UI =====
+      if (isReserving) {
+        setNotification({
+          title: "¡Acción Completada!",
+          body: "La donación ha sido reservada con éxito.",
+        });
+      } else {
+        setNotification({
+          title: "Reserva Cancelada",
+          body: "La donación vuelve a estar disponible.",
+        });
+      }
+
+      setSelectedDonation(null); // Cerrar Modal
+      setShowSuccessMessage(true); // Mostrar Cartel
+      setTimeout(() => setShowSuccessMessage(false), 1000); // Ocultar a los 3s
+
     } catch (err) {
       console.error("Error al cambiar estado de la donación:", err);
       alert(
@@ -206,10 +210,8 @@ export default function DashboardBanco() {
   const totalPages = Math.ceil(sortedDonations.length / ITEMS_PER_PAGE);
 
   // ============================
-  // USE EFFECTS (Carga de datos)
+  // USE EFFECTS
   // ============================
-
-  // Este efecto se dispara cuando cambia el tab O cuando obtenemos el foodBankId
   useEffect(() => {
     if (foodBankId > 0) {
       fetchDonations();
@@ -217,13 +219,6 @@ export default function DashboardBanco() {
     setCurrentPage(1);
   }, [activeTab, foodBankId]);
 
-  // ============================
-  // USE EFFECTS
-  // ============================
-
-  // ============================
-  // RENDER
-  // ============================
   if (loading && foodBankId === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-amber-50 text-gray-500">
@@ -233,7 +228,7 @@ export default function DashboardBanco() {
   }
 
   return (
-    <div className="min-h-screen bg-amber-50 p-10">
+    <div className="min-h-screen bg-amber-50 p-10 relative">
       <header className="mb-10">
         <h1 className="text-4xl font-bold text-gray-800">Banco de Alimentos</h1>
         <p className="text-gray-600">
@@ -384,7 +379,7 @@ export default function DashboardBanco() {
         )}
       </div>
 
-      {/* MODAL */}
+      {/* MODAL DE DETALLES */}
       {selectedDonation && (
         <>
           <div
@@ -444,6 +439,49 @@ export default function DashboardBanco() {
                   ? "Reservar Donación"
                   : "Cancelar Reserva"}
               </button>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* --- CARTEL CENTRAL MODERNO (NUEVO DISEÑO) --- */}
+      {showSuccessMessage && (
+        <>
+          {/* Fondo desenfocado detrás del cartel */}
+          <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-50 transition-opacity" />
+
+          {/* El Cartel */}
+          <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-sm p-4 animate-fade-in-up">
+            <div className="bg-white rounded-2xl shadow-2xl p-8 flex flex-col items-center text-center relative overflow-hidden border border-green-50">
+              
+              {/* Decoración de fondo sutil */}
+              <div className="absolute -top-12 -right-12 w-24 h-24 bg-green-100 rounded-full opacity-50 blur-2xl"></div>
+
+              {/* Icono Grande */}
+              <div className="mb-5 p-4 bg-green-100 rounded-full relative z-10">
+                <svg
+                  className="w-12 h-12 text-green-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2.5"
+                    d="M5 13l4 4L19 7"
+                  ></path>
+                </svg>
+              </div>
+
+              {/* Textos */}
+              <h3 className="text-2xl font-extrabold text-gray-800 mb-3 relative z-10">
+                {notification.title}
+              </h3>
+              <p className="text-gray-600 font-medium relative z-10 leading-relaxed">
+                {notification.body}
+              </p>
             </div>
           </div>
         </>
