@@ -12,6 +12,7 @@ interface Donation {
   createdAt?: string;
   updatedAt?: string;
   photoUrl?: string;
+  foodBank?: string;
 }
 
 const mapStatusToBackend: Record<string, string> = {
@@ -178,8 +179,6 @@ export default function DashboardComercio() {
       quantity: Number(formData.quantity),
       expirationDate: expirationDateFormatted,
       status: mapStatusToBackend[formData.status] || "AVAILABLE",
-      // ✅ USAMOS EL ID DINÁMICO AQUÍ TAMBIÉN POR SEGURIDAD
-      establishment: { id: establishmentId },
     };
 
     fetch(`${BASE_URL}/donations/${formData.id}`, {
@@ -235,7 +234,7 @@ export default function DashboardComercio() {
         : `${newDonation.expirationDate}T00:00:00`,
       status: mapStatusToBackend[newDonation.status] || "AVAILABLE",
       // ✅ USAMOS EL ID DINÁMICO
-      establishmentId: establishmentId,
+      establishmentId: establishmentId.toString(),
     };
 
     console.log("Enviando donación:", donationToSend);
@@ -559,7 +558,7 @@ export default function DashboardComercio() {
                     <div>
                       <label className="font-semibold">Banco que reservó</label>
                       <p className="px-3 py-2 border rounded-md bg-gray-100 text-gray-700">
-                        {formData.establishment?.name || "—"}
+                        {formData.foodBank || "—"}
                       </p>
                     </div>
                   )}

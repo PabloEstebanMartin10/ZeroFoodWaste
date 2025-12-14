@@ -15,4 +15,6 @@ public class DonationResponseDTO {
     private String unit;
     private LocalDateTime expirationDate;
     private String status;
+    private String establishment;
+    private String foodBank;
 }
