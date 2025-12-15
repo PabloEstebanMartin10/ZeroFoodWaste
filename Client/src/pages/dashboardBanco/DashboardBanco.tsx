@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { AuthContext } from "../../context/AuthContext";
 
 interface Donation {
   id: number;
@@ -34,6 +35,10 @@ export default function DashboardBanco() {
   const [activeTab, setActiveTab] = useState<"disponibles" | "reservadas">(
     "disponibles"
   );
+
+  const auth = useContext(AuthContext);
+  if (!auth) throw new Error("AuthContext missing");
+  const { entity } = auth;
 
   // ESTADO: Controla la visibilidad del cartel
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
@@ -230,14 +235,9 @@ export default function DashboardBanco() {
   return (
     <div className="min-h-screen bg-amber-50 p-10 relative">
       <header className="mb-10">
-        <h1 className="text-4xl font-bold text-gray-800">Banco de Alimentos</h1>
+        <h1 className="text-4xl font-bold text-gray-800">{entity?.name}</h1>
         <p className="text-gray-600">
-          Gestiona las donaciones disponibles{" "}
-          {foodBankId > 0 && (
-            <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded ml-2">
-              ID: {foodBankId}
-            </span>
-          )}
+          Gestiona las donaciones disponibles
         </p>
       </header>
 

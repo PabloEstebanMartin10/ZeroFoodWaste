@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { AuthContext } from "../../context/AuthContext";
 
 interface Donation {
   id?: number;
@@ -45,6 +46,10 @@ export default function DashboardComercio() {
   const [establishmentId, setEstablishmentId] = useState<number>(0);
   const [loading, setLoading] = useState(true);
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const auth = useContext(AuthContext);
+  if (!auth) throw new Error("AuthContext missing");
+  const { entity } = auth;
 
   // 2. Función de validación (Reemplaza tu actual lógica dentro de handleCreateDonation)
   const validateForm = () => {
@@ -373,14 +378,9 @@ export default function DashboardComercio() {
     <div className="min-h-screen bg-amber-50 p-10">
       <header className="mb-10 flex items-center justify-between">
         <div>
-          <h1 className="text-4xl font-bold text-gray-800">Mi Comercio</h1>
+          <h1 className="text-4xl font-bold text-gray-800">{entity?.name}</h1>
           <p className="text-gray-600">
-            Administra tus donaciones de comida{" "}
-            {establishmentId > 0 && (
-              <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded ml-2">
-                ID: {establishmentId}
-              </span>
-            )}
+            Administra tus donaciones de comida
           </p>
         </div>
       </header>
