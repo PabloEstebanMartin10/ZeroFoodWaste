@@ -193,7 +193,11 @@ export default function DashboardComercio() {
     }
   };
 
-  const handleCompleteDonation = async (index: number) => {
+  const handleCompleteDonation = async (
+    e: React.MouseEvent<HTMLButtonElement>,
+    index: number
+  ) => {
+    e.stopPropagation();
     // 1. Identificar la donación correcta desde la lista filtrada
     const realIndex = donations.findIndex((d) => d === donationsList[index]);
     const donation = donations[realIndex];
@@ -430,13 +434,17 @@ export default function DashboardComercio() {
                   <th className="py-3 px-4 w-1/6">Cantidad</th>
                   <th className="py-3 px-4 w-1/6">Fecha Caducidad</th>
                   <th className="py-3 px-4 w-1/6">Estado</th>
-                  <th className="py-3 px-4 w-2/6"></th>
+                  <th className="py-3 px-4 w-2/6 text-center">Acciones</th>
                 </tr>
               </thead>
               <tbody>
                 {donationsList.length > 0 ? (
                   donationsList.map((item, i) => (
-                    <tr key={i} className="border-b hover:bg-gray-50">
+                    <tr
+                      key={i}
+                      onClick={() => openModal(i)}
+                      className="border-b hover:bg-gray-50 hover:cursor-pointer"
+                    >
                       <td className="py-4 px-4 font-medium">
                         {item.productName}
                       </td>
@@ -448,7 +456,7 @@ export default function DashboardComercio() {
                       </td>
                       <td className="py-4 px-4">
                         <span
-                          className={`px-3 py-1 rounded-full text-sm font-medium ${
+                          className={`px-3 py-1 rounded-full font-semibold ${
                             item.status === "Disponible"
                               ? "bg-green-100 text-green-700"
                               : item.status === "Reservado"
@@ -459,32 +467,77 @@ export default function DashboardComercio() {
                           {item.status}
                         </span>
                       </td>
-                      <div className="flex items-center gap-6">
-                        <td className="py-4 px-4">
+
+                      <td className="py-4 px-4 text-center">
+                        <div className="flex items-center justify-center gap-2">
+                          {/* Botón Completar (Estilo Esmeralda Suave) */}
                           <button
-                            onClick={() => openModal(i)}
-                            className="text-green-700 font-semibold hover:underline"
+                            onClick={(e) => handleCompleteDonation(e, i)}
+                            className="flex items-center gap-1 px-3 py-1.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-100 hover:bg-emerald-100 hover:border-emerald-200 transition-all shadow-sm"
+                            title="Marcar como completado"
                           >
-                            Editar
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 20 20"
+                              fill="currentColor"
+                              className="w-4 h-4"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
+                            <span className="text-xs font-medium">
+                              Completar
+                            </span>
                           </button>
-                        </td>
-                        <td className="py-4 px-4">
+
                           <button
-                            onClick={() => handleCompleteDonation(i)}
-                            className="text-blue-600 font-semibold hover:text-blue-800 hover:underline"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              openModal(i);
+                            }}
+                            className="flex items-center gap-1 px-3 py-1.5 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-100 hover:bg-indigo-100 hover:border-indigo-200 transition-all shadow-sm"
+                            title="Editar detalles"
                           >
-                            Completar
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 20 20"
+                              fill="currentColor"
+                              className="w-4 h-4"
+                            >
+                              <path d="m5.433 13.917 1.262-3.155A4 4 0 0 1 7.58 9.42l6.92-6.918a2.121 2.121 0 0 1 3 3l-6.92 6.918c-.383.383-.84.685-1.343.886l-3.154 1.262a.5.5 0 0 1-.65-.65Z" />
+                              <path d="M3.5 5.75c0-.69.56-1.25 1.25-1.25H10A.75.75 0 0 0 10 3H4.75A2.75 2.75 0 0 0 2 5.75v9.5A2.75 2.75 0 0 0 4.75 18h9.5A2.75 2.75 0 0 0 17 15.25V10a.75.75 0 0 0-1.5 0v5.25c0 .69-.56 1.25-1.25 1.25h-9.5c-.69 0-1.25-.56-1.25-1.25v-9.5Z" />
+                            </svg>
+                            <span className="text-xs font-medium">Editar</span>
                           </button>
-                        </td>
-                        <td className="py-4 px-4">
+
                           <button
-                            onClick={() => handleDeleteDonation(i)}
-                            className="text-red-600 font-semibold hover:text-red-800 hover:underline"
+                            onClick={(e) => {
+                              e.stopPropagation(); // Detiene la propagación
+                              handleDeleteDonation(i);
+                            }}
+                            className="p-1.5 rounded-md text-red-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                            title="Eliminar donación"
                           >
-                            Eliminar
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              strokeWidth={1.5}
+                              stroke="currentColor"
+                              className="w-5 h-5"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
+                              />
+                            </svg>
                           </button>
-                        </td>
-                      </div>
+                        </div>
+                      </td>
                     </tr>
                   ))
                 ) : (
@@ -745,6 +798,38 @@ export default function DashboardComercio() {
                     )}
                   </div>
 
+                  {/* CAMPO FECHA */}
+                  <div>
+                    <label className="font-semibold block mb-1">
+                      Fecha Caducidad <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="date"
+                      value={newDonation.expirationDate}
+                      onChange={(e) => {
+                        setNewDonation((prev) => ({
+                          ...prev,
+                          expirationDate: e.target.value,
+                        }));
+                        if (errors.expirationDate)
+                          setErrors((prev) => ({
+                            ...prev,
+                            expirationDate: "",
+                          }));
+                      }}
+                      className={`w-full border rounded-md px-3 py-2 ${
+                        errors.expirationDate
+                          ? "border-red-500 bg-red-50"
+                          : "border-gray-300"
+                      }`}
+                    />
+                    {errors.expirationDate && (
+                      <p className="mt-1 text-sm text-red-600">
+                        {errors.expirationDate}
+                      </p>
+                    )}
+                  </div>
+
                   {/* CAMPO CANTIDAD */}
                   <div>
                     <label className="font-semibold block mb-1">
@@ -819,38 +904,6 @@ export default function DashboardComercio() {
                     </select>
                     {errors.unit && (
                       <p className="mt-1 text-sm text-red-600">{errors.unit}</p>
-                    )}
-                  </div>
-
-                  {/* CAMPO FECHA */}
-                  <div>
-                    <label className="font-semibold block mb-1">
-                      Fecha Caducidad <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="date"
-                      value={newDonation.expirationDate}
-                      onChange={(e) => {
-                        setNewDonation((prev) => ({
-                          ...prev,
-                          expirationDate: e.target.value,
-                        }));
-                        if (errors.expirationDate)
-                          setErrors((prev) => ({
-                            ...prev,
-                            expirationDate: "",
-                          }));
-                      }}
-                      className={`w-full border rounded-md px-3 py-2 ${
-                        errors.expirationDate
-                          ? "border-red-500 bg-red-50"
-                          : "border-gray-300"
-                      }`}
-                    />
-                    {errors.expirationDate && (
-                      <p className="mt-1 text-sm text-red-600">
-                        {errors.expirationDate}
-                      </p>
                     )}
                   </div>
 
