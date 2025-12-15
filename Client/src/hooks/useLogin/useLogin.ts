@@ -1,6 +1,7 @@
 import type { loginData } from './../../types/user/loginData';
 import { useState } from "react";
 import { zfwApiInstance } from "../../api/apiInstance";
+import axios from 'axios';
 // import { useNavigate } from "react-router-dom";
 // import type { userInfo } from "../../types/user/userInfo";
 
@@ -18,8 +19,15 @@ export const useLogin = () => {
     try {
       const response = await zfwApiInstance.post<LoginResponse>(URL, loginData);
       return response.data.token;
-    } catch {
-      setLoginError("An error happened");
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        console.log(error.response?.data);
+        if (error.response?.status === 403){
+          setLoginError("Credenciales incorrectas");
+        }
+      } else {
+        setLoginError("Unexpected error");
+      }
       return null;
     }
   };

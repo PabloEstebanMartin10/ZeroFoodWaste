@@ -120,6 +120,12 @@ const Login: React.FC = () => {
                 className="w-full px-4 py-3 rounded-lg bg-[#F7FAF5] border border-[#C8D5B9] focus:ring-2 focus:ring-[#8FC0A9] focus:outline-none placeholder-gray-300"
               />
             </div>
+            
+            <div className="mb-4">
+              <span className="text-red-600 font-medium">
+                {loginError}
+              </span>
+            </div>
 
             <button
               type="submit"
