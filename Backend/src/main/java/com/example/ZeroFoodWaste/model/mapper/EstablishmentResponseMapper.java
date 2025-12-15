@@ -21,6 +21,7 @@ public abstract class EstablishmentResponseMapper {
     //region Entity->DTO
     @Mapping(target = "userId", source = "user.id")
     @Mapping(target = "establishmentId", source = "id")
+    @Mapping(target = "email", source = "user.email")
     public abstract EstablishmentResponseDTO toDTO(Establishment establishment);
     //endregion
 

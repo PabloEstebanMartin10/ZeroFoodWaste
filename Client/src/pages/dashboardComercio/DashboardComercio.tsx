@@ -44,6 +44,34 @@ export default function DashboardComercio() {
   // ✅ NUEVO: Estado para el ID dinámico
   const [establishmentId, setEstablishmentId] = useState<number>(0);
   const [loading, setLoading] = useState(true);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // 2. Función de validación (Reemplaza tu actual lógica dentro de handleCreateDonation)
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+
+    if (!newDonation.productName.trim()) {
+      newErrors.productName = "El nombre del producto es obligatorio.";
+    }
+
+    if (!newDonation.quantity) {
+      newErrors.quantity = "La cantidad es obligatoria.";
+    } else if (newDonation.quantity <= 0) {
+      newErrors.quantity = "La cantidad debe ser mayor a 0.";
+    }
+
+    if (!newDonation.unit) {
+      newErrors.unit = "Debes seleccionar una unidad.";
+    }
+
+    if (!newDonation.expirationDate) {
+      newErrors.expirationDate = "La fecha es obligatoria.";
+    }
+
+    setErrors(newErrors);
+    // Devuelve true si no hay errores
+    return Object.keys(newErrors).length === 0;
+  };
 
   // Estado para nueva donación (inicialmente vacío hasta tener el ID)
   const [newDonation, setNewDonation] = useState<Donation>({
@@ -165,6 +193,53 @@ export default function DashboardComercio() {
     }
   };
 
+  const handleCompleteDonation = async (index: number) => {
+    // 1. Identificar la donación correcta desde la lista filtrada
+    const realIndex = donations.findIndex((d) => d === donationsList[index]);
+    const donation = donations[realIndex];
+
+    if (!donation || !donation.id) return;
+
+    // 2. Preparar payload (asegurando formato de fecha como en handleSave)
+    const date = new Date(donation.expirationDate);
+    const expirationDateFormatted = `${date.getFullYear()}-${String(
+      date.getMonth() + 1
+    ).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}T00:00:00`;
+
+    const payload = {
+      ...donation,
+      quantity: Number(donation.quantity),
+      expirationDate: expirationDateFormatted,
+      status: "COMPLETED", // Forzamos el estado a COMPLETED
+    };
+
+    try {
+      // 3. Petición al Backend
+      const res = await fetch(`${BASE_URL}/donations/${donation.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) throw new Error(`Error en backend: ${res.status}`);
+
+      const updated = await res.json();
+
+      // 4. Actualizar estado local (esto moverá el item de tabla automáticamente)
+      const fixedDonation = {
+        ...updated,
+        status: "Completado", // Mapeo manual para frontend inmediato
+      };
+
+      setDonations((prev) =>
+        prev.map((d) => (d.id === fixedDonation.id ? fixedDonation : d))
+      );
+    } catch (err) {
+      console.error("Error completando donación:", err);
+      alert("Error al completar la donación.");
+    }
+  };
+
   const handleSave = () => {
     if (!formData || !formData.id) return;
 
@@ -219,10 +294,7 @@ export default function DashboardComercio() {
   };
 
   const handleCreateDonation = () => {
-    if (!newDonation.productName || newDonation.quantity <= 0) {
-      alert("Por favor completa el nombre del producto y la cantidad.");
-      return;
-    }
+    if (!validateForm()) return;
 
     const donationToSend = {
       productName: newDonation.productName,
@@ -261,12 +333,6 @@ export default function DashboardComercio() {
   };
 
   const handleDeleteDonation = async (index: number) => {
-    if (
-      !window.confirm("¿Estás seguro de que quieres eliminar esta donación?")
-    ) {
-      return;
-    }
-
     const realIndex = donations.findIndex((d) => d === donationsList[index]);
     const donation = donations[realIndex];
 
@@ -360,12 +426,11 @@ export default function DashboardComercio() {
             <table className="w-full border-collapse">
               <thead>
                 <tr className="bg-green-100 text-left text-gray-600 uppercase text-sm">
-                  <th className="py-3 px-4">Producto</th>
-                  <th className="py-3 px-4">Cantidad</th>
-                  <th className="py-3 px-4">Fecha Caducidad</th>
-                  <th className="py-3 px-4">Estado</th>
-                  <th className="py-3 px-4">Detalles</th>
-                  <th className="py-3 px-4">Acciones</th>
+                  <th className="py-3 px-4 w-1/6">Producto</th>
+                  <th className="py-3 px-4 w-1/6">Cantidad</th>
+                  <th className="py-3 px-4 w-1/6">Fecha Caducidad</th>
+                  <th className="py-3 px-4 w-1/6">Estado</th>
+                  <th className="py-3 px-4 w-2/6"></th>
                 </tr>
               </thead>
               <tbody>
@@ -394,22 +459,32 @@ export default function DashboardComercio() {
                           {item.status}
                         </span>
                       </td>
-                      <td className="py-4 px-4">
-                        <button
-                          onClick={() => openModal(i)}
-                          className="text-green-700 font-semibold hover:underline"
-                        >
-                          Ver Detalles
-                        </button>
-                      </td>
-                      <td className="py-4 px-4">
-                        <button
-                          onClick={() => handleDeleteDonation(i)}
-                          className="text-red-600 font-semibold hover:text-red-800 hover:underline"
-                        >
-                          Eliminar
-                        </button>
-                      </td>
+                      <div className="flex items-center gap-6">
+                        <td className="py-4 px-4">
+                          <button
+                            onClick={() => openModal(i)}
+                            className="text-green-700 font-semibold hover:underline"
+                          >
+                            Editar
+                          </button>
+                        </td>
+                        <td className="py-4 px-4">
+                          <button
+                            onClick={() => handleCompleteDonation(i)}
+                            className="text-blue-600 font-semibold hover:text-blue-800 hover:underline"
+                          >
+                            Completar
+                          </button>
+                        </td>
+                        <td className="py-4 px-4">
+                          <button
+                            onClick={() => handleDeleteDonation(i)}
+                            className="text-red-600 font-semibold hover:text-red-800 hover:underline"
+                          >
+                            Eliminar
+                          </button>
+                        </td>
+                      </div>
                     </tr>
                   ))
                 ) : (
@@ -442,9 +517,7 @@ export default function DashboardComercio() {
                         {item.productName}
                       </td>
                       <td className="py-4 px-4">{item.quantity}</td>
-                      <td className="py-4 px-4">
-                        {item.establishment?.name || "—"}
-                      </td>
+                      <td className="py-4 px-4">{item.foodBank || "—"}</td>
                       <td className="py-4 px-4">
                         <span className="px-3 py-1 rounded-full text-sm font-medium bg-gray-200 text-gray-700">
                           Completado
@@ -573,7 +646,6 @@ export default function DashboardComercio() {
                     >
                       <option value="Disponible">Disponible</option>
                       <option value="Reservado">Reservado</option>
-                      <option value="Completado">Completado</option>
                     </select>
                   </div>
                 </div>
@@ -625,78 +697,169 @@ export default function DashboardComercio() {
                 </h2>
 
                 <div className="grid grid-cols-2 gap-6">
+                  {/* CAMPO PRODUCTO */}
                   <div>
-                    <label className="font-semibold">Producto</label>
-                    <input
-                      type="text"
-                      name="productName"
-                      value={newDonation.productName}
-                      onChange={(e) =>
-                        setNewDonation((prev) => ({
-                          ...prev,
-                          productName: e.target.value,
-                        }))
-                      }
-                      className="w-full border rounded-md px-3 py-2"
-                    />
+                    <label className="font-semibold block mb-1">
+                      Producto <span className="text-red-500">*</span>
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        value={newDonation.productName}
+                        onChange={(e) => {
+                          setNewDonation((prev) => ({
+                            ...prev,
+                            productName: e.target.value,
+                          }));
+                          if (errors.productName)
+                            setErrors((prev) => ({ ...prev, productName: "" })); // Limpiar error al escribir
+                        }}
+                        className={`w-full border rounded-md px-3 py-2 ${
+                          errors.productName
+                            ? "border-red-500 bg-red-50"
+                            : "border-gray-300"
+                        }`}
+                        placeholder="Ej: Manzanas"
+                      />
+                      {/* Icono de exclamación si hay error */}
+                      {errors.productName && (
+                        <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                          <svg
+                            className="h-5 w-5 text-red-500"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        </div>
+                      )}
+                    </div>
+                    {errors.productName && (
+                      <p className="mt-1 text-sm text-red-600">
+                        {errors.productName}
+                      </p>
+                    )}
                   </div>
 
+                  {/* CAMPO CANTIDAD */}
                   <div>
-                    <label className="font-semibold">Cantidad</label>
-                    <input
-                      type="number"
-                      name="quantity"
-                      value={newDonation.quantity}
-                      onChange={(e) =>
-                        setNewDonation((prev) => ({
-                          ...prev,
-                          quantity: Number(e.target.value),
-                        }))
-                      }
-                      className="w-full border rounded-md px-3 py-2"
-                    />
+                    <label className="font-semibold block mb-1">
+                      Cantidad <span className="text-red-500">*</span>
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="number"
+                        value={newDonation.quantity}
+                        onChange={(e) => {
+                          setNewDonation((prev) => ({
+                            ...prev,
+                            quantity: Number(e.target.value),
+                          }));
+                          if (errors.quantity)
+                            setErrors((prev) => ({ ...prev, quantity: "" }));
+                        }}
+                        className={`w-full border rounded-md px-3 py-2 ${
+                          errors.quantity
+                            ? "border-red-500 bg-red-50"
+                            : "border-gray-300"
+                        }`}
+                      />
+                      {errors.quantity && (
+                        <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                          <svg
+                            className="h-5 w-5 text-red-500"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        </div>
+                      )}
+                    </div>
+                    {errors.quantity && (
+                      <p className="mt-1 text-sm text-red-600">
+                        {errors.quantity}
+                      </p>
+                    )}
                   </div>
 
+                  {/* CAMPO UNIDADES */}
                   <div>
-                    <label className="font-semibold">Unidades</label>
+                    <label className="font-semibold block mb-1">
+                      Unidades <span className="text-red-500">*</span>
+                    </label>
                     <select
-                      name="unit"
                       value={newDonation.unit}
-                      onChange={(e) =>
+                      onChange={(e) => {
                         setNewDonation((prev) => ({
                           ...prev,
                           unit: e.target.value,
-                        }))
-                      }
-                      className="w-full border rounded-md px-3 py-2"
+                        }));
+                        if (errors.unit)
+                          setErrors((prev) => ({ ...prev, unit: "" }));
+                      }}
+                      className={`w-full border rounded-md px-3 py-2 ${
+                        errors.unit
+                          ? "border-red-500 bg-red-50"
+                          : "border-gray-300"
+                      }`}
                     >
-                      <option value="">—</option>
+                      <option value="">— Seleccionar —</option>
                       <option value="Unidades">Unidades</option>
                       <option value="Litros">Litros</option>
                       <option value="Kg">Kg</option>
                     </select>
+                    {errors.unit && (
+                      <p className="mt-1 text-sm text-red-600">{errors.unit}</p>
+                    )}
                   </div>
 
+                  {/* CAMPO FECHA */}
                   <div>
-                    <label className="font-semibold">Fecha Caducidad</label>
+                    <label className="font-semibold block mb-1">
+                      Fecha Caducidad <span className="text-red-500">*</span>
+                    </label>
                     <input
                       type="date"
-                      name="expirationDate"
                       value={newDonation.expirationDate}
-                      onChange={(e) =>
+                      onChange={(e) => {
                         setNewDonation((prev) => ({
                           ...prev,
                           expirationDate: e.target.value,
-                        }))
-                      }
-                      className="w-full border rounded-md px-3 py-2"
+                        }));
+                        if (errors.expirationDate)
+                          setErrors((prev) => ({
+                            ...prev,
+                            expirationDate: "",
+                          }));
+                      }}
+                      className={`w-full border rounded-md px-3 py-2 ${
+                        errors.expirationDate
+                          ? "border-red-500 bg-red-50"
+                          : "border-gray-300"
+                      }`}
                     />
+                    {errors.expirationDate && (
+                      <p className="mt-1 text-sm text-red-600">
+                        {errors.expirationDate}
+                      </p>
+                    )}
                   </div>
 
+                  {/* CAMPO DESCRIPCION (Opcional, sin validación) */}
                   <div className="col-span-2">
-                    <label className="font-semibold">Descripción</label>
+                    <label className="font-semibold block mb-1">
+                      Descripción
+                    </label>
                     <textarea
-                      name="description"
                       value={newDonation.description}
                       onChange={(e) =>
                         setNewDonation((prev) => ({
@@ -704,22 +867,26 @@ export default function DashboardComercio() {
                           description: e.target.value,
                         }))
                       }
-                      className="w-full border rounded-md px-3 py-2"
+                      className="w-full border border-gray-300 rounded-md px-3 py-2"
+                      rows={3}
                     />
                   </div>
                 </div>
 
                 <div className="flex justify-end gap-4 mt-6">
                   <button
-                    onClick={() => setShowCreateModal(false)}
-                    className="px-6 py-2 border rounded-md"
+                    onClick={() => {
+                      setShowCreateModal(false);
+                      setErrors({}); // Limpiar errores al cerrar
+                    }}
+                    className="px-6 py-2 border rounded-md hover:bg-gray-50 transition"
                   >
                     Cancelar
                   </button>
 
                   <button
                     onClick={handleCreateDonation}
-                    className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+                    className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition shadow-md"
                   >
                     Crear Donación
                   </button>

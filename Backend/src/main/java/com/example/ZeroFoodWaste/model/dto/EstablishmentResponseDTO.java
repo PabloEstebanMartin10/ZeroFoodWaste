@@ -10,4 +10,5 @@ public class EstablishmentResponseDTO {
     private String address;
     private String contactPhone;
     private String openingHours;
+    private String email;
 }
