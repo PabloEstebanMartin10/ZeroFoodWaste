@@ -22,14 +22,6 @@ public class UserController {
 
     @PostMapping
     public ResponseEntity<UserResponseDTO> createUser(@RequestBody NewUserDTO newUserDTO){
-//        try {
-//           UserResponseDTO response = userService.createUser(newUserDTO);
-//            return ResponseEntity.ok(response);
-//        } catch (EmailAlreadyExistsException e) {
-//            return ResponseEntity
-//                    .status(HttpStatus.CONFLICT) // 409
-//                    .body(Map.of("message", e.getMessage()));
-//        }
         return ResponseEntity.ok(userService.createUser(newUserDTO));
     }
 
