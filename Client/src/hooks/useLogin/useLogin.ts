@@ -22,7 +22,7 @@ export const useLogin = () => {
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
         console.log(error.response?.data);
-        if (error.response?.status === 403){
+        if (error.response?.status === 404){
           setLoginError("Credenciales incorrectas");
         }
       } else {
