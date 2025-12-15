@@ -16,7 +16,7 @@ const Login: React.FC = () => {
     password: "",
   });
   const { loginFunction, loginError } = useLogin();
-  const { fetchUserFunction, error } = useFetchUser()
+  const { fetchUserFunction, error } = useFetchUser();
   const { fetchEntityFunction, entityError } = useFetchEntity();
   const navigate = useNavigate();
   const auth = useContext(AuthContext);
@@ -28,35 +28,46 @@ const Login: React.FC = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     const token = await loginFunction(loginData);
-    if(loginError){ //casi seguro que esto no funciona
+    if (loginError) {
+      //casi seguro que esto no funciona
       console.log(loginError);
     }
     setToken(token);
-    if(token){
+    if (token) {
       localStorage.setItem("token", token);
       const userLoggedIn: userInfo | null = await fetchUserFunction(token);
       localStorage.setItem("user", JSON.stringify(userLoggedIn));
-      if (userLoggedIn?.role.toLowerCase() === "establishment" && userLoggedIn?.establishmentId) {
-        const establishment: EstablishmentInfo | null = await fetchEntityFunction(`/establishment/${userLoggedIn.establishmentId}`) as EstablishmentInfo | null;
+      if (
+        userLoggedIn?.role.toLowerCase() === "establishment" &&
+        userLoggedIn?.establishmentId
+      ) {
+        const establishment: EstablishmentInfo | null =
+          (await fetchEntityFunction(
+            `/establishment/${userLoggedIn.establishmentId}`
+          )) as EstablishmentInfo | null;
         localStorage.setItem("entity", JSON.stringify(establishment));
         setEntity(establishment);
       }
-      if (userLoggedIn?.role.toLowerCase() === "foodbank" && userLoggedIn?.foodBankId) {
-        const foodBank: FoodBankInfo | null = await fetchEntityFunction(`/foodbank/${userLoggedIn.foodBankId}`) as FoodBankInfo | null;
+      if (
+        userLoggedIn?.role.toLowerCase() === "foodbank" &&
+        userLoggedIn?.foodBankId
+      ) {
+        const foodBank: FoodBankInfo | null = (await fetchEntityFunction(
+          `/foodbank/${userLoggedIn.foodBankId}`
+        )) as FoodBankInfo | null;
         localStorage.setItem("entity", JSON.stringify(foodBank));
         setEntity(foodBank);
       }
-      if(error){ //casi seguro que esto no funciona
+      if (error) {
+        //casi seguro que esto no funciona
         console.log(error);
       }
       setUser(userLoggedIn);
-      navigate("/");
+      navigate(userLoggedIn?.role === "Establishment" ? "/comercio" : "/banco");
     }
   };
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setLoginData((prev) => ({
       ...prev,
       [e.target.name]: e.target.value,
@@ -121,7 +132,8 @@ const Login: React.FC = () => {
           <div className="mt-4 text-sm text-center">
             <p className="mt-2">
               ¿No tienes cuenta?{" "}
-              <Link to="/registro"
+              <Link
+                to="/registro"
                 className="text-green-800 hover:underline font-medium"
               >
                 Regístrate aquí
