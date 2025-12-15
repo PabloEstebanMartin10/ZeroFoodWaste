@@ -1,12 +1,17 @@
 package com.example.ZeroFoodWaste.controller;
 
 import com.example.ZeroFoodWaste.config.JwtUtils;
+import com.example.ZeroFoodWaste.exception.EmailAlreadyExistsException;
 import com.example.ZeroFoodWaste.model.dto.NewUserDTO;
 import com.example.ZeroFoodWaste.model.dto.UserResponseDTO;
 import com.example.ZeroFoodWaste.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/User")
@@ -17,6 +22,14 @@ public class UserController {
 
     @PostMapping
     public ResponseEntity<UserResponseDTO> createUser(@RequestBody NewUserDTO newUserDTO){
+//        try {
+//           UserResponseDTO response = userService.createUser(newUserDTO);
+//            return ResponseEntity.ok(response);
+//        } catch (EmailAlreadyExistsException e) {
+//            return ResponseEntity
+//                    .status(HttpStatus.CONFLICT) // 409
+//                    .body(Map.of("message", e.getMessage()));
+//        }
         return ResponseEntity.ok(userService.createUser(newUserDTO));
     }
 

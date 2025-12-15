@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { NewUserData, TipoRegistro } from "../../types/user/NewUserData";
 import { useRegister } from "../../hooks/useRegister/useRegister";
+import { useNavigate } from "react-router-dom";
 
 interface RegisterFormData {
   tipo: TipoRegistro | "";
@@ -84,6 +85,7 @@ export default function Register() {
     repeatPassword: "",
   });
   const { registerFunction, registerError } = useRegister();
+  const navigate =  useNavigate();
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -121,11 +123,9 @@ export default function Register() {
 
     const response = registerFunction(formDataToSend);
     console.log(response);
-    if (registerError) {
-      console.log(registerError);
-    }
     // Aquí puedes procesar el formData o enviarlo al backend
     console.log("Formulario enviado:", formData);
+    navigate("/login");
   };
 
   return (
@@ -279,6 +279,11 @@ export default function Register() {
             className="mt-2 w-full px-4 py-3 rounded-lg bg-[#F7FAF5] border border-[#C8D5B9] 
                        focus:ring-2 focus:ring-green-300 focus:outline-none"
           />
+          <div className="mb-4">
+            <span className="text-red-600 font-medium">
+              {registerError}
+            </span>
+          </div>
         </label>
 
         {/* Contraseña y repetir */}
