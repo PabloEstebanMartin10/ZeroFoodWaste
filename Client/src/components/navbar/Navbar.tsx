@@ -42,9 +42,22 @@ export default function Navbar() {
           onClick={() => navigate("/")}
           className="w-16 h-8 cursor-pointer"
         />
-        <span className="font-bold text-2xl">ZeroFoodWaste</span>
+        { user && <div className="flex">
+          <button
+            onClick={() => navigate(user.role === "Establishment" ? "/comercio" : "/banco")}
+            className="text-sm p-8 text-white font-medium border-r-2 border-white hover:text-green-200 transition"
+          >
+            Donaciones
+          </button>
+          <button
+            onClick={() => navigate(user.role === "Establishment" ? "/perfil-comercio" : "/perfil-banco")}
+            className="text-sm p-8 text-white font-medium border-r-2 border-white hover:text-green-200 transition"
+          >
+            Perfil
+          </button>
+        </div> }
       </div>
-
+      
       {/* <div className="flex items-center justify-center space-x-4">
         <Link
           to="/"
@@ -76,7 +89,7 @@ export default function Navbar() {
               onClick={() => setMenuOpen((open) => !open)}
               className="h-full px-4 flex items-center justify-center text-white hover:bg-green-500 font-semibold shadow-none transition space-x-2"
             >
-              <span>Perfil</span>
+              <span>{entity?.name}</span>
               <span className="w-8 h-8 rounded-full bg-green-800 flex items-center justify-center overflow-hidden">
                 {/* Aquí va la foto de perfil o un icono */}
                 {/*<img
