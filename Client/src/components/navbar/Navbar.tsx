@@ -86,7 +86,7 @@ export default function Navbar() {
 
       <div className="flex text-white items-center justify-end h-full">
         {!user ? (
-          <div className="flex h-full overflow-hidden bg-green-500">
+          <div className="flex h-full overflow-hidden">
             <button
               className="h-full px-6 flex items-center justify-center border-r border-white border-opacity-40 hover:bg-green-500 text-white font-semibold shadow-none transition"
               onClick={() => navigate("/login")}
