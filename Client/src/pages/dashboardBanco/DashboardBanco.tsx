@@ -1,5 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../context/AuthContext";
+// 1. Importamos el hook useNavigate
+import { useNavigate } from "react-router-dom";
 
 interface Donation {
   id: number;
@@ -10,6 +12,8 @@ interface Donation {
   status: "Disponible" | "Reservado" | "Completado";
   description?: string;
   establishment?: string;
+  // 2. Añadimos el ID del establecimiento (asegúrate que el backend lo envíe)
+  establishmentId?: number;
   assignmentId?: number;
 }
 
@@ -28,6 +32,9 @@ const mapStatusFromBackend: Record<string, string> = {
 const BASE_URL = "http://localhost:8080";
 
 export default function DashboardBanco() {
+  // 3. Inicializamos el hook navigate AQUÍ
+  const navigate = useNavigate();
+
   const [donations, setDonations] = useState<Donation[]>([]);
   const [selectedDonation, setSelectedDonation] = useState<Donation | null>(
     null
@@ -165,7 +172,6 @@ export default function DashboardBanco() {
       setSelectedDonation(null); // Cerrar Modal
       setShowSuccessMessage(true); // Mostrar Cartel
       setTimeout(() => setShowSuccessMessage(false), 1000); // Ocultar a los 3s
-
     } catch (err) {
       console.error("Error al cambiar estado de la donación:", err);
       alert(
@@ -236,9 +242,7 @@ export default function DashboardBanco() {
     <div className="min-h-screen bg-amber-50 p-10 relative">
       <header className="mb-10">
         <h1 className="text-4xl font-bold text-gray-800">{entity?.name}</h1>
-        <p className="text-gray-600">
-          Gestiona las donaciones disponibles
-        </p>
+        <p className="text-gray-600">Gestiona las donaciones disponibles</p>
       </header>
 
       {/* TABS */}
@@ -421,10 +425,25 @@ export default function DashboardBanco() {
                 <p>
                   <strong>Estado:</strong> {selectedDonation.status}
                 </p>
-                <p>
+
+                {/* 4. AQUÍ USAMOS LA REDIRECCIÓN CON NAVIGATE */}
+                <div className="col-span-2 sm:col-span-1">
                   <strong>Comercio:</strong>{" "}
-                  {selectedDonation.establishment || "—"}
-                </p>
+                  {selectedDonation.establishmentId ? (
+                    <button
+                      onClick={() =>
+                        navigate(
+                          `/visita-comercio/${selectedDonation.establishmentId}`
+                        )
+                      }
+                      className="text-green-600 hover:text-green-800 hover:underline font-medium ml-1"
+                    >
+                      {selectedDonation.establishment || "Ver Perfil"}
+                    </button>
+                  ) : (
+                    <span>{selectedDonation.establishment || "—"}</span>
+                  )}
+                </div>
               </div>
 
               <button
@@ -453,7 +472,6 @@ export default function DashboardBanco() {
           {/* El Cartel */}
           <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-sm p-4 animate-fade-in-up">
             <div className="bg-white rounded-2xl shadow-2xl p-8 flex flex-col items-center text-center relative overflow-hidden border border-green-50">
-              
               {/* Decoración de fondo sutil */}
               <div className="absolute -top-12 -right-12 w-24 h-24 bg-green-100 rounded-full opacity-50 blur-2xl"></div>
 

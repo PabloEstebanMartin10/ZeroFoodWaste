@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+// 1. Importamos useParams para leer la ID de la URL
+import { useParams } from "react-router-dom";
 
 interface Horario {
   inicio: string;
@@ -100,6 +102,10 @@ const serializeHorariosToOpeningHours = (horarios: Horarios): string => {
 };
 
 const RestaurantProfile: React.FC = () => {
+  // 2. DETECTAR SI ES VISITANTE
+  const { id } = useParams<{ id: string }>();
+  const isVisitor = !!id; // Si hay ID en la URL, es visitante
+
   const [activeTab, setActiveTab] = useState<Tab>("general");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -219,27 +225,29 @@ const RestaurantProfile: React.FC = () => {
       setLoading(true);
       setError(null);
       try {
-        const storedUser = localStorage.getItem("user");
-
         let currentId = 0;
 
-        if (storedUser) {
-          const userObj = JSON.parse(storedUser);
-          // Dependiendo de cómo guardes el objeto usuario, el ID puede estar en:
-          // userObj.id, userObj.establishmentId, o userObj.userId
-          currentId = userObj.establishmentId || userObj.id;
+        // 3. LÓGICA DE SELECCIÓN DE ID
+        if (isVisitor && id) {
+          // Caso Visitante: Usar ID de la URL
+          currentId = Number(id);
+        } else {
+          // Caso Dueño: Usar localStorage
+          const storedUser = localStorage.getItem("user");
+          if (storedUser) {
+            const userObj = JSON.parse(storedUser);
+            // Dependiendo de cómo guardes el objeto usuario
+            currentId = userObj.establishmentId || userObj.id;
+          }
         }
 
         if (!currentId) {
-          throw new Error(
-            "No se encontró sesión de usuario. Por favor inicie sesión."
-          );
+          throw new Error("No se encontró información del establecimiento.");
         }
 
         // Actualizamos el estado con el ID correcto
         setProfileData((prev) => ({ ...prev, establishmentId: currentId }));
 
-        // 2. Usar ese ID para las peticiones
         await fetchEstablishment(currentId);
         await fetchDonations(currentId);
       } catch (err: any) {
@@ -250,13 +258,16 @@ const RestaurantProfile: React.FC = () => {
     };
 
     loadData();
-  }, []);
+  }, [id, isVisitor]); // Dependencias agregadas
 
   const updateHorario = (
     dia: keyof Horarios,
     campo: "inicio" | "cierre",
     valor: string
   ) => {
+    // Si es visitante, no permitimos editar el estado local
+    if (isVisitor) return;
+
     setProfileData((prev) => ({
       ...prev,
       horarios: {
@@ -270,6 +281,9 @@ const RestaurantProfile: React.FC = () => {
   };
 
   const handleSaveChanges = async () => {
+    // Si es visitante, bloqueamos guardado
+    if (isVisitor) return;
+
     setSaving(true);
     setError(null);
     try {
@@ -323,9 +337,13 @@ const RestaurantProfile: React.FC = () => {
       {/* Header */}
       <div className="bg-amber-50 border-b border-gray-200">
         <div className="max-w-6xl mx-auto px-6 py-6">
-          <h1 className="text-3xl font-bold text-gray-800">Mi Cuenta</h1>
+          <h1 className="text-3xl font-bold text-gray-800">
+            {isVisitor ? "Perfil del Establecimiento" : "Mi Cuenta"}
+          </h1>
           <p className="text-gray-600 mt-1">
-            Gestiona tu perfil y revisa el impacto de tus donaciones
+            {isVisitor
+              ? "Detalles de contacto y horarios del donante"
+              : "Gestiona tu perfil y revisa el impacto de tus donaciones"}
           </p>
         </div>
       </div>
@@ -350,68 +368,79 @@ const RestaurantProfile: React.FC = () => {
                 </p>
               </div>
             </div>
-            <div className="flex gap-2">
-              <button
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                title="Cerrar sesión"
-              >
-                <svg
-                  className="w-5 h-5 text-gray-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+
+            {/* Solo mostramos Logout si NO es visitante */}
+            {!isVisitor && (
+              <div className="flex gap-2">
+                <button
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                  title="Cerrar sesión"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                  />
-                </svg>
+                  <svg
+                    className="w-5 h-5 text-gray-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                    />
+                  </svg>
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* 4. TABS: Solo se muestran si NO es visitante */}
+        {!isVisitor && (
+          <div className="bg-white rounded-t-xl shadow-sm border border-gray-200 border-b-0">
+            <div className="flex">
+              <button
+                onClick={() => setActiveTab("general")}
+                className={`px-6 py-3 font-medium transition-colors ${
+                  activeTab === "general"
+                    ? "text-green-700 border-b-2 border-green-700"
+                    : "text-gray-600 hover:text-gray-800"
+                }`}
+              >
+                Vista General
+              </button>
+              <button
+                onClick={() => setActiveTab("historial")}
+                className={`px-6 py-3 font-medium transition-colors ${
+                  activeTab === "historial"
+                    ? "text-green-700 border-b-2 border-green-700"
+                    : "text-gray-600 hover:text-gray-800"
+                }`}
+              >
+                Historial
+              </button>
+              <button
+                onClick={() => setActiveTab("config")}
+                className={`px-6 py-3 font-medium transition-colors ${
+                  activeTab === "config"
+                    ? "text-green-700 border-b-2 border-green-700"
+                    : "text-gray-600 hover:text-gray-800"
+                }`}
+              >
+                Configuración
               </button>
             </div>
           </div>
-        </div>
+        )}
 
-        {/* Tabs */}
-        <div className="bg-white rounded-t-xl shadow-sm border border-gray-200 border-b-0">
-          <div className="flex">
-            <button
-              onClick={() => setActiveTab("general")}
-              className={`px-6 py-3 font-medium transition-colors ${
-                activeTab === "general"
-                  ? "text-green-700 border-b-2 border-green-700"
-                  : "text-gray-600 hover:text-gray-800"
-              }`}
-            >
-              Vista General
-            </button>
-            <button
-              onClick={() => setActiveTab("historial")}
-              className={`px-6 py-3 font-medium transition-colors ${
-                activeTab === "historial"
-                  ? "text-green-700 border-b-2 border-green-700"
-                  : "text-gray-600 hover:text-gray-800"
-              }`}
-            >
-              Historial
-            </button>
-            <button
-              onClick={() => setActiveTab("config")}
-              className={`px-6 py-3 font-medium transition-colors ${
-                activeTab === "config"
-                  ? "text-green-700 border-b-2 border-green-700"
-                  : "text-gray-600 hover:text-gray-800"
-              }`}
-            >
-              Configuración
-            </button>
-          </div>
-        </div>
-
-        {/* Content Area */}
-        <div className="bg-white rounded-b-xl shadow-sm border border-gray-200 p-6">
-          {activeTab === "general" ? (
+        {/* Content Area - Ajustamos bordes según si hay tabs o no */}
+        <div
+          className={`bg-white shadow-sm border border-gray-200 p-6 ${
+            !isVisitor ? "rounded-b-xl" : "rounded-xl"
+          }`}
+        >
+          {/* Si es visitante, siempre muestra la vista general. Si no, depende del tab */}
+          {(isVisitor || activeTab === "general") && (
             <>
               {/* Profile Information */}
               <div className="max-w-6xl mb-8">
@@ -598,7 +627,10 @@ const RestaurantProfile: React.FC = () => {
                 </div>
               </div>
             </>
-          ) : activeTab === "historial" ? (
+          )}
+
+          {/* El resto de pestañas solo se muestran si NO es visitante */}
+          {!isVisitor && activeTab === "historial" ? (
             <>
               <div>
                 <h3 className="text-lg font-semibold text-gray-800 mb-4">
@@ -708,7 +740,7 @@ const RestaurantProfile: React.FC = () => {
                 )}
               </div>
             </>
-          ) : (
+          ) : !isVisitor && activeTab === "config" ? (
             <>
               {/* Configuration Form */}
               <div className="max-w-6xl">
@@ -971,7 +1003,7 @@ const RestaurantProfile: React.FC = () => {
                 </div>
               </div>
             </>
-          )}
+          ) : null}
         </div>
 
         {error && (

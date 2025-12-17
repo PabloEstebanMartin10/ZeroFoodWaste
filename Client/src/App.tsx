@@ -21,17 +21,18 @@ const router = createBrowserRouter([
       { path: "login", element: <Login /> },
       { path: "registro", element: <Register /> },
       {
-        element: <ProtectedRoute allowedRoles={['Establishment']} />,
+        element: <ProtectedRoute allowedRoles={["Establishment"]} />,
         children: [
-          { path: 'comercio', element: <DashboardComercio /> },
-          { path: 'perfil-comercio', element: <ProfileComercio /> },
+          { path: "comercio", element: <DashboardComercio /> },
+          { path: "perfil-comercio", element: <ProfileComercio /> },
         ],
       },
       {
-        element: <ProtectedRoute allowedRoles={['FoodBank']} />,
+        element: <ProtectedRoute allowedRoles={["FoodBank"]} />,
         children: [
-          { path: 'banco', element: <DashboardBanco /> },
-          { path: 'perfil-banco', element: <ProfileBanco /> },
+          { path: "banco", element: <DashboardBanco /> },
+          { path: "perfil-banco", element: <ProfileBanco /> },
+          { path: "visita-comercio/:id", element: <ProfileComercio /> },
         ],
       },
     ],
